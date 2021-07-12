@@ -2,7 +2,6 @@
 pragma solidity ^0.6.8;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20Mintable.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20Pausable.sol";
 import "@openzeppelin/contracts/ownership/Ownable.sol";
@@ -11,11 +10,6 @@ import "@openzeppelin/contracts/GSN/Context.sol";
 
 contract DTrustToken is ERC20, Ownable, Pausable {
     using SafeMath for uint256;
-    using SafeERC20 for IERC20;
-
-    string public constant name;
-    string public constant symbol;
-    uint8 public constant decimals;
 
     mapping(address => uint256) balances;
     mapping(address => mapping(address => uint256)) allowed;
@@ -29,8 +23,12 @@ contract DTrustToken is ERC20, Ownable, Pausable {
 
     uint256 totalSupply_;
 
-    constructor() ERC20("DTrustToken", "DT") public {
-        
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        uint256 _totalSupply
+    ) public ERC20(_name, _symbol) {
+        totalSupply_ = _totalSupply;
     }
 
     function totalSupply() public view returns (uint256) {
@@ -81,5 +79,26 @@ contract DTrustToken is ERC20, Ownable, Pausable {
         balances[buyer] = balances[buyer].add(numTokens);
         Transfer(owner, buyer, numTokens);
         return true;
+    }
+
+    function _mint(address account, uint256 amount) internal virtual {
+        require(account != address(0), "ERC20: mint to the zero address");
+        _beforeTokenTransfer(address(0), account, amount);
+        _totalSupply = _totalSupply.add(amount);
+        _balances[account] = _balances[account].add(amount);
+        emit Transfer(address(0), account, amount);
+    }
+
+    function _burn(address account, uint256 amount) internal virtual {
+        require(account != address(0), "ERC20: burn from the zero address");
+
+        _beforeTokenTransfer(account, address(0), amount);
+
+        _balances[account] = _balances[account].sub(
+            amount,
+            "ERC20: burn amount exceeds balance"
+        );
+        _totalSupply = _totalSupply.sub(amount);
+        emit Transfer(account, address(0), amount);
     }
 }
