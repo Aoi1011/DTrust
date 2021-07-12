@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/ownership/Ownable.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/GSN/Context.sol";
 
-contract DTrustToken is Ownable, Pausable {
+contract DTrustToken is ERC20, Ownable, Pausable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -29,9 +29,8 @@ contract DTrustToken is Ownable, Pausable {
 
     uint256 totalSupply_;
 
-    constructor(uint256 total) public {
-        totalSupply_ = total;
-        balances[msg.sender] = _totalSupply;
+    constructor() ERC20("DTrustToken", "DT") public {
+        
     }
 
     function totalSupply() public view returns (uint256) {
