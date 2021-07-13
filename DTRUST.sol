@@ -137,8 +137,7 @@ contract DTRUST is DTRUSTi, ERC1155 {
     ) public onlyManager() {
         safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
         for (uint256 i = 0; i < _ids.length; i++) {
-            //Developer
-            //Developer
+            tokenPrices[_ids[i]] = _amounts[i];
         }
     }
 
