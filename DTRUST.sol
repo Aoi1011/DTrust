@@ -275,12 +275,14 @@ contract DTRUST is DTRUSTi, ERC1155 {
     uint256 private _AnualFeeTotal;
     uint256 public _Fee = 0.25; // it can be updated later
     address payable public manager;
+    address addressDTrustToken;
     string public name;
     string public symbol;
     string private _uri;
     mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
     mapping(uint256 => uint256) public tokenPrices; // id -> tokenPrice
     mapping(address => mapping(uint256 => uint256)) private _orderBook; // address -> id -> amount
+
 
     event Order(
         address indexed _target,
@@ -473,6 +475,10 @@ contract DTRUST is DTRUSTi, ERC1155 {
             );
     }
 
+    function setAddressDTrustToken(address _addressDTrustToken) public {
+        addressDTrustToken = _addressDTrustToken;
+    }
+
     function updateSemiAnnualFee(uint256 _fee) public onlyManager() {
         _Fee = _fee;
     }
@@ -488,11 +494,13 @@ contract DTRUST is DTRUSTi, ERC1155 {
         uint256 semiAnnualFee = _assetAmount.sub(_Fee);
         // pay annual fee
         if (hasPromoter) {
+            // Prmote token
             mint(_id, semiAnnualFee);
             _AnualFeeTotal.add(semiAnnualFee);
             return true;
         } else {
-            dTrustToken token;
+            // DTrustToken
+            dTrustToken token = dTrustToken(addressDTrustToken);
             token._mint(assetHolder, semiAnnualFee);
             _AnualFeeTotal.add(semiAnnualFee);
             return true;
@@ -500,9 +508,15 @@ contract DTRUST is DTRUSTi, ERC1155 {
         return false;
     }
 
-    function paySemiAnnualFeeForSubsequentYear()
-        public
-        onlyManager()
-        returns (bool)
-    {}
+    function paySemiAnnualFeeForSubsequentYear(
+        address assetHolder,
+        uint256 _assetAmount
+    ) public onlyManager() returns (bool) {
+        require(_assetAmount > 0, "Assset amount should be more than 0");
+        uint256 semiAnnualFee = _assetAmount.sub(_Fee);
+        dTrustToken token;
+        token._mint(assetHolder, semiAnnualFee);
+        _AnualFeeTotal.add(semiAnnualFee);
+        return true;
+    }
 }
