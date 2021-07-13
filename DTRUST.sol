@@ -7,11 +7,9 @@ contract DTRUST {
     DTRUST[] public deployedDTRUSTs;
 
     function createDTRUST(
-
         string memory _contractSymbol,
         string memory _newuri,
         string memory _contractName
-
     ) public {
         DTRUST newDTRUST = new DTRUST(
             _contractName,
@@ -28,49 +26,94 @@ contract DTRUST {
 }
 
 interface DTRUSTi {
-    event Approval(address indexed owner, address indexed spender, uint value);
-    event Transfer(address indexed from, address indexed to, uint value);
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 value
+    );
+    event Transfer(address indexed from, address indexed to, uint256 value);
 
     function name() external pure returns (string memory);
-    function symbol() external pure returns (string memory);
-    function decimals() external pure returns (uint8);
-    function totalSupply() external view returns (uint);
-    function balanceOf(address owner) external view returns (uint);
-    function allowance(address owner, address spender) external view returns (uint);
 
-    function approve(address spender, uint value) external returns (bool);
-    function transfer(address to, uint value) external returns (bool);
-    function transferFrom(address from, address to, uint value) external returns (bool);
+    function symbol() external pure returns (string memory);
+
+    function decimals() external pure returns (uint8);
+
+    function totalSupply() external view returns (uint256);
+
+    function balanceOf(address owner) external view returns (uint256);
+
+    function allowance(address owner, address spender)
+        external
+        view
+        returns (uint256);
+
+    function approve(address spender, uint256 value) external returns (bool);
+
+    function transfer(address to, uint256 value) external returns (bool);
+
+    function transferFrom(
+        address from,
+        address to,
+        uint256 value
+    ) external returns (bool);
 
     function DOMAIN_SEPARATOR() external view returns (bytes32);
+
     function PERMIT_TYPEHASH() external pure returns (bytes32);
-    function nonces(address owner) external view returns (uint);
 
-    function permit(address owner, address spender, uint value, uint deadline, uint8 v, bytes32 r, bytes32 s) external;
+    function nonces(address owner) external view returns (uint256);
 
-    event Mint(address indexed sender, uint amount0, uint amount1);
-    event Burn(address indexed sender, uint amount0, uint amount1, address indexed to);
+    function permit(
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external;
+
+    event Mint(address indexed sender, uint256 amount0, uint256 amount1);
+    event Burn(
+        address indexed sender,
+        uint256 amount0,
+        uint256 amount1,
+        address indexed to
+    );
     event Swap(
         address indexed sender,
-        uint amount0In,
-        uint amount1In,
-        uint amount0Out,
-        uint amount1Out,
+        uint256 amount0In,
+        uint256 amount1In,
+        uint256 amount0Out,
+        uint256 amount1Out,
         address indexed to
     );
 
+    function burn(address to)
+        external
+        returns (uint256 amount0, uint256 amount1);
 
-    function burn(address to) external returns (uint amount0, uint amount1);
-    function swap(uint amount0Out, uint amount1Out, address to, bytes calldata data) external;
+    function swap(
+        uint256 amount0Out,
+        uint256 amount1Out,
+        address to,
+        bytes calldata data
+    ) external;
+
     function skim(address to) external;
+
     function sync() external;
 
     function initialize(address, address) external;
 }
 
 contract DTRUST is DTRUSTi, ERC1155 {
-
-    enum ContractRights{ TERMINATE, SWAP, POSTPONE }
+    enum ContractRights {
+        TERMINATE,
+        SWAP,
+        POSTPONE
+    }
 
     uint256 private _AnualFeeTotal;
     uint256 public _Fee = 1; // it can be updated later
@@ -78,9 +121,9 @@ contract DTRUST is DTRUSTi, ERC1155 {
     string public name;
     string public symbol;
     string private _uri;
-    mapping(uint256 => uint256) public tokenSupply;
-    mapping(uint256 => uint256) public tokenPrices;
-    mapping(address => mapping(uint256 => uint256)) private _orderBook;
+    mapping(uint256 => uint256) public tokenSupply;  // id -> tokensupply
+    mapping(uint256 => uint256) public tokenPrices;  // id -> tokenPrice
+    mapping(address => mapping(uint256 => uint256)) private _orderBook; // address -> id -> amount 
 
     event Order(
         address indexed _target,
@@ -94,10 +137,13 @@ contract DTRUST is DTRUSTi, ERC1155 {
         uint256[] indexed _amounts
     );
 
-
-
     modifier onlyManager() {
-        require(msg.sender == manager || msg.sender == settlor || msg.sender==trustee, "Error: The caller is not any of the defined managers (settlor and trustee)!");
+        require(
+            msg.sender == manager ||
+                msg.sender == settlor ||
+                msg.sender == trustee,
+            "Error: The caller is not any of the defined managers (settlor and trustee)!"
+        );
         _;
     }
 
@@ -116,8 +162,6 @@ contract DTRUST is DTRUSTi, ERC1155 {
         tokenPrices[_id] = _price;
     }
 
-
-
     function setBeneficiaries(
         address payable _beneficiary,
         uint256[] memory _ids,
@@ -125,10 +169,9 @@ contract DTRUST is DTRUSTi, ERC1155 {
     ) public onlyManager() {
         safeBatchTransferFrom(msg.sender, _beneficiary, _ids, _amounts, "");
         for (uint256 i = 0; i < _ids.length; i++) {
-          tokenPrices[_ids[i]] = _amounts[i];
+            tokenPrices[_ids[i]] = _amounts[i];
         }
     }
-
 
     function setPayouts(
         address payable _target,
@@ -141,8 +184,6 @@ contract DTRUST is DTRUSTi, ERC1155 {
         }
     }
 
-
-
     function setRights(
         address payable _target,
         uint256[] memory _ids,
@@ -150,16 +191,9 @@ contract DTRUST is DTRUSTi, ERC1155 {
     ) public onlyManager() {
         safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
         for (uint256 i = 0; i < _ids.length; i++) {
-            //Developer
-            //Developer
+            
         }
     }
-
-
-
-
-
-
 
     function mint(uint256 _id, uint256 _amount) public onlyManager() {
         _mint(manager, _id, _amount, "");
@@ -223,9 +257,6 @@ contract DTRUST is DTRUSTi, ERC1155 {
         emit OrderBatch(msg.sender, _ids, _amounts);
     }
 
-
-
-
     function fillOrderBatch(
         address payable _target,
         uint256[] memory _ids,
@@ -238,10 +269,6 @@ contract DTRUST is DTRUSTi, ERC1155 {
         }
     }
 
-
-
-
-
     function getURI(string memory uri, uint256 _id)
         public
         pure
@@ -250,15 +277,9 @@ contract DTRUST is DTRUSTi, ERC1155 {
         return toFullURI(uri, _id);
     }
 
-
-
-
     function setURI(string memory _newURI) public onlyManager() {
         _setURI(_newURI);
     }
-
-
-
 
     function uint2str(uint256 _i)
         private
@@ -286,9 +307,6 @@ contract DTRUST is DTRUSTi, ERC1155 {
         return string(bstr);
     }
 
-
-
-
     function toFullURI(string memory uri, uint256 _id)
         internal
         pure
@@ -298,5 +316,13 @@ contract DTRUST is DTRUSTi, ERC1155 {
             string(
                 abi.encodePacked(uri, "/", uint2str(_id & PACK_INDEX), ".json")
             );
+    }
+
+    function updateSemiAnnualFee(uint256 _fee) public onlyManager() {
+        _Fee = _fee;
+    }
+
+    function paySemiAnnualFee() public onlyManager() returns() {
+        for ()
     }
 }
