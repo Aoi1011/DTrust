@@ -2,6 +2,7 @@
 pragma solidity ^0.6.8;
 import "@nomiclabs/buidler/console.sol"; // advance debugging
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol"; // --> safe ERC1155 internals
+import "./dTrustToken.sol";
 
 contract DTRUST {
     DTRUST[] public deployedDTRUSTs;
@@ -116,7 +117,7 @@ contract DTRUST is DTRUSTi, ERC1155 {
     }
 
     uint256 private _AnualFeeTotal;
-    uint256 public _Fee = 1; // it can be updated later
+    uint256 public _Fee = 0.25; // it can be updated later
     address payable public manager;
     string public name;
     string public symbol;
@@ -322,7 +323,11 @@ contract DTRUST is DTRUSTi, ERC1155 {
         _Fee = _fee;
     }
 
-    function paySemiAnnualFee() public onlyManager() returns() {
-        for ()
+    function paySemiAnnualFeeForFirstYear(uint256[] memory _ids, ) public onlyManager() returns(bool) {
+        
+    }
+
+    function paySemiAnnualFeeForSubsequentYear() public onlyManager() returns(bool) {
+
     }
 }
