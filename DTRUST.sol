@@ -122,9 +122,9 @@ contract DTRUST is DTRUSTi, ERC1155 {
     string public name;
     string public symbol;
     string private _uri;
-    mapping(uint256 => uint256) public tokenSupply;  // id -> tokensupply
-    mapping(uint256 => uint256) public tokenPrices;  // id -> tokenPrice
-    mapping(address => mapping(uint256 => uint256)) private _orderBook; // address -> id -> amount 
+    mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
+    mapping(uint256 => uint256) public tokenPrices; // id -> tokenPrice
+    mapping(address => mapping(uint256 => uint256)) private _orderBook; // address -> id -> amount
 
     event Order(
         address indexed _target,
@@ -191,9 +191,7 @@ contract DTRUST is DTRUSTi, ERC1155 {
         string[] memory _amounts
     ) public onlyManager() {
         safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
-        for (uint256 i = 0; i < _ids.length; i++) {
-            
-        }
+        for (uint256 i = 0; i < _ids.length; i++) {}
     }
 
     function mint(uint256 _id, uint256 _amount) public onlyManager() {
@@ -323,11 +321,31 @@ contract DTRUST is DTRUSTi, ERC1155 {
         _Fee = _fee;
     }
 
-    function paySemiAnnualFeeForFirstYear(uint256[] memory _ids, ) public onlyManager() returns(bool) {
-        
+    function paySemiAnnualFeeForFirstYear(
+        address assetHolder,
+        uint256 _assetAmount,
+        bool hasPromoter,
+        uint256 _id
+    ) public onlyManager() returns (bool) {
+        require(_assetAmount > 0, "Assset amount should be more than 0");
+
+        uint256 semiAnnualFee = _assetAmount.sub(_Fee);
+        // pay annual fee
+        if (hasPromoter) {
+            mint(_id, semiAnnualFee);
+            _AnualFeeTotal.add(semiAnnualFee);
+            return true;
+        } else {
+            dTrustToken token;
+            token._mint(assetHolder, semiAnnualFee);
+            return true;
+        }
+        return false;
     }
 
-    function paySemiAnnualFeeForSubsequentYear() public onlyManager() returns(bool) {
-
-    }
+    function paySemiAnnualFeeForSubsequentYear()
+        public
+        onlyManager()
+        returns (bool)
+    {}
 }
