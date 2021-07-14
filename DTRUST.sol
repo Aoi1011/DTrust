@@ -2,162 +2,8 @@
 pragma solidity ^0.6.8;
 import "@nomiclabs/buidler/console.sol"; // advance debugging
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol"; // --> safe ERC1155 internals
-import "./dTrustToken.sol";
 
-library SafeMath {
-    /**
-     * @dev Returns the addition of two unsigned integers, reverting on
-     * overflow.
-     *
-     * Counterpart to Solidity's `+` operator.
-     *
-     * Requirements:
-     *
-     * - Addition cannot overflow.
-     */
-    function add(uint256 a, uint256 b) internal pure returns (uint256) {
-        uint256 c = a + b;
-        require(c >= a, "SafeMath: addition overflow");
-
-        return c;
-    }
-
-    /**
-     * @dev Returns the subtraction of two unsigned integers, reverting on
-     * overflow (when the result is negative).
-     *
-     * Counterpart to Solidity's `-` operator.
-     *
-     * Requirements:
-     *
-     * - Subtraction cannot overflow.
-     */
-    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-        return sub(a, b, "SafeMath: subtraction overflow");
-    }
-
-    /**
-     * @dev Returns the subtraction of two unsigned integers, reverting with custom message on
-     * overflow (when the result is negative).
-     *
-     * Counterpart to Solidity's `-` operator.
-     *
-     * Requirements:
-     *
-     * - Subtraction cannot overflow.
-     */
-    function sub(
-        uint256 a,
-        uint256 b,
-        string memory errorMessage
-    ) internal pure returns (uint256) {
-        require(b <= a, errorMessage);
-        uint256 c = a - b;
-
-        return c;
-    }
-
-    /**
-     * @dev Returns the multiplication of two unsigned integers, reverting on
-     * overflow.
-     *
-     * Counterpart to Solidity's `*` operator.
-     *
-     * Requirements:
-     *
-     * - Multiplication cannot overflow.
-     */
-    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
-        // Gas optimization: this is cheaper than requiring 'a' not being zero, but the
-        // benefit is lost if 'b' is also tested.
-        // See: https://github.com/OpenZeppelin/openzeppelin-contracts/pull/522
-        if (a == 0) {
-            return 0;
-        }
-
-        uint256 c = a * b;
-        require(c / a == b, "SafeMath: multiplication overflow");
-
-        return c;
-    }
-
-    /**
-     * @dev Returns the integer division of two unsigned integers. Reverts on
-     * division by zero. The result is rounded towards zero.
-     *
-     * Counterpart to Solidity's `/` operator. Note: this function uses a
-     * `revert` opcode (which leaves remaining gas untouched) while Solidity
-     * uses an invalid opcode to revert (consuming all remaining gas).
-     *
-     * Requirements:
-     *
-     * - The divisor cannot be zero.
-     */
-    function div(uint256 a, uint256 b) internal pure returns (uint256) {
-        return div(a, b, "SafeMath: division by zero");
-    }
-
-    /**
-     * @dev Returns the integer division of two unsigned integers. Reverts with custom message on
-     * division by zero. The result is rounded towards zero.
-     *
-     * Counterpart to Solidity's `/` operator. Note: this function uses a
-     * `revert` opcode (which leaves remaining gas untouched) while Solidity
-     * uses an invalid opcode to revert (consuming all remaining gas).
-     *
-     * Requirements:
-     *
-     * - The divisor cannot be zero.
-     */
-    function div(
-        uint256 a,
-        uint256 b,
-        string memory errorMessage
-    ) internal pure returns (uint256) {
-        require(b > 0, errorMessage);
-        uint256 c = a / b;
-        // assert(a == b * c + a % b); // There is no case in which this doesn't hold
-
-        return c;
-    }
-
-    /**
-     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
-     * Reverts when dividing by zero.
-     *
-     * Counterpart to Solidity's `%` operator. This function uses a `revert`
-     * opcode (which leaves remaining gas untouched) while Solidity uses an
-     * invalid opcode to revert (consuming all remaining gas).
-     *
-     * Requirements:
-     *
-     * - The divisor cannot be zero.
-     */
-    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
-        return mod(a, b, "SafeMath: modulo by zero");
-    }
-
-    /**
-     * @dev Returns the remainder of dividing two unsigned integers. (unsigned integer modulo),
-     * Reverts with custom message when dividing by zero.
-     *
-     * Counterpart to Solidity's `%` operator. This function uses a `revert`
-     * opcode (which leaves remaining gas untouched) while Solidity uses an
-     * invalid opcode to revert (consuming all remaining gas).
-     *
-     * Requirements:
-     *
-     * - The divisor cannot be zero.
-     */
-    function mod(
-        uint256 a,
-        uint256 b,
-        string memory errorMessage
-    ) internal pure returns (uint256) {
-        require(b != 0, errorMessage);
-        return a % b;
-    }
-}
+import "./SafeMath.sol";
 
 contract DTRUST {
     DTRUST[] public deployedDTRUSTs;
@@ -171,7 +17,7 @@ contract DTRUST {
             _contractName,
             _contractSymbol,
             _newuri,
-            msg.sender
+            msg.sender, 
         );
         deployedDTRUSTs.push(newDTRUST);
     }
@@ -179,6 +25,7 @@ contract DTRUST {
     function getDeployedDTRUSTs() public view returns (DTRUST[] memory) {
         return deployedDTRUSTs;
     }
+
 }
 
 interface DTRUSTi {
@@ -272,17 +119,22 @@ contract DTRUST is DTRUSTi, ERC1155 {
         POSTPONE
     }
 
+    enum TokenType {
+        DToken,
+        PrToken
+    }
+
     uint256 private _AnualFeeTotal;
-    uint256 public _Fee = 0.25; // it can be updated later
+    uint256 public _Fee = 0.25; // it can be updated later  percent
+    uint256 pulic deployedDate;
     address payable public manager;
-    address addressDTrustToken;
     string public name;
     string public symbol;
     string private _uri;
+    mapping(uint256 => TokenType) public tokenType; // id -> tokenname
     mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
     mapping(uint256 => uint256) public tokenPrices; // id -> tokenPrice
     mapping(address => mapping(uint256 => uint256)) private _orderBook; // address -> id -> amount
-
 
     event Order(
         address indexed _target,
@@ -310,7 +162,7 @@ contract DTRUST is DTRUSTi, ERC1155 {
         string memory _contractName,
         string memory _contractSymbol,
         string memory _newURI,
-        address payable _deployerAddress
+        address payable _deployerAddress,
     ) public ERC1155(_newURI) {
         manager = _deployerAddress;
         name = _contractName;
@@ -352,18 +204,25 @@ contract DTRUST is DTRUSTi, ERC1155 {
         for (uint256 i = 0; i < _ids.length; i++) {}
     }
 
-    function mint(uint256 _id, uint256 _amount) public onlyManager() {
+    function mint(
+        uint256 _id,
+        uint256 _amount,
+        TokenType _tokenType
+    ) public onlyManager() {
         _mint(manager, _id, _amount, "");
         tokenSupply[_id] = _amount;
+        tokenType[_id] = _tokenType;
     }
 
-    function mintBatch(uint256[] memory _ids, uint256[] memory _amounts)
-        public
-        onlyManager()
-    {
+    function mintBatch(
+        uint256[] memory _ids,
+        uint256[] memory _amounts,
+        TokenType[] memory _tokenTypes
+    ) public onlyManager() {
         _mintBatch(manager, _ids, _amounts, "");
         for (uint256 i = 0; i < _ids.length; i++) {
             tokenSupply[_ids[i]] = _amounts[i];
+            tokenType[_ids[i]] = _tokenTypes[i];
         }
     }
 
@@ -475,37 +334,22 @@ contract DTRUST is DTRUSTi, ERC1155 {
             );
     }
 
-    function setAddressDTrustToken(address _addressDTrustToken) public {
-        addressDTrustToken = _addressDTrustToken;
-    }
-
     function updateSemiAnnualFee(uint256 _fee) public onlyManager() {
         _Fee = _fee;
     }
 
-    function paySemiAnnualFeeForFirstYear(
-        address assetHolder,
-        uint256 _assetAmount,
-        bool hasPromoter,
-        uint256 _id
-    ) public onlyManager() returns (bool) {
-        require(_assetAmount > 0, "Assset amount should be more than 0");
+    function paySemiAnnualFeeForFirstTwoYear() public {
 
-        uint256 semiAnnualFee = _assetAmount.sub(_Fee);
+        uint256 semiAnnualFee = _assetAmount.sub(_Fee.div(100));
+
         // pay annual fee
-        if (hasPromoter) {
-            // Prmote token
-            mint(_id, semiAnnualFee);
-            _AnualFeeTotal.add(semiAnnualFee);
-            return true;
-        } else {
-            // DTrustToken
-            dTrustToken token = dTrustToken(addressDTrustToken);
-            token._mint(assetHolder, semiAnnualFee);
-            _AnualFeeTotal.add(semiAnnualFee);
-            return true;
+        if (_hasPromoter) {
+            if (tokenType[_id] == TokenType.PrToken) {
+                tokenSupply[_id].add(semiAnnualFee);
+            }
         }
-        return false;
+
+        _AnualFeeTotal.add(semiAnnualFee);
     }
 
     function paySemiAnnualFeeForSubsequentYear(
