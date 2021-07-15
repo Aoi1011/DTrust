@@ -337,7 +337,7 @@ contract DTRUST is DTRUSTi, ERC1155 {
         _Fee = _fee;
     }
 
-    function paySemiAnnualFeeForFirstTwoYear(uint256 _id, address _target, bool _hasPromoter) public {
+    function paySemiAnnualFeeForFirstTwoYear(uint256 _id, address _target, bool _hasPromoter) public onlyManager() {
 
         uint256 semiAnnualFee = _orderBook[_target][_id].mul(_Fee.div(100));
 
@@ -356,12 +356,14 @@ contract DTRUST is DTRUSTi, ERC1155 {
     function paySemiAnnualFeeForSubsequentYear(
         address assetHolder,
         uint256 _assetAmount
-    ) public onlyManager() returns (bool) {
-        require(_assetAmount > 0, "Assset amount should be more than 0");
-        uint256 semiAnnualFee = _assetAmount.sub(_Fee);
-        dTrustToken token;
-        token._mint(assetHolder, semiAnnualFee);
+    ) public onlyManager() {
+        
+        uint256 semiAnnualFee = _orderBook[_target][_id].mul(_Fee.div(100));
+
+        // pay annual fee
+        uint256 dTokenId = tokenType[TokenType.DToken];
+        totalSupply[dTokenId] = semiAnnualFee;
+
         _AnualFeeTotal.add(semiAnnualFee);
-        return true;
     }
 }
