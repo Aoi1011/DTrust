@@ -344,10 +344,10 @@ contract DTRUST is DTRUSTi, ERC1155 {
         // pay annual fee
         if (_hasPromoter) {
             uint256 prTokenId = tokenType[TokenType.PrToken];
-            totalSupply[prTokenId] = semiAnnualFee;
+            totalSupply[prTokenId] = totalSupply[prTokenId].add(semiAnnualFee);
         } else {
             uint256 dTokenId = tokenType[TokenType.DToken];
-            totalSupply[dTokenId] = semiAnnualFee;
+            totalSupply[dTokenId] = totalSupply[dTokenId].add(semiAnnualFee);
         }
 
         _AnualFeeTotal.add(semiAnnualFee);
@@ -362,7 +362,7 @@ contract DTRUST is DTRUSTi, ERC1155 {
 
         // pay annual fee
         uint256 dTokenId = tokenType[TokenType.DToken];
-        totalSupply[dTokenId] = semiAnnualFee;
+        totalSupply[dTokenId] = totalSupply[dTokenId].add(semiAnnualFee);
 
         _AnualFeeTotal.add(semiAnnualFee);
     }
