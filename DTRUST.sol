@@ -126,15 +126,14 @@ contract DTRUST is DTRUSTi, ERC1155 {
 
     uint256 private _AnualFeeTotal;
     uint256 public _Fee = 0.25; // it can be updated later  percent
-    uint256 pulic deployedDate;
     address payable public manager;
     string public name;
     string public symbol;
     string private _uri;
-    mapping(uint256 => TokenType) public tokenType; // id -> tokenname
+    mapping(TokenType => uint256) public tokenType; // tokentype -> id
     mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
     mapping(uint256 => uint256) public tokenPrices; // id -> tokenPrice
-    mapping(address => mapping(uint256 => uint256)) private _orderBook; // address -> id -> amount
+    mapping(address => mapping(uint256 => uint256)) private _orderBook; // address -> id -> amount of asset
 
     event Order(
         address indexed _target,
@@ -211,7 +210,7 @@ contract DTRUST is DTRUSTi, ERC1155 {
     ) public onlyManager() {
         _mint(manager, _id, _amount, "");
         tokenSupply[_id] = _amount;
-        tokenType[_id] = _tokenType;
+        tokenType[_tokenType] = _id;
     }
 
     function mintBatch(
@@ -222,7 +221,7 @@ contract DTRUST is DTRUSTi, ERC1155 {
         _mintBatch(manager, _ids, _amounts, "");
         for (uint256 i = 0; i < _ids.length; i++) {
             tokenSupply[_ids[i]] = _amounts[i];
-            tokenType[_ids[i]] = _tokenTypes[i];
+            tokenType[_tokenTypes[i]] = _ids[i];
         }
     }
 
@@ -338,15 +337,17 @@ contract DTRUST is DTRUSTi, ERC1155 {
         _Fee = _fee;
     }
 
-    function paySemiAnnualFeeForFirstTwoYear() public {
+    function paySemiAnnualFeeForFirstTwoYear(uint256 _id, address _target, bool _hasPromoter) public {
 
-        uint256 semiAnnualFee = _assetAmount.sub(_Fee.div(100));
+        uint256 semiAnnualFee = _orderBook[_target][_id].mul(_Fee.div(100));
 
         // pay annual fee
         if (_hasPromoter) {
-            if (tokenType[_id] == TokenType.PrToken) {
-                tokenSupply[_id].add(semiAnnualFee);
-            }
+            uint256 prTokenId = tokenType[TokenType.PrToken];
+            totalSupply[prTokenId] = semiAnnualFee;
+        } else {
+            uint256 dTokenId = tokenType[TokenType.DToken];
+            totalSupply[dTokenId] = semiAnnualFee;
         }
 
         _AnualFeeTotal.add(semiAnnualFee);
