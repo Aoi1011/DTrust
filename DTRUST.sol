@@ -337,7 +337,7 @@ contract DTRUST is DTRUSTi, ERC1155 {
         _Fee = _fee;
     }
 
-    function paySemiAnnualFeeForFirstTwoYear(uint256 _id, address _target, bool _hasPromoter) public onlyManager() {Í
+    function paySemiAnnualFeeForFirstTwoYear(uint256 _id, address _target, bool _hasPromoter) public onlyManager() {
 
         uint256 semiAnnualFee = _orderBook[_target][_id].mul(_Fee.div(100));
 
