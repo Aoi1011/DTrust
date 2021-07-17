@@ -366,4 +366,16 @@ contract DTRUST is DTRUSTi, ERC1155 {
 
         _AnualFeeTotal.add(semiAnnualFee);
     }
+
+    function generateControlKeys() public {
+
+    }
+
+    function usableControlKeys() public {
+
+    }
+
+    function burnableControlKeys() public {
+
+    }
 }
