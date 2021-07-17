@@ -124,12 +124,19 @@ contract DTRUST is DTRUSTi, ERC1155 {
         PrToken
     }
 
+    struct ControlKey {
+        string privateKey;
+        bool usable;
+        bool burnable;
+    }
+
     uint256 private _AnualFeeTotal;
     uint256 public _Fee = 0.25; // it can be updated later  percent
     address payable public manager;
     string public name;
     string public symbol;
     string private _uri;
+    ControlKey[] private controlKeys;
     mapping(TokenType => uint256) public tokenType; // tokentype -> id
     mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
     mapping(uint256 => uint256) public tokenPrices; // id -> tokenPrice
@@ -367,15 +374,36 @@ contract DTRUST is DTRUSTi, ERC1155 {
         _AnualFeeTotal.add(semiAnnualFee);
     }
 
-    function generateControlKeys() public {
-
+    function generateControlKeys(string memory _privateKey, address[] memory _trustees, address[] memory _settlors) public {
+        ControlKey memory newControlKey = ControlKey(_privateKey, _trustees,  _settlors, false, false);
+        controlKeys.push(newControlKey);
+    }
+    
+    function getControlKey(string memory _privateKey) public view returns (ControlKey memory existControlKey) {
+        for (uint i = 0; i < controlKeys.length; i++) {
+            if (keccak256(abi.encodePacked(controlKeys[i].privateKey)) == keccak256(abi.encodePacked(_privateKey))) {
+                return controlKeys[i];
+            }
+        }
     }
 
-    function usableControlKeys() public {
-
+    function usableControlKeys(string memory _privateKey) public {
+        ControlKey memory udateControlKey;
+        for (uint i = 0; i < controlKeys.length; i++) {
+            if (keccak256(abi.encodePacked(controlKeys[i].privateKey)) == keccak256(abi.encodePacked(_privateKey))) {
+                udateControlKey = ControlKey(controlKeys[i].privateKey,controlKeys[i].trustees,controlKeys[i].settlors, true, controlKeys[i].burnable);
+                controlKeys[i] = udateControlKey;
+            }
+        }
     }
 
-    function burnableControlKeys() public {
-
+    function burnableControlKeys(string memory _privateKey) public {
+        ControlKey memory udateControlKey;
+        for (uint i = 0; i < controlKeys.length; i++) {
+            if (keccak256(abi.encodePacked(controlKeys[i].privateKey)) == keccak256(abi.encodePacked(_privateKey))) {
+                udateControlKey = ControlKey(controlKeys[i].privateKey,controlKeys[i].trustees,controlKeys[i].settlors, controlKeys[i].usable, true);
+                controlKeys[i] = udateControlKey;
+            }
+        }
     }
 }
