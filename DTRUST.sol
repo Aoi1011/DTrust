@@ -381,6 +381,8 @@ contract DTRUST is DTRUSTi, ERC1155 {
     }
     
     function getControlKey(uint256 _controlKeyId) public view returns (ControlKey memory existControlKey) {
+        require(_controlKeyId >= 0, "Control Key must be more than 0");
+        require(_controlKeyId <= numControlKey, "ControlKey must be less than total");
         return controlKeys[_controlKeyId];
     }
 
