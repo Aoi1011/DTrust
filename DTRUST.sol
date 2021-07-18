@@ -126,6 +126,9 @@ contract DTRUST is DTRUSTi, ERC1155 {
 
     struct ControlKey {
         string privateKey;
+        address[] settlors;
+        address[] beneficiaries;
+        address[] trustees;
         bool usable;
         bool burnable;
     }
