@@ -378,9 +378,21 @@ contract DTRUST is DTRUSTi, ERC1155 {
         _AnualFeeTotal.add(semiAnnualFee);
     }
 
-    function generateControlKeys(string memory _privateKey) public returns (uint256 controlKeyId) {
+    function generateControlKeys(
+        string memory _privateKey, 
+        address[] memory _settlors, 
+        address[] memory _beneficiaries, 
+        address[] memory _trustees
+    ) public returns (uint256 controlKeyId) {
         controlKeyId = numControlKey++;
-        controlKeys[controlKeyId] = ControlKey({privateKey: _privateKey, usable: false, burnable: false});
+        controlKeys[controlKeyId] = ControlKey({
+            privateKey: _privateKey, 
+            settlors: _settlors, 
+            beneficiaries: _beneficiaries, 
+            trustees: _trustees,
+            usable: false, 
+            burnable: false
+        });
     }
     
     function getControlKey(uint256 _controlKeyId) public view returns (ControlKey memory existControlKey) {
