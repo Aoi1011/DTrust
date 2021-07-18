@@ -378,7 +378,7 @@ contract DTRUST is DTRUSTi, ERC1155 {
         _AnualFeeTotal.add(semiAnnualFee);
     }
 
-    function generateControlKeys(
+    function generateControlKey(
         string memory _privateKey, 
         address[] memory _settlors, 
         address[] memory _beneficiaries, 
@@ -401,7 +401,7 @@ contract DTRUST is DTRUSTi, ERC1155 {
         return controlKeys[_controlKeyId];
     }
 
-    function handleUsableControlKeys(uint256 _controlKeyId) public {
+    function handleUsableControlKey(uint256 _controlKeyId) public {
         require(_controlKeyId >= 0, "Control Key must be more than 0");
         require(_controlKeyId <= numControlKey, "ControlKey must be less than total");
         ControlKey memory existControlKey = controlKeys[_controlKeyId];
@@ -415,7 +415,7 @@ contract DTRUST is DTRUSTi, ERC1155 {
         });
     }
 
-    function handleBurnableControlKeys(uint256 _controlKeyId) public {
+    function handleBurnableControlKey(uint256 _controlKeyId) public {
         require(_controlKeyId >= 0, "Control Key must be more than 0");
         require(_controlKeyId <= numControlKey, "ControlKey must be less than total");
         ControlKey memory existControlKey = controlKeys[_controlKeyId];
@@ -427,5 +427,15 @@ contract DTRUST is DTRUSTi, ERC1155 {
             usable: existControlKey.usable, 
             burnable: !existControlKey.burnable
         });
+    }
+
+    function destroyControlKey(uint256 _controlKeyId) public {
+        require(_controlKeyId >= 0, "Control Key must be more than 0");
+        require(_controlKeyId <= numControlKey, "ControlKey must be less than total");
+        
+        ControlKey memory existControlKey = controlKeys[_controlKeyId];
+        require(existControlKey.burnable, "Can not destroy.");
+        
+        delete controlKeys[_controlKeyId];
     }
 }
