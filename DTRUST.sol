@@ -387,11 +387,15 @@ contract DTRUST is DTRUSTi, ERC1155 {
     }
 
     function handleUsableControlKeys(uint256 _controlKeyId) public {
+        require(_controlKeyId >= 0, "Control Key must be more than 0");
+        require(_controlKeyId <= numControlKey, "ControlKey must be less than total");
         ControlKey memory existControlKey = controlKeys[_controlKeyId];
         controlKeys[_controlKeyId] = ControlKey({privateKey: existControlKey.privateKey, usable: !existControlKey.usable, burnable: existControlKey.burnable});
     }
 
     function handleBurnableControlKeys(uint256 _controlKeyId) public {
+        require(_controlKeyId >= 0, "Control Key must be more than 0");
+        require(_controlKeyId <= numControlKey, "ControlKey must be less than total");
         ControlKey memory existControlKey = controlKeys[_controlKeyId];
         controlKeys[_controlKeyId] = ControlKey({privateKey: existControlKey.privateKey, usable: existControlKey.usable, burnable: !existControlKey.burnable});
     }
