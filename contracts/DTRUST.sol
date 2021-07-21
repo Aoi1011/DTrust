@@ -17,7 +17,7 @@ contract DTRUST {
             _contractName,
             _contractSymbol,
             _newuri,
-            msg.sender, 
+            msg.sender
         );
         deployedDTRUSTs.push(newDTRUST);
     }
