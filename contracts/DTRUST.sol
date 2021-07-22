@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.8;
-import "@nomiclabs/buidler/console.sol"; // advance debugging
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol"; // --> safe ERC1155 internals
+pragma solidity ^0.8.0;
+// import "@nomiclabs/buidler/console.sol"; // advance debugging
+import "../node_modules/@openzeppelin/contracts/token/ERC1155/ERC1155.sol"; // --> safe ERC1155 internals
 
 import "./SafeMath.sol";
+import "./stringUtils.sol";
 
-contract DTRUST {
+contract DTRUSTs {
     DTRUST[] public deployedDTRUSTs;
 
     function createDTRUST(
@@ -25,7 +26,6 @@ contract DTRUST {
     function getDeployedDTRUSTs() public view returns (DTRUST[] memory) {
         return deployedDTRUSTs;
     }
-
 }
 
 interface DTRUSTi {
@@ -112,16 +112,22 @@ interface DTRUSTi {
 }
 
 contract DTRUST is DTRUSTi, ERC1155 {
+    // Library///////
     using SafeMath for uint256;
+    using StringUtils for string;
+    /////////////////
+    // constants/////
+    uint256 private constant PACK_INDEX = 0x0000000000000000000000000000000000000000000000000000000000007FFF;
+    /////////////////
     enum ContractRights {
         TERMINATE,
         SWAP,
         POSTPONE
     }
 
-    enum TokenType {
-        DToken,
-        PrToken
+    struct TokenType {
+        uint256 tokenId;
+        string tokenName; // PrToekn, DToken
     }
 
     struct ControlKey {
@@ -136,12 +142,15 @@ contract DTRUST is DTRUSTi, ERC1155 {
     uint256 private _AnualFeeTotal;
     uint256 public _Fee = 0.25; // it can be updated later  percent
     uint256 public numControlKey;
+    uint256[] public tokenIds;
     address payable public manager;
-    string public name;
-    string public symbol;
+    address payable public settlor;
+    address payable public trustee;
+    string public override name;
+    string public override symbol;
     string private _uri;
     mapping(uint256 => ControlKey) controlKeys;
-    mapping(TokenType => uint256) public tokenType; // tokentype -> id
+    mapping(uint256 => TokenType) public tokenType; // id -> tokenType
     mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
     mapping(uint256 => uint256) public tokenPrices; // id -> tokenPrice
     mapping(address => mapping(uint256 => uint256)) private _orderBook; // address -> id -> amount of asset
@@ -172,7 +181,7 @@ contract DTRUST is DTRUSTi, ERC1155 {
         string memory _contractName,
         string memory _contractSymbol,
         string memory _newURI,
-        address payable _deployerAddress,
+        address payable _deployerAddress
     ) public ERC1155(_newURI) {
         manager = _deployerAddress;
         name = _contractName;
@@ -216,23 +225,31 @@ contract DTRUST is DTRUSTi, ERC1155 {
 
     function mint(
         uint256 _id,
-        uint256 _amount,
-        TokenType _tokenType
+        string memory _tokenName,
+        uint256 _amount
     ) public onlyManager() {
         _mint(manager, _id, _amount, "");
         tokenSupply[_id] = _amount;
-        tokenType[_tokenType] = _id;
+
+        TokenType memory newToken = tokenType[_id];
+        newToken.tokenId = _id;
+        newToken.tokenName = _tokenName;
+        tokenIds.push(_id);
     }
 
     function mintBatch(
         uint256[] memory _ids,
-        uint256[] memory _amounts,
-        TokenType[] memory _tokenTypes
+        string[] memory _tokenNames,
+        uint256[] memory _amounts
     ) public onlyManager() {
         _mintBatch(manager, _ids, _amounts, "");
         for (uint256 i = 0; i < _ids.length; i++) {
             tokenSupply[_ids[i]] = _amounts[i];
-            tokenType[_tokenTypes[i]] = _ids[i];
+
+            TokenType memory newToken = tokenType[_ids[i]];
+            newToken.tokenId = _ids[i];
+            newToken.tokenName = _tokenNames[i];
+            tokenIds.push(_ids[i]);
         }
     }
 
@@ -348,54 +365,60 @@ contract DTRUST is DTRUSTi, ERC1155 {
         _Fee = _fee;
     }
 
-    function paySemiAnnualFeeForFirstTwoYear(uint256 _id, address _target, bool _hasPromoter) public onlyManager() {
-
+    function paySemiAnnualFeeForFirstTwoYear(
+        uint256 _id,
+        address _target,
+        bool _hasPromoter
+    ) public onlyManager() {
         uint256 semiAnnualFee = _orderBook[_target][_id].mul(_Fee.div(100));
+        TokenType memory t = tokenType[_id];
 
         // pay annual fee
-        if (_hasPromoter) {
-            uint256 prTokenId = tokenType[TokenType.PrToken];
-            totalSupply[prTokenId] = totalSupply[prTokenId].add(semiAnnualFee);
+        if (_hasPromoter && keccak256(abi.encodePacked(t.tokenName)) == keccak256(abi.encodePacked("PrToken"))) {
+            // uint256 prTokenId = tokenType[TokenType.PrToken];
+            tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
         } else {
-            uint256 dTokenId = tokenType[TokenType.DToken];
-            totalSupply[dTokenId] = totalSupply[dTokenId].add(semiAnnualFee);
+            // uint256 dTokenId = tokenType[TokenType.DToken];
+            tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
         }
 
         _AnualFeeTotal.add(semiAnnualFee);
     }
 
     function paySemiAnnualFeeForSubsequentYear(
-        address assetHolder,
-        uint256 _assetAmount
+        uint256 _id,
+        address _target
     ) public onlyManager() {
-        
         uint256 semiAnnualFee = _orderBook[_target][_id].mul(_Fee.div(100));
 
         // pay annual fee
-        uint256 dTokenId = tokenType[TokenType.DToken];
-        totalSupply[dTokenId] = totalSupply[dTokenId].add(semiAnnualFee);
+        tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
 
         _AnualFeeTotal.add(semiAnnualFee);
     }
 
     function generateControlKey(
-        string memory _privateKey, 
-        address[] memory _settlors, 
-        address[] memory _beneficiaries, 
+        string memory _privateKey,
+        address[] memory _settlors,
+        address[] memory _beneficiaries,
         address[] memory _trustees
     ) public returns (uint256 controlKeyId) {
         controlKeyId = numControlKey++;
         controlKeys[controlKeyId] = ControlKey({
-            privateKey: _privateKey, 
-            settlors: _settlors, 
-            beneficiaries: _beneficiaries, 
+            privateKey: _privateKey,
+            settlors: _settlors,
+            beneficiaries: _beneficiaries,
             trustees: _trustees,
-            usable: false, 
+            usable: false,
             burnable: false
         });
     }
-    
-    function getControlKey(uint256 _controlKeyId) public view returns (ControlKey memory existControlKey) {
+
+    function getControlKey(uint256 _controlKeyId)
+        public
+        view
+        returns (ControlKey memory existControlKey)
+    {
         require(_controlKeyId >= 0, "Control Key must be more than 0");
         require(_controlKeyId <= numControlKey, "ControlKey does not exist.");
         return controlKeys[_controlKeyId];
@@ -403,39 +426,48 @@ contract DTRUST is DTRUSTi, ERC1155 {
 
     function handleUsableControlKey(uint256 _controlKeyId) public {
         require(_controlKeyId >= 0, "Control Key must be more than 0");
-        require(_controlKeyId <= numControlKey, "ControlKey must be less than total");
+        require(
+            _controlKeyId <= numControlKey,
+            "ControlKey must be less than total"
+        );
         ControlKey memory existControlKey = controlKeys[_controlKeyId];
         controlKeys[_controlKeyId] = ControlKey({
-            privateKey: existControlKey.privateKey, 
+            privateKey: existControlKey.privateKey,
             settlors: existControlKey.settlors,
-            beneficiaries: existControlKey.beneficiaries, 
+            beneficiaries: existControlKey.beneficiaries,
             trustees: existControlKey.trustees,
-            usable: !existControlKey.usable, 
+            usable: !existControlKey.usable,
             burnable: existControlKey.burnable
         });
     }
 
     function handleBurnableControlKey(uint256 _controlKeyId) public {
         require(_controlKeyId >= 0, "Control Key must be more than 0");
-        require(_controlKeyId <= numControlKey, "ControlKey must be less than total");
+        require(
+            _controlKeyId <= numControlKey,
+            "ControlKey must be less than total"
+        );
         ControlKey memory existControlKey = controlKeys[_controlKeyId];
         controlKeys[_controlKeyId] = ControlKey({
-            privateKey: existControlKey.privateKey, 
+            privateKey: existControlKey.privateKey,
             settlors: existControlKey.settlors,
-            beneficiaries: existControlKey.beneficiaries, 
+            beneficiaries: existControlKey.beneficiaries,
             trustees: existControlKey.trustees,
-            usable: existControlKey.usable, 
+            usable: existControlKey.usable,
             burnable: !existControlKey.burnable
         });
     }
 
     function destroyControlKey(uint256 _controlKeyId) public {
         require(_controlKeyId >= 0, "Control Key must be more than 0");
-        require(_controlKeyId <= numControlKey, "ControlKey must be less than total");
-        
+        require(
+            _controlKeyId <= numControlKey,
+            "ControlKey must be less than total"
+        );
+
         ControlKey memory existControlKey = controlKeys[_controlKeyId];
         require(existControlKey.burnable, "Can not destroy.");
-        
+
         delete controlKeys[_controlKeyId];
     }
 }
