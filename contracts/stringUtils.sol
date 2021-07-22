@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 library StringUtils {
@@ -23,7 +24,7 @@ library StringUtils {
             return 0;
     }
     /// @dev Compares two strings and returns true iff they are equal.
-    function equal(string memory _a, string memory _b) public returns (bool) {
+    function equal(string memory _a, string memory _b) public pure returns (bool) {
         return compare(_a, _b) == 0;
     }
     /// @dev Finds the index of the first occurrence of _needle in _haystack
