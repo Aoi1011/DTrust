@@ -36,9 +36,9 @@ interface DTRUSTi {
     );
     event Transfer(address indexed from, address indexed to, uint256 value);
 
-    function name() external pure returns (string memory);
+    // function name() external pure returns (string memory);
 
-    function symbol() external pure returns (string memory);
+    // function symbol() external pure returns (string memory);
 
     function decimals() external pure returns (uint8);
 
@@ -118,7 +118,8 @@ contract DTRUST is DTRUSTi, ERC1155 {
     /////////////////
 
     // constants/////
-    uint256 private constant PACK_INDEX = 0x0000000000000000000000000000000000000000000000000000000000007FFF;
+    uint256 private constant PACK_INDEX =
+        0x0000000000000000000000000000000000000000000000000000000000007FFF;
     /////////////////
 
     enum ContractRights {
@@ -142,14 +143,15 @@ contract DTRUST is DTRUSTi, ERC1155 {
     }
 
     uint256 private _AnualFeeTotal;
-    ufixed8x2 public _Fee = 0.25; // it can be updated later  percent
+    uint256 public percent = 25;
+    uint256 public _SemiAnnualFee = percent / 100; // it can be updated later  percent
     uint256 public numControlKey;
     uint256[] public tokenIds;
     address payable public manager;
     address payable public settlor;
     address payable public trustee;
-    string public override name;
-    string public override symbol;
+    string public name;
+    string public symbol;
     string private _uri;
     mapping(uint256 => ControlKey) controlKeys;
     mapping(uint256 => TokenType) public tokenType; // id -> tokenType
@@ -189,6 +191,10 @@ contract DTRUST is DTRUSTi, ERC1155 {
         name = _contractName;
         symbol = _contractSymbol;
     }
+
+    // function name() public pure override returns (string memory) {}
+
+    // function symbol() public pure override returns (string memory) {}
 
     function setBeneficiary(uint256 _id, uint256 _price) public onlyManager() {
         tokenPrices[_id] = _price;
@@ -363,8 +369,47 @@ contract DTRUST is DTRUSTi, ERC1155 {
             );
     }
 
-    function updateSemiAnnualFee(uint256 _fee) public onlyManager() {
-        _Fee = _fee;
+    function DOMAIN_SEPARATOR() public view override returns (bytes32) {}
+
+    function PERMIT_TYPEHASH() public pure override returns (bytes32) {}
+
+    function nonces(address owner) public view override returns (uint256) {}
+
+    function permit(
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) public override {}
+
+    function skim(address to) public override {}
+
+    function swap(
+        uint256 amount0Out,
+        uint256 amount1Out,
+        address to,
+        bytes calldata data
+    ) public override {}
+
+    function totalSupply() public view override returns (uint256) {}
+
+    function transferFrom(
+        address from,
+        address to,
+        uint256 value
+    ) public override returns (bool) {}
+
+    function transfer(address to, uint256 value)
+        public
+        override
+        returns (bool)
+    {}
+
+    function updateSemiAnnualFee(uint256 _percent) public onlyManager() {
+        percent = _percent;
     }
 
     function paySemiAnnualFeeForFirstTwoYear(
@@ -372,11 +417,17 @@ contract DTRUST is DTRUSTi, ERC1155 {
         address _target,
         bool _hasPromoter
     ) public onlyManager() {
-        uint256 semiAnnualFee = _orderBook[_target][_id].mul(_Fee.div(100));
+        uint256 semiAnnualFee = _orderBook[_target][_id].mul(
+            _SemiAnnualFee.div(100)
+        );
         TokenType memory t = tokenType[_id];
 
         // pay annual fee
-        if (_hasPromoter && keccak256(abi.encodePacked(t.tokenName)) == keccak256(abi.encodePacked("PrToken"))) {
+        if (
+            _hasPromoter &&
+            keccak256(abi.encodePacked(t.tokenName)) ==
+            keccak256(abi.encodePacked("PrToken"))
+        ) {
             // uint256 prTokenId = tokenType[TokenType.PrToken];
             tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
         } else {
@@ -387,11 +438,13 @@ contract DTRUST is DTRUSTi, ERC1155 {
         _AnualFeeTotal.add(semiAnnualFee);
     }
 
-    function paySemiAnnualFeeForSubsequentYear(
-        uint256 _id,
-        address _target
-    ) public onlyManager() {
-        uint256 semiAnnualFee = _orderBook[_target][_id].mul(_Fee.div(100));
+    function paySemiAnnualFeeForSubsequentYear(uint256 _id, address _target)
+        public
+        onlyManager()
+    {
+        uint256 semiAnnualFee = _orderBook[_target][_id].mul(
+            _SemiAnnualFee.div(100)
+        );
 
         // pay annual fee
         tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
