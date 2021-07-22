@@ -377,7 +377,11 @@ contract DTRUST is ERC1155 {
         return 1;
     }
 
-    function approve(address spender, uint256 value) public pure returns (bool) {
+    function approve(address spender, uint256 value)
+        public
+        pure
+        returns (bool)
+    {
         return true;
     }
 
