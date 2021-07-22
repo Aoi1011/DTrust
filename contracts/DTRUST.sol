@@ -18,7 +18,7 @@ contract DTRUSTs {
             _contractName,
             _contractSymbol,
             _newuri,
-            msg.sender
+            payable(msg.sender)
         );
         deployedDTRUSTs.push(newDTRUST);
     }
@@ -371,17 +371,17 @@ contract DTRUST is ERC1155 {
 
     function allowance(address owner, address spender)
         public
-        view
+        pure
         returns (uint256)
     {
         return 1;
     }
 
-    function approve(address spender, uint256 value) public returns (bool) {
+    function approve(address spender, uint256 value) public pure returns (bool) {
         return true;
     }
 
-    function DOMAIN_SEPARATOR() public view returns (bytes32) {
+    function DOMAIN_SEPARATOR() public pure returns (bytes32) {
         bytes32 byteText = "HelloStackOverFlow";
         return byteText;
     }
@@ -391,7 +391,7 @@ contract DTRUST is ERC1155 {
         return byteText;
     }
 
-    function nonces(address owner) public view returns (uint256) {
+    function nonces(address owner) public pure returns (uint256) {
         return 1;
     }
 
