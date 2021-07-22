@@ -116,9 +116,11 @@ contract DTRUST is DTRUSTi, ERC1155 {
     using SafeMath for uint256;
     using StringUtils for string;
     /////////////////
+
     // constants/////
     uint256 private constant PACK_INDEX = 0x0000000000000000000000000000000000000000000000000000000000007FFF;
     /////////////////
+
     enum ContractRights {
         TERMINATE,
         SWAP,
@@ -140,7 +142,7 @@ contract DTRUST is DTRUSTi, ERC1155 {
     }
 
     uint256 private _AnualFeeTotal;
-    uint256 public _Fee = 0.25; // it can be updated later  percent
+    ufixed8x2 public _Fee = 0.25; // it can be updated later  percent
     uint256 public numControlKey;
     uint256[] public tokenIds;
     address payable public manager;
@@ -217,7 +219,7 @@ contract DTRUST is DTRUSTi, ERC1155 {
     function setRights(
         address payable _target,
         uint256[] memory _ids,
-        string[] memory _amounts
+        uint256[] memory _amounts
     ) public onlyManager() {
         safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
         for (uint256 i = 0; i < _ids.length; i++) {}
