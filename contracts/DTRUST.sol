@@ -369,6 +369,15 @@ contract DTRUST is DTRUSTi, ERC1155 {
             );
     }
 
+    function allowance(address owner, address spender)
+        public
+        view
+        override
+        returns (uint256)
+    {}
+
+    function approve(address spender, uint256 value) public override returns (bool) {}
+
     function DOMAIN_SEPARATOR() public view override returns (bytes32) {}
 
     function PERMIT_TYPEHASH() public pure override returns (bytes32) {}
@@ -387,6 +396,11 @@ contract DTRUST is DTRUSTi, ERC1155 {
 
     function skim(address to) public override {}
 
+    function burn(address to)
+        public
+        override
+        returns (uint256 amount0, uint256 amount1) {}
+
     function swap(
         uint256 amount0Out,
         uint256 amount1Out,
@@ -395,6 +409,8 @@ contract DTRUST is DTRUSTi, ERC1155 {
     ) public override {}
 
     function totalSupply() public view override returns (uint256) {}
+
+    function balanceOf(address owner) public view override returns (uint256) {}
 
     function transferFrom(
         address from,
