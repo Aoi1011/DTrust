@@ -1,7 +1,7 @@
 
 // // SPDX-License-Identifier: Unlicensed
 
-// pragma solidity ^0.6.12;
+// pragma solidity ^0.8.0;;
 
 // /**
 //  * @dev Interface of the ERC20 standard as defined in the EIP.

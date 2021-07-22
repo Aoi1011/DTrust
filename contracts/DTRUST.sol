@@ -28,90 +28,90 @@ contract DTRUSTs {
     }
 }
 
-interface DTRUSTi {
-    event Approval(
-        address indexed owner,
-        address indexed spender,
-        uint256 value
-    );
-    event Transfer(address indexed from, address indexed to, uint256 value);
+// interface DTRUSTi {
+//     event Approval(
+//         address indexed owner,
+//         address indexed spender,
+//         uint256 value
+//     );
+//     event Transfer(address indexed from, address indexed to, uint256 value);
 
-    // function name() external pure returns (string memory);
+//     // function name() external pure returns (string memory);
 
-    // function symbol() external pure returns (string memory);
+//     // function symbol() external pure returns (string memory);
 
-    function decimals() external pure returns (uint8);
+//     function decimals() external pure returns (uint8);
 
-    function totalSupply() external view returns (uint256);
+//     function totalSupply() external view returns (uint256);
 
-    function balanceOf(address owner) external view returns (uint256);
+//     function balanceOf(address owner) external view returns (uint256);
 
-    function allowance(address owner, address spender)
-        external
-        view
-        returns (uint256);
+//     function allowance(address owner, address spender)
+//         external
+//         view
+//         returns (uint256);
 
-    function approve(address spender, uint256 value) external returns (bool);
+//     function approve(address spender, uint256 value) external returns (bool);
 
-    function transfer(address to, uint256 value) external returns (bool);
+//     function transfer(address to, uint256 value) external returns (bool);
 
-    function transferFrom(
-        address from,
-        address to,
-        uint256 value
-    ) external returns (bool);
+//     function transferFrom(
+//         address from,
+//         address to,
+//         uint256 value
+//     ) external returns (bool);
 
-    function DOMAIN_SEPARATOR() external view returns (bytes32);
+//     function DOMAIN_SEPARATOR() external view returns (bytes32);
 
-    function PERMIT_TYPEHASH() external pure returns (bytes32);
+//     function PERMIT_TYPEHASH() external pure returns (bytes32);
 
-    function nonces(address owner) external view returns (uint256);
+//     function nonces(address owner) external view returns (uint256);
 
-    function permit(
-        address owner,
-        address spender,
-        uint256 value,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external;
+//     function permit(
+//         address owner,
+//         address spender,
+//         uint256 value,
+//         uint256 deadline,
+//         uint8 v,
+//         bytes32 r,
+//         bytes32 s
+//     ) external;
 
-    event Mint(address indexed sender, uint256 amount0, uint256 amount1);
-    event Burn(
-        address indexed sender,
-        uint256 amount0,
-        uint256 amount1,
-        address indexed to
-    );
-    event Swap(
-        address indexed sender,
-        uint256 amount0In,
-        uint256 amount1In,
-        uint256 amount0Out,
-        uint256 amount1Out,
-        address indexed to
-    );
+//     event Mint(address indexed sender, uint256 amount0, uint256 amount1);
+//     event Burn(
+//         address indexed sender,
+//         uint256 amount0,
+//         uint256 amount1,
+//         address indexed to
+//     );
+//     event Swap(
+//         address indexed sender,
+//         uint256 amount0In,
+//         uint256 amount1In,
+//         uint256 amount0Out,
+//         uint256 amount1Out,
+//         address indexed to
+//     );
 
-    function burn(address to)
-        external
-        returns (uint256 amount0, uint256 amount1);
+//     function burn(address to)
+//         external
+//         returns (uint256 amount0, uint256 amount1);
 
-    function swap(
-        uint256 amount0Out,
-        uint256 amount1Out,
-        address to,
-        bytes calldata data
-    ) external;
+//     function swap(
+//         uint256 amount0Out,
+//         uint256 amount1Out,
+//         address to,
+//         bytes calldata data
+//     ) external;
 
-    function skim(address to) external;
+//     function skim(address to) external;
 
-    function sync() external;
+//     function sync() external;
 
-    function initialize(address, address) external;
-}
+//     function initialize(address, address) external;
+// }
 
-contract DTRUST is DTRUSTi, ERC1155 {
+contract DTRUST is ERC1155 {
     // Library///////
     using SafeMath for uint256;
     using StringUtils for string;
@@ -186,7 +186,7 @@ contract DTRUST is DTRUSTi, ERC1155 {
         string memory _contractSymbol,
         string memory _newURI,
         address payable _deployerAddress
-    ) public ERC1155(_newURI) {
+    ) ERC1155(_newURI) {
         manager = _deployerAddress;
         name = _contractName;
         symbol = _contractSymbol;
@@ -372,17 +372,28 @@ contract DTRUST is DTRUSTi, ERC1155 {
     function allowance(address owner, address spender)
         public
         view
-        override
         returns (uint256)
-    {}
+    {
+        return 1;
+    }
 
-    function approve(address spender, uint256 value) public override returns (bool) {}
+    function approve(address spender, uint256 value) public returns (bool) {
+        return true;
+    }
 
-    function DOMAIN_SEPARATOR() public view override returns (bytes32) {}
+    function DOMAIN_SEPARATOR() public view returns (bytes32) {
+        bytes32 byteText = "HelloStackOverFlow";
+        return byteText;
+    }
 
-    function PERMIT_TYPEHASH() public pure override returns (bytes32) {}
+    function PERMIT_TYPEHASH() public pure returns (bytes32) {
+        bytes32 byteText = "HelloStackOverFlow";
+        return byteText;
+    }
 
-    function nonces(address owner) public view override returns (uint256) {}
+    function nonces(address owner) public view returns (uint256) {
+        return 1;
+    }
 
     function permit(
         address owner,
@@ -392,37 +403,37 @@ contract DTRUST is DTRUSTi, ERC1155 {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) public override {}
+    ) public {}
 
-    function skim(address to) public override {}
+    function skim(address to) public {}
+
+    function sync() public {}
+
+    function initialize(address, address) public {}
 
     function burn(address to)
         public
-        override
-        returns (uint256 amount0, uint256 amount1) {}
+        returns (uint256 amount0, uint256 amount1)
+    {}
 
     function swap(
         uint256 amount0Out,
         uint256 amount1Out,
         address to,
         bytes calldata data
-    ) public override {}
+    ) public {}
 
-    function totalSupply() public view override returns (uint256) {}
+    function totalSupply() public view returns (uint256) {}
 
-    function balanceOf(address owner) public view override returns (uint256) {}
+    function balanceOf(address owner) public view returns (uint256) {}
 
     function transferFrom(
         address from,
         address to,
         uint256 value
-    ) public override returns (bool) {}
+    ) public returns (bool) {}
 
-    function transfer(address to, uint256 value)
-        public
-        override
-        returns (bool)
-    {}
+    function transfer(address to, uint256 value) public returns (bool) {}
 
     function updateSemiAnnualFee(uint256 _percent) public onlyManager() {
         percent = _percent;
