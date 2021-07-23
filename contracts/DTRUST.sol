@@ -29,20 +29,6 @@ contract DTRUSTs {
 }
 
 // interface DTRUSTi {
-//     event Approval(
-//         address indexed owner,
-//         address indexed spender,
-//         uint256 value
-//     );
-//     event Transfer(address indexed from, address indexed to, uint256 value);
-
-//     // function name() external pure returns (string memory);
-
-//     // function symbol() external pure returns (string memory);
-
-//     function decimals() external pure returns (uint8);
-
-//     function totalSupply() external view returns (uint256);
 
 //     function balanceOf(address owner) external view returns (uint256);
 
@@ -171,6 +157,14 @@ contract DTRUST is ERC1155 {
         uint256[] indexed _amounts
     );
 
+    event Approval(
+        address indexed owner,
+        address indexed spender,
+        uint256 value
+    );
+
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
     modifier onlyManager() {
         require(
             msg.sender == manager ||
@@ -191,10 +185,6 @@ contract DTRUST is ERC1155 {
         name = _contractName;
         symbol = _contractSymbol;
     }
-
-    // function name() public pure override returns (string memory) {}
-
-    // function symbol() public pure override returns (string memory) {}
 
     function setBeneficiary(uint256 _id, uint256 _price) public onlyManager() {
         tokenPrices[_id] = _price;
