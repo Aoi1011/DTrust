@@ -5,6 +5,7 @@ import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC1155/ERC1155.sol"; // --> safe ERC1155 internals
 import "../node_modules/@openzeppelin/contracts/utils/Context.sol";
+import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 
 import "./SafeMath.sol";
 import "./stringUtils.sol";
@@ -55,6 +56,7 @@ contract BurnValley {
 }
 
 contract DTRUST is ERC1155 {
+    
     // Library///////
     using SafeMath for uint256;
     using StringUtils for string;
