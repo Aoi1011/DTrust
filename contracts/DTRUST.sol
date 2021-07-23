@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 // import "../node_modules/@nomiclabs/buidler/console.sol"; // advance debugging
+import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC1155/ERC1155.sol"; // --> safe ERC1155 internals
 import "../node_modules/@openzeppelin/contracts/utils/Context.sol";
 
@@ -29,10 +31,34 @@ contract DTRUSTs {
     }
 }
 
+interface IERC20Burnable is IERC20 {
+    function burn(uint256 amount) external;
+}
+
+contract BurnValley {
+    event TokensDestroyed(address burner, uint256 amount);
+
+    /**
+     * @dev Method for burning any token from contract balance.
+     * All tokens which will be sent here should be locked forever or burned
+     * For better transparency everybody can call this method and burn tokens
+     * Emits a {TokensDestroyed} event.
+     */
+    function burnAllTokens(address _token) external {
+        IERC20Burnable token = IERC20Burnable(_token);
+
+        uint256 balance = token.balanceOf(address(this));
+        token.burn(balance);
+
+        emit TokensDestroyed(msg.sender, balance);
+    }
+}
+
 contract DTRUST is ERC1155 {
     // Library///////
     using SafeMath for uint256;
     using StringUtils for string;
+    using SafeERC20 for IERC20;
     /////////////////
 
     // constants/////
@@ -69,14 +95,22 @@ contract DTRUST is ERC1155 {
     address payable public manager;
     address payable public settlor;
     address payable public trustee;
+    address public immutable burnValley;
     string public name;
     string public symbol;
     string private _uri;
+
+    IERC20 public constant USDC =
+        IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
+
+    // storage//////////////////////////
     mapping(uint256 => ControlKey) controlKeys;
     mapping(uint256 => TokenType) public tokenType; // id -> tokenType
     mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
     mapping(uint256 => uint256) public tokenPrices; // id -> tokenPrice
     mapping(address => mapping(uint256 => uint256)) private _orderBook; // address -> id -> amount of asset
+    mapping(address => uint256) public usdcPerUser;
+    /////////////////////////////////////
 
     event Order(
         address indexed _target,
@@ -107,14 +141,7 @@ contract DTRUST is ERC1155 {
         address indexed to
     );
 
-    event Swap(
-        address indexed sender,
-        uint256 amount0In,
-        uint256 amount1In,
-        uint256 amount0Out,
-        uint256 amount1Out,
-        address indexed to
-    );
+    event Swap(address indexed user, uint256 DTrustAmount, uint256 usdcAmount);
 
     modifier onlyManager() {
         require(
@@ -135,6 +162,7 @@ contract DTRUST is ERC1155 {
         manager = _deployerAddress;
         name = _contractName;
         symbol = _contractSymbol;
+        burnValley = address(new BurnValley());
     }
 
     function setBeneficiary(uint256 _id, uint256 _price) public onlyManager() {
@@ -361,8 +389,23 @@ contract DTRUST is ERC1155 {
         returns (uint256 amount0, uint256 amount1)
     {}
 
-    function swap(uint256 DTrustAmount) public {
+    function swap(uint256 DTrustAmount, uint256 _id) public {
         require(DTrustAmount >= MIN_DTrust, "swap: Less DTrust then required!");
+
+        address user = _msgSender();
+        require(usdcPerUser[user] > 0, "swap: User not allowed to swap!");
+
+        // Transfer user tokens to burn valley contract
+        safeTransferFrom(user, burnValley, _id, DTrustAmount, "");
+
+        // Save amount which user will receive
+        uint256 usdcAmount = usdcPerUser[user];
+        usdcPerUser[user] = 0;
+
+        USDC.safeTransfer(user, usdcAmount);
+
+        // Transfer new tokens to sender
+        emit Swap(user, DTrustAmount, usdcAmount);
     }
 
     function totalSupply() public view returns (uint256) {}
