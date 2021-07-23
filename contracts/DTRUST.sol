@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 // import "../node_modules/@nomiclabs/buidler/console.sol"; // advance debugging
 import "../node_modules/@openzeppelin/contracts/token/ERC1155/ERC1155.sol"; // --> safe ERC1155 internals
+import "../node_modules/@openzeppelin/contracts/utils/Context.sol";
 
 import "./SafeMath.sol";
 import "./stringUtils.sol";
@@ -63,6 +64,7 @@ contract DTRUST is ERC1155 {
     uint256 public percent = 25;
     uint256 public _SemiAnnualFee = percent / 100; // it can be updated later  percent
     uint256 public numControlKey;
+    uint256 public constant MIN_DTrust = 40 * 10**18;
     uint256[] public tokenIds;
     address payable public manager;
     address payable public settlor;
@@ -359,12 +361,9 @@ contract DTRUST is ERC1155 {
         returns (uint256 amount0, uint256 amount1)
     {}
 
-    function swap(
-        uint256 amount0Out,
-        uint256 amount1Out,
-        address to,
-        bytes calldata data
-    ) public {}
+    function swap(uint256 DTrustAmount) public {
+        require(DTrustAmount >= MIN_DTrust, "swap: Less DTrust then required!");
+    }
 
     function totalSupply() public view returns (uint256) {}
 
