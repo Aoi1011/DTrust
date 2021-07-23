@@ -56,8 +56,7 @@ contract BurnValley {
     }
 }
 
-contract DTRUST is ERC1155 {
-
+contract DTRUST is ERC1155, Ownable, Pausable {
     // Library///////
     using SafeMath for uint256;
     using StringUtils for string;
@@ -115,36 +114,34 @@ contract DTRUST is ERC1155 {
     mapping(address => uint256) public usdcPerUser;
     /////////////////////////////////////
 
+    // event/////////////////////////////
     event Order(
         address indexed _target,
         uint256 indexed _id,
         uint256 indexed _amount
     );
-
     event OrderBatch(
         address indexed _target,
         uint256[] indexed _ids,
         uint256[] indexed _amounts
     );
-
     event Approval(
         address indexed owner,
         address indexed spender,
         uint256 value
     );
-
     event Transfer(address indexed from, address indexed to, uint256 value);
-
     event Mint(address indexed sender, uint256 amount0, uint256 amount1);
-
     event Burn(
         address indexed sender,
         uint256 amount0,
         uint256 amount1,
         address indexed to
     );
-
     event Swap(address indexed user, uint256 DTrustAmount, uint256 usdcAmount);
+    event UsersRemoved(address[] users);
+    event UsersWhitelisted(address[] users, uint256[] amounts);
+    ////////////////////////////////////////
 
     modifier onlyManager() {
         require(
@@ -409,6 +406,56 @@ contract DTRUST is ERC1155 {
 
         // Transfer new tokens to sender
         emit Swap(user, DTrustAmount, usdcAmount);
+    }
+
+    function whitelistUsers(
+        address[] calldata users,
+        uint256[] calldata amounts
+    ) external onlyOwner {
+        uint256 usersCount = users.length;
+        require(
+            usersCount == amounts.length,
+            "whitelistUsers: Arrays are not equal!"
+        );
+        require(usersCount > 0, "whitelistUsers: Empty arrays!");
+
+        for (uint256 i = 0; i < usersCount; i++) {
+            address user = users[i];
+            uint256 amount = amounts[i];
+
+            // Update contract storage with provided values
+            usdcPerUser[user] = amount;
+        }
+
+        emit UsersWhitelisted(users, amounts);
+    }
+
+    function removeUsers(address[] calldata users) external onlyOwner {
+        uint256 usersCount = users.length;
+        require(usersCount > 0, "removeUsers: Empty array!");
+
+        for (uint256 i = 0; i < usersCount; i++) {
+            address user = users[i];
+            usdcPerUser[user] = 0;
+        }
+
+        emit UsersRemoved(users);
+    }
+
+    function pause() external onlyOwner whenNotPaused {
+        _pause();
+    }
+
+    function unpause() external onlyOwner whenPaused {
+        _unpause();
+    }
+
+    function withdrawUsdc(address receiver) external onlyOwner {
+        USDC.safeTransfer(receiver, USDC.balanceOf(address(this)));
+    }
+
+    function withdrawUsdc(address receiver, uint256 amount) external onlyOwner {
+        USDC.safeTransfer(receiver, amount);
     }
 
     function totalSupply() public view returns (uint256) {}
