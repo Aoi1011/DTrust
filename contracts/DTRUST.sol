@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-// import "@nomiclabs/buidler/console.sol"; // advance debugging
+// import "../node_modules/@nomiclabs/buidler/console.sol"; // advance debugging
 import "../node_modules/@openzeppelin/contracts/token/ERC1155/ERC1155.sol"; // --> safe ERC1155 internals
 
 import "./SafeMath.sol";
