@@ -243,7 +243,7 @@ contract DTRUST is ERC1155, Ownable, Pausable {
         uint256 payment = msg.value;
         require(payment >= tokenPrices[_id].mul(_amount));
         require(manager != address(0));
-    
+
         _orderBook[msg.sender][_id] = _amount;
 
         emit Order(msg.sender, _id, _amount);
