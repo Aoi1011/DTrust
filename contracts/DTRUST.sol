@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 // import "../node_modules/@nomiclabs/buidler/console.sol"; // advance debugging
-import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
-// import "../node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "../node_modules/@openzeppelin/contracts/token/ERC1155/ERC1155.sol"; // --> safe ERC1155 internals
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol"; // --> safe ERC1155 internals
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 // import "../node_modules/@openzeppelin/contracts/security/Pausable.sol";
+
+// import "./interfaces/IERC20.sol";
 
 import "./libraries/SafeMath.sol";
 import "./libraries/stringUtils.sol";
