@@ -4,14 +4,14 @@ pragma solidity ^0.8.0;
 import "../node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 // import "../node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "../node_modules/@openzeppelin/contracts/token/ERC1155/ERC1155.sol"; // --> safe ERC1155 internals
-import "../node_modules/@openzeppelin/contracts/utils/Context.sol";
-import "../node_modules/@openzeppelin/contracts/security/Pausable.sol";
+// import "../node_modules/@openzeppelin/contracts/security/Pausable.sol";
 
 import "./libraries/SafeMath.sol";
 import "./libraries/stringUtils.sol";
 // import "./libraries/SafeERC20.sol";
 
-import "./Ownable.sol";
+// import "./Ownable.sol";
+// import "./Pausable.sol";
 
 contract DTRUSTs {
     DTRUST[] public deployedDTRUSTs;
