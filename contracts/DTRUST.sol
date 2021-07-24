@@ -76,7 +76,7 @@ contract DTRUST is ERC1155, Ownable, Pausable {
 
     struct TokenType {
         uint256 tokenId;
-        string tokenName; // PrToekn, DToken
+        string tokenName;
     }
 
     struct ControlKey {
@@ -90,7 +90,7 @@ contract DTRUST is ERC1155, Ownable, Pausable {
 
     uint256 private _AnualFeeTotal;
     uint256 public percent = 25;
-    uint256 public _SemiAnnualFee = percent / 100; // it can be updated later  percent
+    uint256 public _SemiAnnualFee = percent / 100;
     uint256 public numControlKey;
     uint256 public constant MIN_DTrust = 40 * 10**18;
     uint256[] public tokenIds;
@@ -338,57 +338,6 @@ contract DTRUST is ERC1155, Ownable, Pausable {
             );
     }
 
-    function allowance(address owner, address spender)
-        public
-        pure
-        returns (uint256)
-    {
-        return 1;
-    }
-
-    function approve(address spender, uint256 value)
-        public
-        pure
-        returns (bool)
-    {
-        return true;
-    }
-
-    function DOMAIN_SEPARATOR() public pure returns (bytes32) {
-        bytes32 byteText = "HelloStackOverFlow";
-        return byteText;
-    }
-
-    function PERMIT_TYPEHASH() public pure returns (bytes32) {
-        bytes32 byteText = "HelloStackOverFlow";
-        return byteText;
-    }
-
-    function nonces(address owner) public pure returns (uint256) {
-        return 1;
-    }
-
-    function permit(
-        address owner,
-        address spender,
-        uint256 value,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public {}
-
-    function skim(address to) public {}
-
-    function sync() public {}
-
-    function initialize(address, address) public {}
-
-    function burn(address to)
-        public
-        returns (uint256 amount0, uint256 amount1)
-    {}
-
     function swap(uint256 DTrustAmount, uint256 _id) public {
         require(DTrustAmount >= MIN_DTrust, "swap: Less DTrust then required!");
 
@@ -457,18 +406,6 @@ contract DTRUST is ERC1155, Ownable, Pausable {
     function withdrawUsdc(address receiver, uint256 amount) external onlyOwner {
         USDC.safeTransfer(receiver, amount);
     }
-
-    function totalSupply() public view returns (uint256) {}
-
-    function balanceOf(address owner) public view returns (uint256) {}
-
-    function transferFrom(
-        address from,
-        address to,
-        uint256 value
-    ) public returns (bool) {}
-
-    function transfer(address to, uint256 value) public returns (bool) {}
 
     function updateSemiAnnualFee(uint256 _percent) public onlyManager() {
         percent = _percent;
