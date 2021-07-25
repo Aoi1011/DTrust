@@ -48,9 +48,10 @@ module.exports = {
     development: {
       host: "127.0.0.1",     // Localhost (default: none)
       port: 8545,            // Standard Ethereum port (default: none)
-      network_id: "*",       // Any network (default: none)
-      gas: 6721975,	
-      gasPrice: 20000000000,
+      network_id: "*",
+      from: "0x90d9D583C508BD42e86A8feb3921073e4e240062",       // Any network (default: none)
+      gas: 10000000,	
+      // gasPrice: 20000000000,
     },
     // Another network with more advanced options...
     advanced: {
@@ -94,7 +95,7 @@ module.exports = {
           enabled: false,
           runs: 200
         },
-        evmVersion: "homestead"
+        evmVersion: "byzantium"
       }
     }
   },

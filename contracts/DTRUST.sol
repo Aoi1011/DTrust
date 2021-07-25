@@ -6,14 +6,8 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
-// import "./interfaces/IERC20.sol";
-
 import "./libraries/SafeMath.sol";
 import "./libraries/stringUtils.sol";
-// import "./libraries/SafeERC20.sol";
-
-// import "./Ownable.sol";
-// import "./Pausable.sol";
 
 
 contract DTRUST is ERC1155, Ownable, Pausable {
@@ -289,121 +283,121 @@ contract DTRUST is ERC1155, Ownable, Pausable {
             );
     }
 
-    function updateSemiAnnualFee(uint256 _percent) public onlyManager() {
-        percent = _percent;
-    }
+    // function updateSemiAnnualFee(uint256 _percent) public onlyManager() {
+    //     percent = _percent;
+    // }
 
-    function paySemiAnnualFeeForFirstTwoYear(
-        uint256 _id,
-        address _target,
-        bool _hasPromoter
-    ) public onlyManager() {
-        uint256 semiAnnualFee = _orderBook[_target][_id].mul(
-            _SemiAnnualFee.div(100)
-        );
-        TokenType memory t = tokenType[_id];
+    // function paySemiAnnualFeeForFirstTwoYear(
+    //     uint256 _id,
+    //     address _target,
+    //     bool _hasPromoter
+    // ) public onlyManager() {
+    //     uint256 semiAnnualFee = _orderBook[_target][_id].mul(
+    //         _SemiAnnualFee.div(100)
+    //     );
+    //     TokenType memory t = tokenType[_id];
 
-        // pay annual fee
-        if (
-            _hasPromoter &&
-            keccak256(abi.encodePacked(t.tokenName)) ==
-            keccak256(abi.encodePacked("PrToken"))
-        ) {
-            // uint256 prTokenId = tokenType[TokenType.PrToken];
-            tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
-        } else {
-            // uint256 dTokenId = tokenType[TokenType.DToken];
-            tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
-        }
+    //     // pay annual fee
+    //     if (
+    //         _hasPromoter &&
+    //         keccak256(abi.encodePacked(t.tokenName)) ==
+    //         keccak256(abi.encodePacked("PrToken"))
+    //     ) {
+    //         // uint256 prTokenId = tokenType[TokenType.PrToken];
+    //         tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
+    //     } else {
+    //         // uint256 dTokenId = tokenType[TokenType.DToken];
+    //         tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
+    //     }
 
-        _AnualFeeTotal.add(semiAnnualFee);
-    }
+    //     _AnualFeeTotal.add(semiAnnualFee);
+    // }
 
-    function paySemiAnnualFeeForSubsequentYear(uint256 _id, address _target)
-        public
-        onlyManager()
-    {
-        uint256 semiAnnualFee = _orderBook[_target][_id].mul(
-            _SemiAnnualFee.div(100)
-        );
+    // function paySemiAnnualFeeForSubsequentYear(uint256 _id, address _target)
+    //     public
+    //     onlyManager()
+    // {
+    //     uint256 semiAnnualFee = _orderBook[_target][_id].mul(
+    //         _SemiAnnualFee.div(100)
+    //     );
 
-        // pay annual fee
-        tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
+    //     // pay annual fee
+    //     tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
 
-        _AnualFeeTotal.add(semiAnnualFee);
-    }
+    //     _AnualFeeTotal.add(semiAnnualFee);
+    // }
 
-    function generateControlKey(
-        string memory _privateKey,
-        address[] memory _settlors,
-        address[] memory _beneficiaries,
-        address[] memory _trustees
-    ) public returns (uint256 controlKeyId) {
-        controlKeyId = numControlKey++;
-        controlKeys[controlKeyId] = ControlKey({
-            privateKey: _privateKey,
-            settlors: _settlors,
-            beneficiaries: _beneficiaries,
-            trustees: _trustees,
-            usable: false,
-            burnable: false
-        });
-    }
+    // function generateControlKey(
+    //     string memory _privateKey,
+    //     address[] memory _settlors,
+    //     address[] memory _beneficiaries,
+    //     address[] memory _trustees
+    // ) public returns (uint256 controlKeyId) {
+    //     controlKeyId = numControlKey++;
+    //     controlKeys[controlKeyId] = ControlKey({
+    //         privateKey: _privateKey,
+    //         settlors: _settlors,
+    //         beneficiaries: _beneficiaries,
+    //         trustees: _trustees,
+    //         usable: false,
+    //         burnable: false
+    //     });
+    // }
 
-    function getControlKey(uint256 _controlKeyId)
-        public
-        view
-        returns (ControlKey memory existControlKey)
-    {
-        require(_controlKeyId >= 0, "Control Key must be more than 0");
-        require(_controlKeyId <= numControlKey, "ControlKey does not exist.");
-        return controlKeys[_controlKeyId];
-    }
+    // function getControlKey(uint256 _controlKeyId)
+    //     public
+    //     view
+    //     returns (ControlKey memory existControlKey)
+    // {
+    //     require(_controlKeyId >= 0, "Control Key must be more than 0");
+    //     require(_controlKeyId <= numControlKey, "ControlKey does not exist.");
+    //     return controlKeys[_controlKeyId];
+    // }
 
-    function handleUsableControlKey(uint256 _controlKeyId) public {
-        require(_controlKeyId >= 0, "Control Key must be more than 0");
-        require(
-            _controlKeyId <= numControlKey,
-            "ControlKey must be less than total"
-        );
-        ControlKey memory existControlKey = controlKeys[_controlKeyId];
-        controlKeys[_controlKeyId] = ControlKey({
-            privateKey: existControlKey.privateKey,
-            settlors: existControlKey.settlors,
-            beneficiaries: existControlKey.beneficiaries,
-            trustees: existControlKey.trustees,
-            usable: !existControlKey.usable,
-            burnable: existControlKey.burnable
-        });
-    }
+    // function handleUsableControlKey(uint256 _controlKeyId) public {
+    //     require(_controlKeyId >= 0, "Control Key must be more than 0");
+    //     require(
+    //         _controlKeyId <= numControlKey,
+    //         "ControlKey must be less than total"
+    //     );
+    //     ControlKey memory existControlKey = controlKeys[_controlKeyId];
+    //     controlKeys[_controlKeyId] = ControlKey({
+    //         privateKey: existControlKey.privateKey,
+    //         settlors: existControlKey.settlors,
+    //         beneficiaries: existControlKey.beneficiaries,
+    //         trustees: existControlKey.trustees,
+    //         usable: !existControlKey.usable,
+    //         burnable: existControlKey.burnable
+    //     });
+    // }
 
-    function handleBurnableControlKey(uint256 _controlKeyId) public {
-        require(_controlKeyId >= 0, "Control Key must be more than 0");
-        require(
-            _controlKeyId <= numControlKey,
-            "ControlKey must be less than total"
-        );
-        ControlKey memory existControlKey = controlKeys[_controlKeyId];
-        controlKeys[_controlKeyId] = ControlKey({
-            privateKey: existControlKey.privateKey,
-            settlors: existControlKey.settlors,
-            beneficiaries: existControlKey.beneficiaries,
-            trustees: existControlKey.trustees,
-            usable: existControlKey.usable,
-            burnable: !existControlKey.burnable
-        });
-    }
+    // function handleBurnableControlKey(uint256 _controlKeyId) public {
+    //     require(_controlKeyId >= 0, "Control Key must be more than 0");
+    //     require(
+    //         _controlKeyId <= numControlKey,
+    //         "ControlKey must be less than total"
+    //     );
+    //     ControlKey memory existControlKey = controlKeys[_controlKeyId];
+    //     controlKeys[_controlKeyId] = ControlKey({
+    //         privateKey: existControlKey.privateKey,
+    //         settlors: existControlKey.settlors,
+    //         beneficiaries: existControlKey.beneficiaries,
+    //         trustees: existControlKey.trustees,
+    //         usable: existControlKey.usable,
+    //         burnable: !existControlKey.burnable
+    //     });
+    // }
 
-    function destroyControlKey(uint256 _controlKeyId) public {
-        require(_controlKeyId >= 0, "Control Key must be more than 0");
-        require(
-            _controlKeyId <= numControlKey,
-            "ControlKey must be less than total"
-        );
+    // function destroyControlKey(uint256 _controlKeyId) public {
+    //     require(_controlKeyId >= 0, "Control Key must be more than 0");
+    //     require(
+    //         _controlKeyId <= numControlKey,
+    //         "ControlKey must be less than total"
+    //     );
 
-        ControlKey memory existControlKey = controlKeys[_controlKeyId];
-        require(existControlKey.burnable, "Can not destroy.");
+    //     ControlKey memory existControlKey = controlKeys[_controlKeyId];
+    //     require(existControlKey.burnable, "Can not destroy.");
 
-        delete controlKeys[_controlKeyId];
-    }
+    //     delete controlKeys[_controlKeyId];
+    // }
 }
