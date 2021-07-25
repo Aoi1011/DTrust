@@ -33,19 +33,19 @@ contract DTRUST is ERC1155, Ownable, Pausable {
         string tokenName; // PrToekn, DToken
     }
 
-    struct ControlKey {
-        string privateKey;
-        address[] settlors;
-        address[] beneficiaries;
-        address[] trustees;
-        bool usable;
-        bool burnable;
-    }
+    // struct ControlKey {
+    //     string privateKey;
+    //     address[] settlors;
+    //     address[] beneficiaries;
+    //     address[] trustees;
+    //     bool usable;
+    //     bool burnable;
+    // }
 
-    uint256 private _AnualFeeTotal;
-    uint256 public percent = 25;
-    uint256 public _SemiAnnualFee = percent / 100; // it can be updated later  percent
-    uint256 public numControlKey;
+    // uint256 private _AnualFeeTotal;
+    // uint256 public percent = 25;
+    // uint256 public _SemiAnnualFee = percent / 100; // it can be updated later  percent
+    // uint256 public numControlKey;
     uint256 public constant MIN_DTrust = 40 * 10**18;
     uint256[] public tokenIds;
     address payable public manager;
@@ -56,7 +56,7 @@ contract DTRUST is ERC1155, Ownable, Pausable {
     string private _uri;
 
     // storage//////////////////////////
-    mapping(uint256 => ControlKey) controlKeys;
+    // mapping(uint256 => ControlKey) controlKeys;
     mapping(uint256 => TokenType) public tokenType; // id -> tokenType
     mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
     mapping(uint256 => uint256) public tokenPrices; // id -> tokenPrice
@@ -125,25 +125,25 @@ contract DTRUST is ERC1155, Ownable, Pausable {
         }
     }
 
-    function setPayouts(
-        address payable _target,
-        uint256[] memory _ids,
-        uint256[] memory _amounts
-    ) public onlyManager() {
-        safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
-        for (uint256 i = 0; i < _ids.length; i++) {
-            tokenPrices[_ids[i]] = _amounts[i];
-        }
-    }
+    // function setPayouts(
+    //     address payable _target,
+    //     uint256[] memory _ids,
+    //     uint256[] memory _amounts
+    // ) public onlyManager() {
+    //     safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
+    //     for (uint256 i = 0; i < _ids.length; i++) {
+    //         tokenPrices[_ids[i]] = _amounts[i];
+    //     }
+    // }
 
-    function setRights(
-        address payable _target,
-        uint256[] memory _ids,
-        uint256[] memory _amounts
-    ) public onlyManager() {
-        safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
-        for (uint256 i = 0; i < _ids.length; i++) {}
-    }
+    // function setRights(
+    //     address payable _target,
+    //     uint256[] memory _ids,
+    //     uint256[] memory _amounts
+    // ) public onlyManager() {
+    //     safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
+    //     for (uint256 i = 0; i < _ids.length; i++) {}
+    // }
 
     function mint(
         uint256 _id,
