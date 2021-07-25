@@ -15,27 +15,6 @@ import "./libraries/stringUtils.sol";
 // import "./Ownable.sol";
 // import "./Pausable.sol";
 
-contract DTRUSTs {
-    DTRUST[] public deployedDTRUSTs;
-
-    function createDTRUST(
-        string memory _contractSymbol,
-        string memory _newuri,
-        string memory _contractName
-    ) public {
-        DTRUST newDTRUST = new DTRUST(
-            _contractName,
-            _contractSymbol,
-            _newuri,
-            payable(msg.sender)
-        );
-        deployedDTRUSTs.push(newDTRUST);
-    }
-
-    function getDeployedDTRUSTs() public view returns (DTRUST[] memory) {
-        return deployedDTRUSTs;
-    }
-}
 
 contract DTRUST is ERC1155, Ownable, Pausable {
     // Library///////
@@ -82,16 +61,12 @@ contract DTRUST is ERC1155, Ownable, Pausable {
     string public symbol;
     string private _uri;
 
-    IERC20 public constant USDC =
-        IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
-
     // storage//////////////////////////
     mapping(uint256 => ControlKey) controlKeys;
     mapping(uint256 => TokenType) public tokenType; // id -> tokenType
     mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
     mapping(uint256 => uint256) public tokenPrices; // id -> tokenPrice
     mapping(address => mapping(uint256 => uint256)) private _orderBook; // address -> id -> amount of asset
-    mapping(address => uint256) public usdcPerUser;
     /////////////////////////////////////
 
     // event/////////////////////////////

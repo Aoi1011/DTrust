@@ -37,7 +37,7 @@ contract BurnValley {
 /**
  * @dev DTrust tokens swap contract
  */
-contract Swap is Ownable, Pausable {
+abstract contract Swap is Ownable, Pausable {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
 
@@ -59,7 +59,7 @@ contract Swap is Ownable, Pausable {
   //  ------------------------
 
 
-	constructor() public {
+   constructor() {
     // Deploy burn valley contract for locking tokens
     burnValley = address(new BurnValley());
 	}
