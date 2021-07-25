@@ -37,29 +37,6 @@ contract DTRUSTs {
     }
 }
 
-interface IERC20Burnable is IERC20 {
-    function burn(uint256 amount) external;
-}
-
-contract BurnValley {
-    event TokensDestroyed(address burner, uint256 amount);
-
-    /**
-     * @dev Method for burning any token from contract balance.
-     * All tokens which will be sent here should be locked forever or burned
-     * For better transparency everybody can call this method and burn tokens
-     * Emits a {TokensDestroyed} event.
-     */
-    function burnAllTokens(address _token) external {
-        IERC20Burnable token = IERC20Burnable(_token);
-
-        uint256 balance = token.balanceOf(address(this));
-        token.burn(balance);
-
-        emit TokensDestroyed(msg.sender, balance);
-    }
-}
-
 contract DTRUST is ERC1155, Ownable, Pausable {
     // Library///////
     using SafeMath for uint256;
@@ -101,7 +78,6 @@ contract DTRUST is ERC1155, Ownable, Pausable {
     address payable public manager;
     address payable public settlor;
     address payable public trustee;
-    address public immutable burnValley;
     string public name;
     string public symbol;
     string private _uri;
@@ -142,9 +118,6 @@ contract DTRUST is ERC1155, Ownable, Pausable {
         uint256 amount1,
         address indexed to
     );
-    event Swap(address indexed user, uint256 DTrustAmount, uint256 usdcAmount);
-    event UsersRemoved(address[] users);
-    event UsersWhitelisted(address[] users, uint256[] amounts);
     ////////////////////////////////////////
 
     modifier onlyManager() {
@@ -166,7 +139,6 @@ contract DTRUST is ERC1155, Ownable, Pausable {
         manager = _deployerAddress;
         name = _contractName;
         symbol = _contractSymbol;
-        burnValley = address(new BurnValley());
     }
 
     function setBeneficiary(uint256 _id, uint256 _price) public onlyManager() {
@@ -341,138 +313,6 @@ contract DTRUST is ERC1155, Ownable, Pausable {
                 abi.encodePacked(uri, "/", uint2str(_id & PACK_INDEX), ".json")
             );
     }
-
-    function allowance(address owner, address spender)
-        public
-        pure
-        returns (uint256)
-    {
-        return 1;
-    }
-
-    function approve(address spender, uint256 value)
-        public
-        pure
-        returns (bool)
-    {
-        return true;
-    }
-
-    function DOMAIN_SEPARATOR() public pure returns (bytes32) {
-        bytes32 byteText = "HelloStackOverFlow";
-        return byteText;
-    }
-
-    function PERMIT_TYPEHASH() public pure returns (bytes32) {
-        bytes32 byteText = "HelloStackOverFlow";
-        return byteText;
-    }
-
-    function nonces(address owner) public pure returns (uint256) {
-        return 1;
-    }
-
-    function permit(
-        address owner,
-        address spender,
-        uint256 value,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) public {}
-
-    function skim(address to) public {}
-
-    function sync() public {}
-
-    function initialize(address, address) public {}
-
-    function burn(address to)
-        public
-        returns (uint256 amount0, uint256 amount1)
-    {}
-
-    function swap(uint256 DTrustAmount, uint256 _id) public {
-        require(DTrustAmount >= MIN_DTrust, "swap: Less DTrust then required!");
-
-        address user = _msgSender();
-        require(usdcPerUser[user] > 0, "swap: User not allowed to swap!");
-
-        // Transfer user tokens to burn valley contract
-        safeTransferFrom(user, burnValley, _id, DTrustAmount, "");
-
-        // Save amount which user will receive
-        uint256 usdcAmount = usdcPerUser[user];
-        usdcPerUser[user] = 0;
-
-        USDC.safeTransfer(user, usdcAmount);
-
-        // Transfer new tokens to sender
-        emit Swap(user, DTrustAmount, usdcAmount);
-    }
-
-    function whitelistUsers(
-        address[] calldata users,
-        uint256[] calldata amounts
-    ) external onlyOwner {
-        uint256 usersCount = users.length;
-        require(
-            usersCount == amounts.length,
-            "whitelistUsers: Arrays are not equal!"
-        );
-        require(usersCount > 0, "whitelistUsers: Empty arrays!");
-
-        for (uint256 i = 0; i < usersCount; i++) {
-            address user = users[i];
-            uint256 amount = amounts[i];
-
-            // Update contract storage with provided values
-            usdcPerUser[user] = amount;
-        }
-
-        emit UsersWhitelisted(users, amounts);
-    }
-
-    function removeUsers(address[] calldata users) external onlyOwner {
-        uint256 usersCount = users.length;
-        require(usersCount > 0, "removeUsers: Empty array!");
-
-        for (uint256 i = 0; i < usersCount; i++) {
-            address user = users[i];
-            usdcPerUser[user] = 0;
-        }
-
-        emit UsersRemoved(users);
-    }
-
-    function pause() external onlyOwner whenNotPaused {
-        _pause();
-    }
-
-    function unpause() external onlyOwner whenPaused {
-        _unpause();
-    }
-
-    function withdrawUsdc(address receiver) external onlyOwner {
-        USDC.safeTransfer(receiver, USDC.balanceOf(address(this)));
-    }
-
-    function withdrawUsdc(address receiver, uint256 amount) external onlyOwner {
-        USDC.safeTransfer(receiver, amount);
-    }
-
-    function totalSupply() public view returns (uint256) {}
-
-    function balanceOf(address owner) public view returns (uint256) {}
-
-    function transferFrom(
-        address from,
-        address to,
-        uint256 value
-    ) public returns (bool) {}
-
-    function transfer(address to, uint256 value) public returns (bool) {}
 
     function updateSemiAnnualFee(uint256 _percent) public onlyManager() {
         percent = _percent;

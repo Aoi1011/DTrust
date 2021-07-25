@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Unlicensed
-pragma solidity ^0.8.00;
+pragma solidity ^0.8.0;
 
 import "./interfaces/IERC20.sol";
 import "./interfaces/IERC20Burnable.sol";
@@ -44,7 +44,7 @@ contract Swap is Ownable, Pausable {
   address public immutable burnValley;
   uint256 public constant MIN_DTrust = 40 * 10**18;
 
-  IERC20 public constant DTrust = IERC20(0x******); //DTrust smart contract
+  IERC20 public DTrust; //DTrust smart contract
   IERC20 public constant USDC = IERC20(0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48);
 
   mapping(address => uint256) public usdcPerUser;
