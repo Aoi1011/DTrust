@@ -3,17 +3,13 @@ pragma solidity ^0.8.0;
 // import "../node_modules/@nomiclabs/buidler/console.sol"; // advance debugging
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol"; // --> safe ERC1155 internals
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
 
 import "./libraries/SafeMath.sol";
-import "./libraries/stringUtils.sol";
 
 
-contract DTRUST is ERC1155, Ownable, Pausable {
+contract DTRUST is ERC1155 {
     // Library///////
     using SafeMath for uint256;
-    using StringUtils for string;
     using SafeERC20 for IERC20;
     /////////////////
 
@@ -33,9 +29,9 @@ contract DTRUST is ERC1155, Ownable, Pausable {
         string tokenName; // PrToekn, DToken
     }
 
-    // uint256 private _AnualFeeTotal;
-    // uint256 public percent = 25;
-    // uint256 public _SemiAnnualFee = percent / 100; // it can be updated later  percent
+    uint256 private _AnualFeeTotal;
+    uint256 public percent = 25;
+    uint256 public _SemiAnnualFee = percent / 100; // it can be updated later  percent
     uint256[] public tokenIds;
     address payable public manager;
     address payable public settlor;
@@ -265,47 +261,47 @@ contract DTRUST is ERC1155, Ownable, Pausable {
             );
     }
 
-    // function updateSemiAnnualFee(uint256 _percent) public onlyManager() {
-    //     percent = _percent;
-    // }
+    function updateSemiAnnualFee(uint256 _percent) public onlyManager() {
+        percent = _percent;
+    }
 
-    // function paySemiAnnualFeeForFirstTwoYear(
-    //     uint256 _id,
-    //     address _target,
-    //     bool _hasPromoter
-    // ) public onlyManager() {
-    //     uint256 semiAnnualFee = _orderBook[_target][_id].mul(
-    //         _SemiAnnualFee.div(100)
-    //     );
-    //     TokenType memory t = tokenType[_id];
+    function paySemiAnnualFeeForFirstTwoYear(
+        uint256 _id,
+        address _target,
+        bool _hasPromoter
+    ) public onlyManager() {
+        uint256 semiAnnualFee = _orderBook[_target][_id].mul(
+            _SemiAnnualFee.div(100)
+        );
+        TokenType memory t = tokenType[_id];
 
-    //     // pay annual fee
-    //     if (
-    //         _hasPromoter &&
-    //         keccak256(abi.encodePacked(t.tokenName)) ==
-    //         keccak256(abi.encodePacked("PrToken"))
-    //     ) {
-    //         // uint256 prTokenId = tokenType[TokenType.PrToken];
-    //         tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
-    //     } else {
-    //         // uint256 dTokenId = tokenType[TokenType.DToken];
-    //         tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
-    //     }
+        // pay annual fee
+        if (
+            _hasPromoter &&
+            keccak256(abi.encodePacked(t.tokenName)) ==
+            keccak256(abi.encodePacked("PrToken"))
+        ) {
+            // uint256 prTokenId = tokenType[TokenType.PrToken];
+            tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
+        } else {
+            // uint256 dTokenId = tokenType[TokenType.DToken];
+            tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
+        }
 
-    //     _AnualFeeTotal.add(semiAnnualFee);
-    // }
+        _AnualFeeTotal.add(semiAnnualFee);
+    }
 
-    // function paySemiAnnualFeeForSubsequentYear(uint256 _id, address _target)
-    //     public
-    //     onlyManager()
-    // {
-    //     uint256 semiAnnualFee = _orderBook[_target][_id].mul(
-    //         _SemiAnnualFee.div(100)
-    //     );
+    function paySemiAnnualFeeForSubsequentYear(uint256 _id, address _target)
+        public
+        onlyManager()
+    {
+        uint256 semiAnnualFee = _orderBook[_target][_id].mul(
+            _SemiAnnualFee.div(100)
+        );
 
-    //     // pay annual fee
-    //     tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
+        // pay annual fee
+        tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
 
-    //     _AnualFeeTotal.add(semiAnnualFee);
-    // }
+        _AnualFeeTotal.add(semiAnnualFee);
+    }
 }
