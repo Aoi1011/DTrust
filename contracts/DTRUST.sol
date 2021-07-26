@@ -46,7 +46,6 @@ contract DTRUST is ERC1155, Ownable, Pausable {
     // uint256 public percent = 25;
     // uint256 public _SemiAnnualFee = percent / 100; // it can be updated later  percent
     // uint256 public numControlKey;
-    uint256 public constant MIN_DTrust = 40 * 10**18;
     uint256[] public tokenIds;
     address payable public manager;
     address payable public settlor;
@@ -81,12 +80,6 @@ contract DTRUST is ERC1155, Ownable, Pausable {
     );
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Mint(address indexed sender, uint256 amount0, uint256 amount1);
-    event Burn(
-        address indexed sender,
-        uint256 amount0,
-        uint256 amount1,
-        address indexed to
-    );
     ////////////////////////////////////////
 
     modifier onlyManager() {
