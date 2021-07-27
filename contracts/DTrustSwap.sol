@@ -12,18 +12,9 @@ import "./Context.sol";
 import "./Ownable.sol";
 import "./Pausable.sol";
 
-/**
- * @dev Contract where tokens are blocked forever
- */
 contract BurnValley {
   event TokensDestroyed(address burner, uint256 amount);
 
-  /**
-    * @dev Method for burning any token from contract balance.
-    * All tokens which will be sent here should be locked forever or burned
-    * For better transparency everybody can call this method and burn tokens
-    * Emits a {TokensDestroyed} event.
-    */
   function burnAllTokens(address _token) external {
     IERC20Burnable token = IERC20Burnable(_token);
 
@@ -34,9 +25,6 @@ contract BurnValley {
   }
 }
 
-/**
- * @dev DTrust tokens swap contract
- */
 abstract contract Swap is Ownable, Pausable {
   using SafeMath for uint256;
   using SafeERC20 for IERC20;
