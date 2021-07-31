@@ -36,6 +36,7 @@ contract DTRUST is ERC1155 {
     address payable public manager;
     address payable public settlor;
     address payable public trustee;
+    address public beneficiary;
     string public name;
     string public symbol;
     string private _uri;
@@ -83,13 +84,14 @@ contract DTRUST is ERC1155 {
         string memory _newURI,
         address payable _deployerAddress, 
         address payable _settlor, 
-        address payable _beneficiary, 
+        address _beneficiary, 
         address payable _trustee
     ) ERC1155(_newURI) {       
         name = _contractName;
         symbol = _contractSymbol;
         manager = _deployerAddress;
         settlor = _settlor;
+        beneficiary = _beneficiary;
         trustee = _trustee;
     }
 
