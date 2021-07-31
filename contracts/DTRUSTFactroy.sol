@@ -18,7 +18,10 @@ contract DTRUSTFactory {
             _contractName,
             _contractSymbol,
             _newuri,
-            payable(msg.sender)
+            payable(msg.sender),
+            payable(_settlor),
+            _beneficiary, 
+            payable(_trustee)
         );
         deployedDTRUSTs.push(newDTRUST);
         
