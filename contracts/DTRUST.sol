@@ -93,11 +93,11 @@ contract DTRUST is ERC1155 {
         trustee = _trustee;
     }
 
-    function setBeneficiary(uint256 _id, uint256 _price) public onlyManager() {
+    function setBeneficiaryAsset(uint256 _id, uint256 _price) public onlyManager() {
         tokenPrices[_id] = _price;
     }
 
-    function setBeneficiaries(
+    function setBeneficiariesAssets(
         address payable _beneficiary,
         uint256[] memory _ids,
         uint256[] memory _amounts
