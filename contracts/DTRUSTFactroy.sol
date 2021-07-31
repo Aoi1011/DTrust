@@ -9,7 +9,10 @@ contract DTRUSTFactory {
     function createDTRUST(
         string memory _contractSymbol,
         string memory _newuri,
-        string memory _contractName
+        string memory _contractName,
+        address _settlor, 
+        address _beneficiary,
+        address _trustee
     ) public {
         DTRUST newDTRUST = new DTRUST(
             _contractName,
@@ -18,6 +21,7 @@ contract DTRUSTFactory {
             payable(msg.sender)
         );
         deployedDTRUSTs.push(newDTRUST);
+        
     }
 
     function getDeployedDTRUSTs() public view returns (DTRUST[] memory) {
