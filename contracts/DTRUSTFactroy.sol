@@ -20,7 +20,7 @@ contract DTRUSTFactory {
         deployedDTRUSTs.push(newDTRUST);
     }
 
-    function getNumberDeployedDTRUSTs() public view returns (uint256) {
-        return deployedDTRUSTs.length;
+    function getDeployedDTRUSTs() public view returns (DTRUST[] memory) {
+        return deployedDTRUSTs;
     }
 }
