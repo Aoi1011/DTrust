@@ -31,7 +31,7 @@ contract DTRUST is ERC1155 {
 
     uint256 private _AnualFeeTotal;
     uint256 public percent = 25;
-    uint256 public _SemiAnnualFee = percent / 100; // it can be updated later  percent
+    uint256 public _SemiAnnualFee = percent.div(100);
     uint256[] public tokenIds;
     address payable public manager;
     address payable public settlor;
