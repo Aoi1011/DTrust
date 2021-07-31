@@ -81,11 +81,16 @@ contract DTRUST is ERC1155 {
         string memory _contractName,
         string memory _contractSymbol,
         string memory _newURI,
-        address payable _deployerAddress
-    ) ERC1155(_newURI) {
-        manager = _deployerAddress;
+        address payable _deployerAddress, 
+        address payable _settlor, 
+        address payable _beneficiary, 
+        address payable _trustee
+    ) ERC1155(_newURI) {       
         name = _contractName;
         symbol = _contractSymbol;
+        manager = _deployerAddress;
+        settlor = _settlor;
+        trustee = _trustee;
     }
 
     function setBeneficiary(uint256 _id, uint256 _price) public onlyManager() {
