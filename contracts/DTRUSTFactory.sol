@@ -80,8 +80,4 @@ contract DTRUSTFactory {
     function getAllDeployedDTRUSTs() public view returns (DTRUST[] memory) {
         return deployedDTRUSTs;
     }
-
-    function getAllControlKey() public view returns (uint256[] memory) {
-        return createdControlKeys;
-    }
 }
