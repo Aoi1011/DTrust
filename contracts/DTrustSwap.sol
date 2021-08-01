@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: Unlicensed
 pragma solidity ^0.8.0;
 
-import "./interfaces/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
+
 import "./interfaces/IERC20Burnable.sol";
-
-import "./libraries/Address.sol";
 import "./libraries/SafeMath.sol";
-import "./libraries/SafeERC20.sol";
-
-import "./Context.sol";
 import "./Ownable.sol";
 import "./Pausable.sol";
 
