@@ -10,7 +10,9 @@ contract DTRUSTFactory {
         string tokenName; // PrToekn, DToken
         string tokenKey;
     }
+
     DTRUST[] public deployedDTRUSTs;
+    uint256[] public createdControlKeys;
 
     function createDTRUST(
         string memory _contractSymbol,
@@ -20,7 +22,7 @@ contract DTRUSTFactory {
         address _settlor,
         address _beneficiary,
         address _trustee
-    ) public payable returns (DTRUST, uint256) {
+    ) public payable {
         DTRUST newDTRUST = new DTRUST(
             _contractName,
             _contractSymbol,
@@ -31,16 +33,15 @@ contract DTRUSTFactory {
             payable(_trustee)
         );
         deployedDTRUSTs.push(newDTRUST);
+        
         ControlKey newControlKey = new ControlKey();
-        return (
-            newDTRUST,
-            newControlKey.generateControlKey(
-                _privateKey,
-                _settlor,
-                _beneficiary,
-                _trustee
-            )
+        uint256 controlKeyId = newControlKey.generateControlKey(
+            _privateKey,
+            _settlor,
+            _beneficiary,
+            _trustee
         );
+        createdControlKeys.push(controlKeyId);
     }
 
     function createPromoteToken(
@@ -73,7 +74,10 @@ contract DTRUSTFactory {
                             abi.encodePacked(existDTrust.getSpecificTokenKey(j))
                         ) == keccak256(abi.encodePacked(_tokenKey))
                     ) {
-                        promoteTokenUri = existDTrust.getURI(existDTrust.uri(j), j);
+                        promoteTokenUri = existDTrust.getURI(
+                            existDTrust.uri(j),
+                            j
+                        );
                     }
                 }
             }
