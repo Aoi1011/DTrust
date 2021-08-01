@@ -15,7 +15,7 @@ contract DTRUSTFactory {
         address _settlor, 
         address _beneficiary,
         address _trustee
-    ) public {
+    ) public returns (uint256) {
         DTRUST newDTRUST = new DTRUST(
             _contractName,
             _contractSymbol,
@@ -27,7 +27,7 @@ contract DTRUSTFactory {
         );
         deployedDTRUSTs.push(newDTRUST);
         ControlKey newControlKey = new ControlKey();
-        newControlKey.generateControlKey(_privateKey, _settlor, _beneficiary, _trustee);
+        return newControlKey.generateControlKey(_privateKey, _settlor, _beneficiary, _trustee);
     }
 
     function getDeployedDTRUSTs() public view returns (DTRUST[] memory) {
