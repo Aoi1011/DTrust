@@ -146,7 +146,7 @@ contract DTRUST is ERC1155 {
             _mint(manager, PrTokenId, _amount, "");
             tokenSupply[PrTokenId] += _amount;
 
-            PrToken memory newPrToken = new PrToken(countOfPrToken, _tokenKey);
+            PrToken memory newPrToken = PrToken(countOfPrToken, _tokenKey);
             prTokens.push(newPrToken);
             countOfPrToken++;
         } else {
@@ -325,15 +325,20 @@ contract DTRUST is ERC1155 {
         _AnualFeeTotal.add(semiAnnualFee);
     }
 
-    function getSpecificTokenKey(uint256 _tokenId)
+    function getSpecificTokenKey(uint256 _PrTokenId)
         public
         view
         returns (string memory)
     {
-        return token[_tokenId].tokenKey;
+        for (uint256 i = 0; i < prTokens.length; i++) {
+            if (prTokens[i].id == _PrTokenId) {
+                return prTokens[i].tokenKey;
+            }
+        }
+        return "";
     }
 
     function getCountOfToken() public view returns (uint256) {
-        return tokenIds.length;
+        return prTokens.length;
     }
 }
