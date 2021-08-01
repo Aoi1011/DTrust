@@ -38,7 +38,7 @@ contract DTRUSTFactory {
         );
     }
 
-    function getDeployedDTRUSTs() public view returns (DTRUST[] memory) {
+    function getAllDeployedDTRUSTs() public view returns (DTRUST[] memory) {
         return deployedDTRUSTs;
     }
 }
