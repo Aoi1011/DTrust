@@ -37,14 +37,12 @@ contract DTRUSTFactory {
 
     function createPromoteToken(
         DTRUST _dtrust,
-        uint256 _id,
-        string memory _tokenName,
         string memory _tokenKey
     ) public returns (bool) {
         for (uint256 i = 0; i < deployedDTRUSTs.length; i++) {
             if (deployedDTRUSTs[i] == _dtrust) {
                 DTRUST existDTrust = deployedDTRUSTs[i];
-                existDTrust.mint(_id, _tokenName, 1, _tokenKey);
+                existDTrust.mint(true, 1, _tokenKey);
                 return true;
             }
         }
