@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "./libraries/SafeMath.sol";
 
-
 contract DTRUST is ERC1155 {
     // Library///////
     using SafeMath for uint256;
@@ -82,11 +81,11 @@ contract DTRUST is ERC1155 {
         string memory _contractName,
         string memory _contractSymbol,
         string memory _newURI,
-        address payable _deployerAddress, 
-        address payable _settlor, 
-        address _beneficiary, 
+        address payable _deployerAddress,
+        address payable _settlor,
+        address _beneficiary,
         address payable _trustee
-    ) ERC1155(_newURI) {       
+    ) ERC1155(_newURI) {
         name = _contractName;
         symbol = _contractSymbol;
         manager = _deployerAddress;
@@ -95,7 +94,10 @@ contract DTRUST is ERC1155 {
         trustee = _trustee;
     }
 
-    function setBeneficiaryAsset(uint256 _id, uint256 _price) public onlyManager() {
+    function setBeneficiaryAsset(uint256 _id, uint256 _price)
+        public
+        onlyManager
+    {
         tokenPrices[_id] = _price;
     }
 
@@ -103,7 +105,7 @@ contract DTRUST is ERC1155 {
         address payable _beneficiary,
         uint256[] memory _ids,
         uint256[] memory _amounts
-    ) public onlyManager() {
+    ) public onlyManager {
         safeBatchTransferFrom(msg.sender, _beneficiary, _ids, _amounts, "");
         for (uint256 i = 0; i < _ids.length; i++) {
             tokenPrices[_ids[i]] = _amounts[i];
@@ -114,7 +116,7 @@ contract DTRUST is ERC1155 {
         address payable _target,
         uint256[] memory _ids,
         uint256[] memory _amounts
-    ) public onlyManager() {
+    ) public onlyManager {
         safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
         for (uint256 i = 0; i < _ids.length; i++) {
             tokenPrices[_ids[i]] = _amounts[i];
@@ -125,7 +127,7 @@ contract DTRUST is ERC1155 {
         address payable _target,
         uint256[] memory _ids,
         uint256[] memory _amounts
-    ) public onlyManager() {
+    ) public onlyManager {
         safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
         for (uint256 i = 0; i < _ids.length; i++) {}
     }
@@ -134,7 +136,7 @@ contract DTRUST is ERC1155 {
         uint256 _id,
         string memory _tokenName,
         uint256 _amount
-    ) public onlyManager() {
+    ) public onlyManager {
         _mint(manager, _id, _amount, "");
         tokenSupply[_id] = _amount;
 
@@ -148,7 +150,7 @@ contract DTRUST is ERC1155 {
         uint256[] memory _ids,
         string[] memory _tokenNames,
         uint256[] memory _amounts
-    ) public onlyManager() {
+    ) public onlyManager {
         _mintBatch(manager, _ids, _amounts, "");
         for (uint256 i = 0; i < _ids.length; i++) {
             tokenSupply[_ids[i]] = _amounts[i];
@@ -163,7 +165,7 @@ contract DTRUST is ERC1155 {
     function get_target(address _target, uint256 _id)
         public
         view
-        onlyManager()
+        onlyManager
         returns (uint256)
     {
         return _orderBook[_target][_id];
@@ -183,7 +185,7 @@ contract DTRUST is ERC1155 {
         address payable _target,
         uint256 _id,
         uint256 _amount
-    ) public onlyManager() {
+    ) public onlyManager {
         safeTransferFrom(msg.sender, _target, _id, _amount, "");
         tokenSupply[_id] -= _amount;
         _orderBook[_target][_id] = 0;
@@ -211,7 +213,7 @@ contract DTRUST is ERC1155 {
         address payable _target,
         uint256[] memory _ids,
         uint256[] memory _amounts
-    ) public onlyManager() {
+    ) public onlyManager {
         safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
         for (uint256 i = 0; i < _ids.length; i++) {
             tokenSupply[_ids[i]] -= _amounts[i];
@@ -227,7 +229,7 @@ contract DTRUST is ERC1155 {
         return toFullURI(uri, _id);
     }
 
-    function setURI(string memory _newURI) public onlyManager() {
+    function setURI(string memory _newURI) public onlyManager {
         _setURI(_newURI);
     }
 
@@ -268,7 +270,7 @@ contract DTRUST is ERC1155 {
             );
     }
 
-    function updateSemiAnnualFee(uint256 _percent) public onlyManager() {
+    function updateSemiAnnualFee(uint256 _percent) public onlyManager {
         percent = _percent;
     }
 
@@ -276,7 +278,7 @@ contract DTRUST is ERC1155 {
         uint256 _id,
         address _target,
         bool _hasPromoter
-    ) public onlyManager() {
+    ) public onlyManager {
         uint256 semiAnnualFee = _orderBook[_target][_id].mul(
             _SemiAnnualFee.div(100)
         );
@@ -300,7 +302,7 @@ contract DTRUST is ERC1155 {
 
     function paySemiAnnualFeeForSubsequentYear(uint256 _id, address _target)
         public
-        onlyManager()
+        onlyManager
     {
         uint256 semiAnnualFee = _orderBook[_target][_id].mul(
             _SemiAnnualFee.div(100)
