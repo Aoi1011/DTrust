@@ -19,7 +19,6 @@ contract DTRUSTFactory {
         string memory _contractSymbol,
         string memory _newuri,
         string memory _contractName,
-        string memory _privateKey,
         address _settlor,
         address _beneficiary,
         address _trustee
