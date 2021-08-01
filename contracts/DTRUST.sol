@@ -39,7 +39,7 @@ contract DTRUST is ERC1155 {
     address public beneficiary;
     string public name;
     string public symbol;
-    string public uri;
+    string public dTrustUri;
 
     // storage//////////////////////////
     mapping(uint256 => Token) public token; // id -> Token
@@ -89,7 +89,7 @@ contract DTRUST is ERC1155 {
     ) ERC1155(_newURI) {
         name = _contractName;
         symbol = _contractSymbol;
-        uri = _newURI;
+        dTrustUri = _newURI;
         manager = _deployerAddress;
         settlor = _settlor;
         beneficiary = _beneficiary;
@@ -320,7 +320,11 @@ contract DTRUST is ERC1155 {
         _AnualFeeTotal.add(semiAnnualFee);
     }
 
-    function getSpecificTokenKey(uint256 _tokenId) public view returns (string memory) {
+    function getSpecificTokenKey(uint256 _tokenId)
+        public
+        view
+        returns (string memory)
+    {
         return token[_tokenId].tokenKey;
     }
 

@@ -68,13 +68,12 @@ contract DTRUSTFactory {
             if (deployedDTRUSTs[i] == _dtrust) {
                 DTRUST existDTrust = deployedDTRUSTs[i];
                 for (uint256 j = 0; j < existDTrust.getCountOfToken(); j++) {
-                    // existDTrust.token[j].tokenKey;
                     if (
                         keccak256(
                             abi.encodePacked(existDTrust.getSpecificTokenKey(j))
                         ) == keccak256(abi.encodePacked(_tokenKey))
                     ) {
-                        promoteTokenUri = existDTrust.getURI("Hello", j);
+                        promoteTokenUri = existDTrust.getURI(existDTrust.uri(j), j);
                     }
                 }
             }
