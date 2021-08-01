@@ -33,7 +33,7 @@ contract DTRUSTFactory {
             payable(_trustee)
         );
         deployedDTRUSTs.push(newDTRUST);
-        
+
         ControlKey newControlKey = new ControlKey();
         uint256 controlKeyId = newControlKey.generateControlKey(
             _privateKey,
@@ -87,5 +87,9 @@ contract DTRUSTFactory {
 
     function getAllDeployedDTRUSTs() public view returns (DTRUST[] memory) {
         return deployedDTRUSTs;
+    }
+
+    function getAllControlKey() public view returns (uint256[] memory) {
+        return createdControlKeys;
     }
 }
