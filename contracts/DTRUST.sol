@@ -39,7 +39,7 @@ contract DTRUST is ERC1155 {
     address public beneficiary;
     string public name;
     string public symbol;
-    string private _uri;
+    string public uri;
 
     // storage//////////////////////////
     mapping(uint256 => Token) public token; // id -> Token
@@ -89,6 +89,7 @@ contract DTRUST is ERC1155 {
     ) ERC1155(_newURI) {
         name = _contractName;
         symbol = _contractSymbol;
+        uri = _newURI;
         manager = _deployerAddress;
         settlor = _settlor;
         beneficiary = _beneficiary;
@@ -226,12 +227,12 @@ contract DTRUST is ERC1155 {
         }
     }
 
-    function getURI(string memory uri, uint256 _id)
+    function getURI(string memory _uri, uint256 _id)
         public
         pure
         returns (string memory)
     {
-        return toFullURI(uri, _id);
+        return toFullURI(_uri, _id);
     }
 
     function setURI(string memory _newURI) public onlyManager {
@@ -264,14 +265,14 @@ contract DTRUST is ERC1155 {
         return string(bstr);
     }
 
-    function toFullURI(string memory uri, uint256 _id)
+    function toFullURI(string memory _uri, uint256 _id)
         internal
         pure
         returns (string memory)
     {
         return
             string(
-                abi.encodePacked(uri, "/", uint2str(_id & PACK_INDEX), ".json")
+                abi.encodePacked(_uri, "/", uint2str(_id & PACK_INDEX), ".json")
             );
     }
 
@@ -317,6 +318,10 @@ contract DTRUST is ERC1155 {
         tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
 
         _AnualFeeTotal.add(semiAnnualFee);
+    }
+
+    function getSpecificTokenKey(uint256 _tokenId) public view returns (string memory) {
+        return token[_tokenId].tokenKey;
     }
 
     function getCountOfToken() public view returns (uint256) {
