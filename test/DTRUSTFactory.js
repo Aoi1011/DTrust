@@ -30,8 +30,7 @@ contract("DTRUSTFactory", (accounts) => {
     describe("#createDTRUST()", () => {
         it('should create new DTRUST', async () => {
             await instance.createDTRUST(SYMBOL, "HELLO", NAME, "PrivateKey", settlor, beneficiary, trustee, {from: owner});
-            deployedDtrust = dtrust;
-            console.log(dtrust);
+            
         });
     });
 
