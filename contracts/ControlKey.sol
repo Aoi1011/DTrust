@@ -4,9 +4,9 @@ pragma solidity ^0.8.0;
 contract ControlKey {
     struct StructControlKey {
         string privateKey;
-        address[] settlors;
-        address[] beneficiaries;
-        address[] trustees;
+        address settlor;
+        address beneficiary;
+        address trustee;
         bool usable;
         bool burnable;
     }
@@ -16,16 +16,16 @@ contract ControlKey {
 
     function generateControlKey(
         string memory _privateKey,
-        address[] memory _settlors,
-        address[] memory _beneficiaries,
-        address[] memory _trustees
+        address _settlor,
+        address _beneficiary,
+        address _trustee
     ) public returns (uint256 controlKeyId) {
         controlKeyId = numControlKey++;
         controlKeys[controlKeyId] = StructControlKey({
             privateKey: _privateKey,
-            settlors: _settlors,
-            beneficiaries: _beneficiaries,
-            trustees: _trustees,
+            settlor: _settlor,
+            beneficiary: _beneficiary,
+            trustee: _trustee,
             usable: false,
             burnable: false
         });
@@ -50,9 +50,9 @@ contract ControlKey {
         StructControlKey memory existControlKey = controlKeys[_controlKeyId];
         controlKeys[_controlKeyId] = StructControlKey({
             privateKey: existControlKey.privateKey,
-            settlors: existControlKey.settlors,
-            beneficiaries: existControlKey.beneficiaries,
-            trustees: existControlKey.trustees,
+            settlor: existControlKey.settlor,
+            beneficiary: existControlKey.beneficiary,
+            trustee: existControlKey.trustee,
             usable: !existControlKey.usable,
             burnable: existControlKey.burnable
         });
@@ -67,9 +67,9 @@ contract ControlKey {
         StructControlKey memory existControlKey = controlKeys[_controlKeyId];
         controlKeys[_controlKeyId] = StructControlKey({
             privateKey: existControlKey.privateKey,
-            settlors: existControlKey.settlors,
-            beneficiaries: existControlKey.beneficiaries,
-            trustees: existControlKey.trustees,
+            settlor: existControlKey.settlor,
+            beneficiary: existControlKey.beneficiary,
+            trustee: existControlKey.trustee,
             usable: existControlKey.usable,
             burnable: !existControlKey.burnable
         });

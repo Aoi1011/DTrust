@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "./DTRUST.sol";
+import "./ControlKey.sol";
 
 contract DTRUSTFactory {
     DTRUST[] public deployedDTRUSTs;
@@ -10,6 +11,7 @@ contract DTRUSTFactory {
         string memory _contractSymbol,
         string memory _newuri,
         string memory _contractName,
+        string memory _privateKey,
         address _settlor, 
         address _beneficiary,
         address _trustee
@@ -24,7 +26,8 @@ contract DTRUSTFactory {
             payable(_trustee)
         );
         deployedDTRUSTs.push(newDTRUST);
-        
+        ControlKey newControlKey = new ControlKey();
+        newControlKey.generateControlKey(_privateKey, _settlor, _beneficiary, _trustee);
     }
 
     function getDeployedDTRUSTs() public view returns (DTRUST[] memory) {
