@@ -10,8 +10,9 @@ contract ControlKey {
         bool usable;
         bool burnable;
     }
-    uint256 public numControlKey;
 
+    uint256 public numControlKey;
+    
     mapping(uint256 => StructControlKey) controlKeys;
 
     function generateControlKey(
@@ -21,6 +22,7 @@ contract ControlKey {
         address _trustee
     ) public returns (uint256 controlKeyId) {
         controlKeyId = numControlKey++;
+        
         controlKeys[controlKeyId] = StructControlKey({
             privateKey: _privateKey,
             settlor: _settlor,

@@ -12,6 +12,7 @@ contract DTRUSTFactory {
     }
 
     DTRUST[] public deployedDTRUSTs;
+    uint256 public totalOfControlKeys;
     uint256[] public createdControlKeys;
 
     function createDTRUST(
