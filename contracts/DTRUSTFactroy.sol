@@ -66,16 +66,22 @@ contract DTRUSTFactory {
         for (uint256 i = 0; i < deployedDTRUSTs.length; i++) {
             if (deployedDTRUSTs[i] == _dtrust) {
                 DTRUST existDTrust = deployedDTRUSTs[i];
-                uint256 numberOfId = existDTrust.tokenIds.length;
-                for (uint256 j = 0; j < existDTrust.tokenIds; j++) {
-                    Token memory promoteToken = existDTrust.token[
-                        existDTrust.tokenIds[j]
-                    ];
-                    if (promoteToken.tokenKey == _tokenKey) {
-                        return existDTrust.getURI(existDTrust, promoteToken.tokenId);
+                for (uint256 j = 0; j < existDTrust.getCountOfToken(); j++) {
+                    // existDTrust.token[j].tokenKey;
+                    if (
+                        keccak256(
+                            abi.encodePacked(
+                                existDTrust.token[_tokenId].tokenKey
+                            )
+                        ) == keccak256(abi.encodePacked(_tokenKey))
+                    ) {
+                        return
+                            existDTrust.getURI(
+                                existDTrust,
+                                existDTrust.token[_tokenId].tokenId
+                            );
                     }
                 }
-                
             }
         }
         // DTRUST existDTrust =
