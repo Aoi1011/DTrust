@@ -54,7 +54,7 @@ contract DTRUSTFactory {
     function usePromoteToken(DTRUST _dtrust, string memory _tokenKey)
         public
         view
-        returns (string memory promoteTokenUri)
+        returns (string memory)
     {
         for (uint256 i = 0; i < deployedDTRUSTs.length; i++) {
             if (deployedDTRUSTs[i] == _dtrust) {
@@ -65,15 +65,12 @@ contract DTRUSTFactory {
                             abi.encodePacked(existDTrust.getSpecificTokenKey(j))
                         ) == keccak256(abi.encodePacked(_tokenKey))
                     ) {
-                        promoteTokenUri = existDTrust.getURI(
-                            existDTrust.uri(j),
-                            j
-                        );
+                        return existDTrust.getURI(existDTrust.uri(j), j);
                     }
                 }
             }
         }
-        promoteTokenUri = "";
+        return "";
     }
 
     function getAllDeployedDTRUSTs() public view returns (DTRUST[] memory) {

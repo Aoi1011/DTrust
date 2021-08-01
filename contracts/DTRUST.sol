@@ -15,6 +15,8 @@ contract DTRUST is ERC1155 {
     // constants/////
     uint256 private constant PACK_INDEX =
         0x0000000000000000000000000000000000000000000000000000000000007FFF;
+    uint256 private constant PrTokenId = 0;
+    uint256 private constant DTokenId = 1;
     /////////////////
 
     enum ContractRights {
@@ -23,16 +25,16 @@ contract DTRUST is ERC1155 {
         POSTPONE
     }
 
-    struct Token {
-        uint256 tokenId;
-        string tokenName; // PrToekn, DToken
+    struct PrToken {
+        uint256 id;
         string tokenKey;
     }
 
     uint256 private _AnualFeeTotal;
     uint256 public percent = 25;
     uint256 public _SemiAnnualFee = percent.div(100);
-    uint256[] public tokenIds;
+    // uint256[] public tokenIds;
+    uint256 public countOfPrToken = 1;
     address payable public manager;
     address payable public settlor;
     address payable public trustee;
@@ -40,9 +42,10 @@ contract DTRUST is ERC1155 {
     string public name;
     string public symbol;
     string public dTrustUri;
+    PrToken[] public prTokens;
 
     // storage//////////////////////////
-    mapping(uint256 => Token) public token; // id -> Token
+    // mapping(uint256 => Token) public token; // id -> Token
     mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
     mapping(uint256 => uint256) public tokenPrices; // id -> tokenPrice
     mapping(address => mapping(uint256 => uint256)) private _orderBook; // address -> id -> amount of asset
@@ -135,38 +138,40 @@ contract DTRUST is ERC1155 {
     }
 
     function mint(
-        uint256 _id,
-        string memory _tokenName,
+        bool _isPromoteToken,
         uint256 _amount,
         string memory _tokenKey
-    ) public onlyManager {
-        _mint(manager, _id, _amount, "");
-        tokenSupply[_id] += _amount;
+    ) public {
+        if (_isPromoteToken) {
+            _mint(manager, PrTokenId, _amount, "");
+            tokenSupply[PrTokenId] += _amount;
 
-        Token memory newToken = token[_id];
-        newToken.tokenId = _id;
-        newToken.tokenName = _tokenName;
-        newToken.tokenKey = _tokenKey;
-        tokenIds.push(_id);
-    }
-
-    function mintBatch(
-        uint256[] memory _ids,
-        string[] memory _tokenNames,
-        uint256[] memory _amounts,
-        string[] memory _tokenKeys
-    ) public onlyManager {
-        _mintBatch(manager, _ids, _amounts, "");
-        for (uint256 i = 0; i < _ids.length; i++) {
-            tokenSupply[_ids[i]] += _amounts[i];
-
-            Token memory newToken = token[_ids[i]];
-            newToken.tokenId = _ids[i];
-            newToken.tokenName = _tokenNames[i];
-            newToken.tokenKey = _tokenKeys[i];
-            tokenIds.push(_ids[i]);
+            PrToken memory newPrToken = new PrToken(countOfPrToken, _tokenKey);
+            prTokens.push(newPrToken);
+            countOfPrToken++;
+        } else {
+            _mint(manager, DTokenId, _amount, "");
+            tokenSupply[DTokenId] += _amount;
         }
     }
+
+    // function mintBatch(
+    //     uint256[] memory _ids,
+    //     string[] memory _tokenNames,
+    //     uint256[] memory _amounts,
+    //     string[] memory _tokenKeys
+    // ) public onlyManager {
+    //     _mintBatch(manager, _ids, _amounts, "");
+    //     for (uint256 i = 0; i < _ids.length; i++) {
+    //         tokenSupply[_ids[i]] += _amounts[i];
+
+    //         Token memory newToken = token[_ids[i]];
+    //         newToken.tokenId = _ids[i];
+    //         newToken.tokenName = _tokenNames[i];
+    //         newToken.tokenKey = _tokenKeys[i];
+    //         tokenIds.push(_ids[i]);
+    //     }
+    // }
 
     function get_target(address _target, uint256 _id)
         public
@@ -281,26 +286,22 @@ contract DTRUST is ERC1155 {
     }
 
     function paySemiAnnualFeeForFirstTwoYear(
-        uint256 _id,
+        bool isPrToken,
         address _target,
-        bool _hasPromoter
     ) public onlyManager {
-        uint256 semiAnnualFee = _orderBook[_target][_id].mul(
-            _SemiAnnualFee.div(100)
-        );
-        Token memory t = token[_id];
-
-        // pay annual fee
-        if (
-            _hasPromoter &&
-            keccak256(abi.encodePacked(t.tokenName)) ==
-            keccak256(abi.encodePacked("PrToken"))
-        ) {
-            // uint256 prTokenId = tokenType[TokenType.PrToken];
-            tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
-        } else {
-            // uint256 dTokenId = tokenType[TokenType.DToken];
-            tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
+        uint256 semiAnnualFee = 0;
+        if (isPrToken) {
+            semiAnnualFee = _orderBook[_target][PrTokenId].mul(
+                _SemiAnnualFee.div(100)
+            );
+            // Token memory t = token[_id];
+            tokenSupply[PrTokenId] = tokenSupply[PrTokenId].add(semiAnnualFee);
+        }
+        else {
+            semiAnnualFee = _orderBook[_target][DTokenId].mul(
+                _SemiAnnualFee.div(100)
+            );
+            tokenSupply[DTokenId] = tokenSupply[DTokenId].add(semiAnnualFee);
         }
 
         _AnualFeeTotal.add(semiAnnualFee);
