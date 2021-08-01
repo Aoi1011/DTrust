@@ -11,6 +11,8 @@ contract DTRUSTFactory {
         string tokenKey;
     }
     DTRUST[] public deployedDTRUSTs;
+    
+    uint256 public numberOfDeployedDTrust;
 
     function createDTRUST(
         string memory _contractSymbol,
@@ -20,7 +22,7 @@ contract DTRUSTFactory {
         address _settlor,
         address _beneficiary,
         address _trustee
-    ) public returns (DTRUST, uint256) {
+    ) public payable returns (DTRUST, uint256) {
         DTRUST newDTRUST = new DTRUST(
             _contractName,
             _contractSymbol,
@@ -31,6 +33,7 @@ contract DTRUSTFactory {
             payable(_trustee)
         );
         deployedDTRUSTs.push(newDTRUST);
+        numberOfDeployedDTrust++;
         ControlKey newControlKey = new ControlKey();
         return (
             newDTRUST,
