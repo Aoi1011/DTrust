@@ -285,19 +285,17 @@ contract DTRUST is ERC1155 {
         percent = _percent;
     }
 
-    function paySemiAnnualFeeForFirstTwoYear(
-        bool isPrToken,
-        address _target,
-    ) public onlyManager {
+    function paySemiAnnualFeeForFirstTwoYear(bool isPrToken, address _target)
+        public
+        onlyManager
+    {
         uint256 semiAnnualFee = 0;
         if (isPrToken) {
             semiAnnualFee = _orderBook[_target][PrTokenId].mul(
                 _SemiAnnualFee.div(100)
             );
-            // Token memory t = token[_id];
             tokenSupply[PrTokenId] = tokenSupply[PrTokenId].add(semiAnnualFee);
-        }
-        else {
+        } else {
             semiAnnualFee = _orderBook[_target][DTokenId].mul(
                 _SemiAnnualFee.div(100)
             );
@@ -307,16 +305,22 @@ contract DTRUST is ERC1155 {
         _AnualFeeTotal.add(semiAnnualFee);
     }
 
-    function paySemiAnnualFeeForSubsequentYear(uint256 _id, address _target)
+    function paySemiAnnualFeeForSubsequentYear(bool isPrToken, address _target)
         public
         onlyManager
     {
-        uint256 semiAnnualFee = _orderBook[_target][_id].mul(
-            _SemiAnnualFee.div(100)
-        );
-
-        // pay annual fee
-        tokenSupply[_id] = tokenSupply[_id].add(semiAnnualFee);
+        uint256 semiAnnualFee = 0;
+        if (isPrToken) {
+            semiAnnualFee = _orderBook[_target][PrTokenId].mul(
+                _SemiAnnualFee.div(100)
+            );
+            tokenSupply[PrTokenId] = tokenSupply[PrTokenId].add(semiAnnualFee);
+        } else {
+            semiAnnualFee = _orderBook[_target][DTokenId].mul(
+                _SemiAnnualFee.div(100)
+            );
+            tokenSupply[DTokenId] = tokenSupply[DTokenId].add(semiAnnualFee);
+        }
 
         _AnualFeeTotal.add(semiAnnualFee);
     }
