@@ -338,7 +338,7 @@ contract DTRUST is ERC1155 {
         return "";
     }
 
-    function getCountOfToken() public view returns (uint256) {
+    function getCountOfPrToken() public view returns (uint256) {
         return prTokens.length;
     }
 }
