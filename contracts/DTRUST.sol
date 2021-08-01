@@ -23,9 +23,10 @@ contract DTRUST is ERC1155 {
         POSTPONE
     }
 
-    struct TokenType {
+    struct Token {
         uint256 tokenId;
         string tokenName; // PrToekn, DToken
+        string tokenKey;
     }
 
     uint256 private _AnualFeeTotal;
@@ -41,7 +42,7 @@ contract DTRUST is ERC1155 {
     string private _uri;
 
     // storage//////////////////////////
-    mapping(uint256 => TokenType) public tokenType; // id -> tokenType
+    mapping(uint256 => Token) public token; // id -> Token
     mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
     mapping(uint256 => uint256) public tokenPrices; // id -> tokenPrice
     mapping(address => mapping(uint256 => uint256)) private _orderBook; // address -> id -> amount of asset
@@ -135,29 +136,33 @@ contract DTRUST is ERC1155 {
     function mint(
         uint256 _id,
         string memory _tokenName,
-        uint256 _amount
+        uint256 _amount,
+        string memory _tokenKey
     ) public onlyManager {
         _mint(manager, _id, _amount, "");
         tokenSupply[_id] += _amount;
 
-        TokenType memory newToken = tokenType[_id];
+        Token memory newToken = token[_id];
         newToken.tokenId = _id;
         newToken.tokenName = _tokenName;
+        newToken.tokenKey = _tokenKey;
         tokenIds.push(_id);
     }
 
     function mintBatch(
         uint256[] memory _ids,
         string[] memory _tokenNames,
-        uint256[] memory _amounts
+        uint256[] memory _amounts,
+        string[] memory _tokenKeys
     ) public onlyManager {
         _mintBatch(manager, _ids, _amounts, "");
         for (uint256 i = 0; i < _ids.length; i++) {
             tokenSupply[_ids[i]] += _amounts[i];
 
-            TokenType memory newToken = tokenType[_ids[i]];
+            Token memory newToken = token[_ids[i]];
             newToken.tokenId = _ids[i];
             newToken.tokenName = _tokenNames[i];
+            newToken.tokenKey = _tokenKeys[i];
             tokenIds.push(_ids[i]);
         }
     }
@@ -282,7 +287,7 @@ contract DTRUST is ERC1155 {
         uint256 semiAnnualFee = _orderBook[_target][_id].mul(
             _SemiAnnualFee.div(100)
         );
-        TokenType memory t = tokenType[_id];
+        Token memory t = token[_id];
 
         // pay annual fee
         if (
