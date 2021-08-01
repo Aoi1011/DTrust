@@ -38,6 +38,15 @@ contract DTRUSTFactory {
         );
     }
 
+    function existSpecificDTRUST(DTRUST _dtrust) private view returns (bool) {
+        for (uint i = 0; i < deployedDTRUSTs.length; i++) { 
+            if (deployedDTRUSTs[i] == _dtrust) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function getAllDeployedDTRUSTs() public view returns (DTRUST[] memory) {
         return deployedDTRUSTs;
     }
