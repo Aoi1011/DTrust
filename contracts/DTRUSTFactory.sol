@@ -34,15 +34,6 @@ contract DTRUSTFactory {
             payable(_trustee)
         );
         deployedDTRUSTs.push(newDTRUST);
-
-        ControlKey newControlKey = new ControlKey();
-        uint256 controlKeyId = newControlKey.generateControlKey(
-            _privateKey,
-            _settlor,
-            _beneficiary,
-            _trustee
-        );
-        createdControlKeys.push(controlKeyId);
     }
 
     function createPromoteToken(
