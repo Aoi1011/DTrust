@@ -51,17 +51,6 @@ contract DTRUSTFactory {
         }
     }
 
-    // function createPromoteToken(DTRUST _dtrust) public {
-    //     if (existSpecificDTRUST(_dtrust)) {
-    //         for (uint256 i = 0; i < deployedDTRUSTs.length; i++) {
-    //             if (deployedDTRUSTs[i] == _dtrust) {
-    //                 DTRUST existDTrust = deployedDTRUSTs[i];
-    //                 existDTrust.mint(_id, _tokenName, _amount);
-    //             }
-    //         }
-    //     }
-    // }
-
     function getAllDeployedDTRUSTs() public view returns (DTRUST[] memory) {
         return deployedDTRUSTs;
     }
