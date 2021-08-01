@@ -42,13 +42,15 @@ contract DTRUSTFactory {
         DTRUST _dtrust,
         uint256 _id,
         string memory _tokenName
-    ) public {
+    ) public returns (bool) {
         for (uint256 i = 0; i < deployedDTRUSTs.length; i++) {
             if (deployedDTRUSTs[i] == _dtrust) {
                 DTRUST existDTrust = deployedDTRUSTs[i];
                 existDTrust.mint(_id, _tokenName, 1);
+                return true;
             }
         }
+        return false;
     }
 
     function getAllDeployedDTRUSTs() public view returns (DTRUST[] memory) {
