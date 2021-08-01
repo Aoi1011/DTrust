@@ -138,7 +138,7 @@ contract DTRUST is ERC1155 {
         uint256 _amount
     ) public onlyManager {
         _mint(manager, _id, _amount, "");
-        tokenSupply[_id] = _amount;
+        tokenSupply[_id] += _amount;
 
         TokenType memory newToken = tokenType[_id];
         newToken.tokenId = _id;
@@ -153,7 +153,7 @@ contract DTRUST is ERC1155 {
     ) public onlyManager {
         _mintBatch(manager, _ids, _amounts, "");
         for (uint256 i = 0; i < _ids.length; i++) {
-            tokenSupply[_ids[i]] = _amounts[i];
+            tokenSupply[_ids[i]] += _amounts[i];
 
             TokenType memory newToken = tokenType[_ids[i]];
             newToken.tokenId = _ids[i];

@@ -38,14 +38,29 @@ contract DTRUSTFactory {
         );
     }
 
-    function existSpecificDTRUST(DTRUST _dtrust) private view returns (bool) {
-        for (uint i = 0; i < deployedDTRUSTs.length; i++) { 
+    function createPromoteToken(
+        DTRUST _dtrust,
+        uint256 _id,
+        string memory _tokenName
+    ) public {
+        for (uint256 i = 0; i < deployedDTRUSTs.length; i++) {
             if (deployedDTRUSTs[i] == _dtrust) {
-                return true;
+                DTRUST existDTrust = deployedDTRUSTs[i];
+                existDTrust.mint(_id, _tokenName, 1);
             }
         }
-        return false;
     }
+
+    // function createPromoteToken(DTRUST _dtrust) public {
+    //     if (existSpecificDTRUST(_dtrust)) {
+    //         for (uint256 i = 0; i < deployedDTRUSTs.length; i++) {
+    //             if (deployedDTRUSTs[i] == _dtrust) {
+    //                 DTRUST existDTrust = deployedDTRUSTs[i];
+    //                 existDTrust.mint(_id, _tokenName, _amount);
+    //             }
+    //         }
+    //     }
+    // }
 
     function getAllDeployedDTRUSTs() public view returns (DTRUST[] memory) {
         return deployedDTRUSTs;
