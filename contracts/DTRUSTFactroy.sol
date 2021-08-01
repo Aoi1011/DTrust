@@ -5,6 +5,11 @@ import "./DTRUST.sol";
 import "./ControlKey.sol";
 
 contract DTRUSTFactory {
+    struct Token {
+        uint256 tokenId;
+        string tokenName; // PrToekn, DToken
+        string tokenKey;
+    }
     DTRUST[] public deployedDTRUSTs;
 
     function createDTRUST(
@@ -52,6 +57,28 @@ contract DTRUSTFactory {
             }
         }
         return false;
+    }
+
+    function usePromoteToken(DTRUST _dtrust, string memory _tokenKey)
+        public
+        returns (string memory)
+    {
+        for (uint256 i = 0; i < deployedDTRUSTs.length; i++) {
+            if (deployedDTRUSTs[i] == _dtrust) {
+                DTRUST existDTrust = deployedDTRUSTs[i];
+                uint256 numberOfId = existDTrust.tokenIds.length;
+                for (uint256 j = 0; j < existDTrust.tokenIds; j++) {
+                    Token memory promoteToken = existDTrust.token[
+                        existDTrust.tokenIds[j]
+                    ];
+                    if (promoteToken.tokenKey == _tokenKey) {
+                        return existDTrust.getURI(existDTrust, promoteToken.tokenId);
+                    }
+                }
+                
+            }
+        }
+        // DTRUST existDTrust =
     }
 
     function getAllDeployedDTRUSTs() public view returns (DTRUST[] memory) {

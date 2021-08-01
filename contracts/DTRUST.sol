@@ -318,4 +318,8 @@ contract DTRUST is ERC1155 {
 
         _AnualFeeTotal.add(semiAnnualFee);
     }
+
+    function getCountOfToken() public view returns (uint256) {
+        return tokenIds.length;
+    }
 }
