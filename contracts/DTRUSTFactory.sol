@@ -5,10 +5,6 @@ import "./DTRUST.sol";
 import "./ControlKey.sol";
 
 contract DTRUSTFactory {
-    struct PrToken {
-        uint256 id;
-        string tokenKey;
-    }
 
     DTRUST[] public deployedDTRUSTs;
     uint256 public totalOfControlKeys;
