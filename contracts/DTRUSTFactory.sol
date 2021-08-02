@@ -75,9 +75,6 @@ contract DTRUSTFactory {
             if (deployedDTRUSTs[i] == _dtrust) {
                 DTRUST existDTrust = deployedDTRUSTs[i];
                 return existDTrust.getCountOfPrToken();
-                // for (uint256 j = 0; j < existDTrust.getCountOfPrToken(); j++) {
-                //     createdPrToken.push(existDTrust.getAllPrToken().id);
-                // }
             }
         }
     }
