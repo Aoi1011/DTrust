@@ -8,6 +8,12 @@ contract DTRUSTFactory {
 
     DTRUST[] public deployedDTRUSTs;
 
+    event Create(
+        string contractSymbol,
+        string indexed newuri,
+        string indexed contractName
+    );
+
     function createDTRUST(
         string memory _contractSymbol,
         string memory _newuri,
@@ -26,6 +32,8 @@ contract DTRUSTFactory {
             payable(_trustee)
         );
         deployedDTRUSTs.push(newDTRUST);
+
+        emit Create(_contractSymbol, _newuri, _contractName);
     }
 
     function createPromoteToken(DTRUST _dtrust, string memory _tokenKey)
