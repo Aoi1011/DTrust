@@ -5,10 +5,9 @@ import "./DTRUST.sol";
 import "./ControlKey.sol";
 
 contract DTRUSTFactory {
-
     DTRUST[] public deployedDTRUSTs;
 
-    event Create(
+    event CreateDTRUST(
         string contractSymbol,
         string indexed newuri,
         string indexed contractName
@@ -33,7 +32,7 @@ contract DTRUSTFactory {
         );
         deployedDTRUSTs.push(newDTRUST);
 
-        emit Create(_contractSymbol, _newuri, _contractName);
+        emit CreateDTRUST(_contractSymbol, _newuri, _contractName);
     }
 
     function createPromoteToken(DTRUST _dtrust, string memory _tokenKey)
