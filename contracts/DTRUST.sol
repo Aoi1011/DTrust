@@ -216,10 +216,11 @@ contract DTRUST is ERC1155 {
 
     function getURI(string memory _uri, uint256 _id)
         public
-        pure
+        view
         returns (string memory)
     {
-        return toFullURI(_uri, _id);
+        // return toFullURI(_uri, _id);
+        return dTrustUri;
     }
 
     function setURI(string memory _newURI) public onlyManager {
@@ -307,14 +308,17 @@ contract DTRUST is ERC1155 {
         _AnualFeeTotal.add(semiAnnualFee);
     }
 
-    function getSpecificTokenKey(uint256 _PrTokenId)
+    function getSpecificTokenKey(string memory _prTokenKey)
         public
         view
         returns (string memory)
     {
         for (uint256 i = 0; i < prTokens.length; i++) {
-            if (prTokens[i].id == _PrTokenId) {
-                return prTokens[i].tokenKey;
+            if (
+                keccak256(abi.encodePacked(prTokens[i].tokenKey)) ==
+                keccak256(abi.encodePacked(_prTokenKey))
+            ) {
+                return getURI(dTrustUri, i);
             }
         }
         return "";
@@ -324,7 +328,7 @@ contract DTRUST is ERC1155 {
         return prTokens.length;
     }
 
-    function getCurrentPrToken() public view returns (uint256)  {
+    function getCurrentPrToken() public view returns (uint256) {
         PrToken memory currentPrToken = prTokens[prTokens.length - 1];
         return currentPrToken.id;
     }
