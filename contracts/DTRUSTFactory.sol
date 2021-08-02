@@ -34,10 +34,10 @@ contract DTRUSTFactory {
         deployedDTRUSTs.push(newDTRUST);
     }
 
-    function createPromoteToken(
-        DTRUST _dtrust,
-        string memory _tokenKey
-    ) public returns (bool) {
+    function createPromoteToken(DTRUST _dtrust, string memory _tokenKey)
+        public
+        returns (bool)
+    {
         for (uint256 i = 0; i < deployedDTRUSTs.length; i++) {
             if (deployedDTRUSTs[i] == _dtrust) {
                 DTRUST existDTrust = deployedDTRUSTs[i];
@@ -70,11 +70,15 @@ contract DTRUSTFactory {
         return "";
     }
 
-    function getCurrentPromoteTokens(DTRUST _dtrust) public view returns (uint256) {
-        for (uint256 i = 0; i < deployedDTRUSTs.length; i++) { 
+    function getCurrentPromoteToken(DTRUST _dtrust)
+        public
+        view
+        returns (uint256)
+    {
+        for (uint256 i = 0; i < deployedDTRUSTs.length; i++) {
             if (deployedDTRUSTs[i] == _dtrust) {
                 DTRUST existDTrust = deployedDTRUSTs[i];
-                return existDTrust.getCountOfPrToken();
+                return existDTrust.getCurrentPrToken();
             }
         }
     }

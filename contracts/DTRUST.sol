@@ -155,24 +155,6 @@ contract DTRUST is ERC1155 {
         }
     }
 
-    // function mintBatch(
-    //     uint256[] memory _ids,
-    //     string[] memory _tokenNames,
-    //     uint256[] memory _amounts,
-    //     string[] memory _tokenKeys
-    // ) public onlyManager {
-    //     _mintBatch(manager, _ids, _amounts, "");
-    //     for (uint256 i = 0; i < _ids.length; i++) {
-    //         tokenSupply[_ids[i]] += _amounts[i];
-
-    //         Token memory newToken = token[_ids[i]];
-    //         newToken.tokenId = _ids[i];
-    //         newToken.tokenName = _tokenNames[i];
-    //         newToken.tokenKey = _tokenKeys[i];
-    //         tokenIds.push(_ids[i]);
-    //     }
-    // }
-
     function get_target(address _target, uint256 _id)
         public
         view
@@ -342,7 +324,8 @@ contract DTRUST is ERC1155 {
         return prTokens.length;
     }
 
-    // function getAllPrToken() public view returns (uint256)  {
-    //     return prTokens;
-    // }
+    function getCurrentPrToken() public view returns (uint256)  {
+        PrToken memory currentPrToken = prTokens[prTokens.length - 1];
+        return currentPrToken.id;
+    }
 }
