@@ -68,7 +68,7 @@ contract DTRUST is ERC1155 {
         uint256 value
     );
     event Transfer(address indexed from, address indexed to, uint256 value);
-    event Mint(address indexed sender, uint256 amount0, uint256 amount1);
+    event Mint(address indexed sender, uint256 tokenId, uint256 amount);
     ////////////////////////////////////////
 
     modifier onlyManager() {
@@ -149,9 +149,13 @@ contract DTRUST is ERC1155 {
             PrToken memory newPrToken = PrToken(countOfPrToken, _tokenKey);
             prTokens.push(newPrToken);
             countOfPrToken++;
+
+            emit Mint(msg.sender, PrTokenId, _amount);
         } else {
             _mint(manager, DTokenId, _amount, "");
             tokenSupply[DTokenId] += _amount;
+
+            emit Mint(msg.sender, DTokenId, _amount);
         }
     }
 
