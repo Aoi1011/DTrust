@@ -22,15 +22,15 @@ contract("DTRUSTFactory", (accounts) => {
 
     describe("#constructor()", () => {
         it("should create new constructor", async () => {
-            
+
         }
         )
     });
 
     describe("#createDTRUST()", () => {
         it('should create new DTRUST', async () => {
-            await instance.createDTRUST(SYMBOL, "HELLO", NAME, "PrivateKey", settlor, beneficiary, trustee, {from: owner});
-            
+            await instance.createDTRUST(SYMBOL, "HELLO", NAME, "PrivateKey", settlor, beneficiary, trustee, { from: owner });
+
         });
     });
 

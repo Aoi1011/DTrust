@@ -42,15 +42,15 @@ contract DTRUSTFactory {
     }
 
     function createPrToken(DTRUST _dtrust, string memory _tokenKey)
-        payable
         public
+        payable
     {
         for (uint256 i = 0; i < deployedDTRUSTs.length; i++) {
             if (deployedDTRUSTs[i] == _dtrust) {
                 DTRUST existDTrust = deployedDTRUSTs[i];
                 existDTrust.mint(true, 1, _tokenKey);
                 uint256 prTokenId = existDTrust.getCurrentPrToken();
-                
+
                 emit CreatePrToken(prTokenId, _tokenKey, true);
             }
         }
