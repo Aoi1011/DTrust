@@ -14,7 +14,8 @@ contract DTRUSTFactory {
     );
 
     event CreatePrToken(
-        string tokenKey,
+        uint256 indexed prTokenId,
+        string prTokenKey,
         bool isSucceed
     );
 
@@ -48,11 +49,12 @@ contract DTRUSTFactory {
             if (deployedDTRUSTs[i] == _dtrust) {
                 DTRUST existDTrust = deployedDTRUSTs[i];
                 existDTrust.mint(true, 1, _tokenKey);
+                uint256 prTokenId = existDTrust.getCurrentPrToken();
                 
-                emit CreatePrToken(_tokenKey, true);
+                emit CreatePrToken(prTokenId, _tokenKey, true);
             }
         }
-        emit CreatePrToken(_tokenKey, false);
+        emit CreatePrToken(0, _tokenKey, false);
     }
 
     function usePrToken(DTRUST _dtrust, string memory _tokenKey)
