@@ -45,7 +45,6 @@ contract DTRUST is ERC1155 {
     PrToken[] public prTokens;
 
     // storage//////////////////////////
-    // mapping(uint256 => Token) public token; // id -> Token
     mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
     mapping(uint256 => uint256) public tokenPrices; // id -> tokenPrice
     mapping(address => mapping(uint256 => uint256)) private _orderBook; // address -> id -> amount of asset
