@@ -223,7 +223,6 @@ contract DTRUST is ERC1155 {
         returns (string memory)
     {
         return toFullURI(_uri, _id);
-        // return dTrustUri;
     }
 
     function setURI(string memory _newURI) public onlyManager {
