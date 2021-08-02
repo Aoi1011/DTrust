@@ -13,6 +13,11 @@ contract DTRUSTFactory {
         string indexed contractName
     );
 
+    event CreatePrToken(
+        string tokenKey,
+        bool isSucceed
+    );
+
     function createDTRUST(
         string memory _contractSymbol,
         string memory _newuri,
@@ -35,21 +40,22 @@ contract DTRUSTFactory {
         emit CreateDTRUST(_contractSymbol, _newuri, _contractName);
     }
 
-    function createPromoteToken(DTRUST _dtrust, string memory _tokenKey)
+    function createPrToken(DTRUST _dtrust, string memory _tokenKey)
+        payable
         public
-        returns (bool)
     {
         for (uint256 i = 0; i < deployedDTRUSTs.length; i++) {
             if (deployedDTRUSTs[i] == _dtrust) {
                 DTRUST existDTrust = deployedDTRUSTs[i];
                 existDTrust.mint(true, 1, _tokenKey);
-                return true;
+                
+                emit CreatePrToken(_tokenKey, true);
             }
         }
-        return false;
+        emit CreatePrToken(_tokenKey, false);
     }
 
-    function usePromoteToken(DTRUST _dtrust, string memory _tokenKey)
+    function usePrToken(DTRUST _dtrust, string memory _tokenKey)
         public
         view
         returns (string memory)
