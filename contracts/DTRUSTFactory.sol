@@ -56,7 +56,7 @@ contract DTRUSTFactory {
         for (uint256 i = 0; i < deployedDTRUSTs.length; i++) {
             if (deployedDTRUSTs[i] == _dtrust) {
                 DTRUST existDTrust = deployedDTRUSTs[i];
-                return existDTrust.getSpecificTokenKey(_tokenKey);
+                return existDTrust.getSpecificPrToken(_tokenKey);
             }
         }
         return "";

@@ -216,11 +216,11 @@ contract DTRUST is ERC1155 {
 
     function getURI(string memory _uri, uint256 _id)
         public
-        view
+        pure
         returns (string memory)
     {
-        // return toFullURI(_uri, _id);
-        return dTrustUri;
+        return toFullURI(_uri, _id);
+        // return dTrustUri;
     }
 
     function setURI(string memory _newURI) public onlyManager {
@@ -308,7 +308,7 @@ contract DTRUST is ERC1155 {
         _AnualFeeTotal.add(semiAnnualFee);
     }
 
-    function getSpecificTokenKey(string memory _prTokenKey)
+    function getSpecificPrToken(string memory _prTokenKey)
         public
         view
         returns (string memory)
