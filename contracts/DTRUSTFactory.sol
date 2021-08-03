@@ -46,16 +46,23 @@ contract DTRUSTFactory {
         public
         payable
     {
+        uint256 prTokenId = 0;
+        bool isSucceed = false;
+
         for (uint256 i = 0; i < deployedDTRUSTs.length; i++) {
             if (deployedDTRUSTs[i] == _dtrust) {
                 DTRUST existDTrust = deployedDTRUSTs[i];
                 existDTrust.mint(true, 1, _tokenKey);
-                uint256 prTokenId = existDTrust.getCurrentPrToken();
+                prTokenId = existDTrust.getCurrentPrToken();
 
-                emit CreatePrToken(prTokenId, _tokenKey, true);
+                isSucceed = true;
             }
         }
-        emit CreatePrToken(0, _tokenKey, false);
+        if (isSucceed) {
+            emit CreatePrToken(prTokenId, _tokenKey, true);
+        } else {
+            emit CreatePrToken(prTokenId, _tokenKey, false);
+        }
     }
 
     function usePrToken(DTRUST _dtrust, string memory _tokenKey)
