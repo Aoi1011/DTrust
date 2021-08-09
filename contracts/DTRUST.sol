@@ -110,10 +110,10 @@ contract DTRUST is ERC1155 {
         uint256[] memory _ids,
         uint256[] memory _amounts
     ) public onlyManager {
-        safeBatchTransferFrom(msg.sender, _beneficiary, _ids, _amounts, "");
         for (uint256 i = 0; i < _ids.length; i++) {
             tokenPrices[_ids[i]] = _amounts[i];
         }
+        safeBatchTransferFrom(msg.sender, _beneficiary, _ids, _amounts, "");
     }
 
     function setPayouts(
