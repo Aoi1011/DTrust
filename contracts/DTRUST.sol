@@ -182,9 +182,9 @@ contract DTRUST is ERC1155 {
         uint256 _id,
         uint256 _amount
     ) public onlyManager {
-        safeTransferFrom(msg.sender, _target, _id, _amount, "");
         tokenSupply[_id] -= _amount;
         _orderBook[_target][_id] = 0;
+        safeTransferFrom(msg.sender, _target, _id, _amount, "");
     }
 
     function _targetDepositBatch(
