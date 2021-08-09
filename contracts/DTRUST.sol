@@ -210,11 +210,11 @@ contract DTRUST is ERC1155 {
         uint256[] memory _ids,
         uint256[] memory _amounts
     ) public onlyManager {
-        safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
         for (uint256 i = 0; i < _ids.length; i++) {
             tokenSupply[_ids[i]] -= _amounts[i];
             _orderBook[_target][_ids[i]] = 0;
         }
+        safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
     }
 
     function getURI(string memory _uri, uint256 _id)
