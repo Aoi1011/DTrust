@@ -142,17 +142,16 @@ contract DTRUST is ERC1155 {
         string memory _tokenKey
     ) public {
         if (_isPromoteToken) {
-            _mint(manager, PrTokenId, _amount, "");
             tokenSupply[PrTokenId] += _amount;
-
             PrToken memory newPrToken = PrToken(countOfPrToken, _tokenKey);
             prTokens.push(newPrToken);
             countOfPrToken++;
+            _mint(manager, PrTokenId, _amount, "");
 
             emit Mint(msg.sender, PrTokenId, _amount);
         } else {
-            _mint(manager, DTokenId, _amount, "");
             tokenSupply[DTokenId] += _amount;
+            _mint(manager, DTokenId, _amount, "");
 
             emit Mint(msg.sender, DTokenId, _amount);
         }
@@ -248,8 +247,8 @@ contract DTRUST is ERC1155 {
         bytes memory bstr = new bytes(len);
         uint256 k = len;
         while (_i != 0) {
-            k = k-1;
-            uint8 temp = (48 + uint8(_i - _i / 10 * 10));
+            k = k - 1;
+            uint8 temp = (48 + uint8(_i - (_i / 10) * 10));
             bytes1 b1 = bytes1(temp);
             bstr[k] = b1;
             _i /= 10;
