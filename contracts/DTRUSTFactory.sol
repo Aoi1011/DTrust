@@ -7,6 +7,8 @@ import "./ControlKey.sol";
 contract DTRUSTFactory {
     DTRUST[] public deployedDTRUSTs;
 
+    mapping(DTRUST => bool) isDeployed;
+
     event CreateDTRUST(
         DTRUST createdDtrust,
         string contractSymbol,
@@ -38,6 +40,7 @@ contract DTRUSTFactory {
             payable(_trustee)
         );
         deployedDTRUSTs.push(newDTRUST);
+        isDeployed[newDTRUST] = true;
 
         emit CreateDTRUST(newDTRUST, _contractSymbol, _newuri, _contractName);
     }
@@ -46,14 +49,12 @@ contract DTRUSTFactory {
         uint256 prTokenId = 0;
         bool isSucceed = false;
 
-        for (uint256 i = 0; i < deployedDTRUSTs.length; i++) {
-            if (deployedDTRUSTs[i] == _dtrust) {
-                DTRUST existDTrust = deployedDTRUSTs[i];
-                existDTrust.mint(true, 1, _tokenKey);
-                prTokenId = existDTrust.getCurrentPrToken();
+        if (isDeployed[_dtrust]) {
+            DTRUST existDTrust = _dtrust;
+            existDTrust.mint(true, 1, _tokenKey);
+            prTokenId = existDTrust.getCurrentPrToken();
 
-                isSucceed = true;
-            }
+            isSucceed = true;
         }
         if (isSucceed) {
             emit CreatePrToken(prTokenId, _tokenKey, true);

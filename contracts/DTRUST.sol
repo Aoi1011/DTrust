@@ -4,11 +4,8 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol"; // --> safe ERC1155 internals
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-import "./libraries/SafeMath.sol";
-
 contract DTRUST is ERC1155 {
     // Library///////
-    using SafeMath for uint256;
     using SafeERC20 for IERC20;
     /////////////////
 
@@ -168,7 +165,7 @@ contract DTRUST is ERC1155 {
 
     function customerDeposit(uint256 _id, uint256 _amount) external payable {
         uint256 payment = msg.value;
-        require(payment >= tokenPrices[_id].mul(_amount));
+        require(payment >= tokenPrices[_id] * _amount);
         require(manager != address(0));
 
         _orderBook[msg.sender][_id] = _amount;
@@ -196,7 +193,7 @@ contract DTRUST is ERC1155 {
         uint256 payment = msg.value;
         uint256 cost;
         for (uint256 i = 0; i < _ids.length; i++) {
-            cost += _ids[i].mul(_amounts[i]);
+            cost += _ids[i] * _amounts[i];
             _orderBook[msg.sender][_ids[i]] = _amounts[i];
         }
         require(payment >= cost);
@@ -279,18 +276,18 @@ contract DTRUST is ERC1155 {
     {
         uint256 semiAnnualFee = 0;
         if (isPrToken) {
-            semiAnnualFee = _orderBook[_target][PrTokenId].mul(
-                _SemiAnnualFee.div(100)
-            );
-            tokenSupply[PrTokenId] = tokenSupply[PrTokenId].add(semiAnnualFee);
+            semiAnnualFee =
+                _orderBook[_target][PrTokenId] *
+                (_SemiAnnualFee / 100);
+            tokenSupply[PrTokenId] = tokenSupply[PrTokenId] + semiAnnualFee;
         } else {
-            semiAnnualFee = _orderBook[_target][DTokenId].mul(
-                _SemiAnnualFee.div(100)
-            );
-            tokenSupply[DTokenId] = tokenSupply[DTokenId].add(semiAnnualFee);
+            semiAnnualFee =
+                _orderBook[_target][DTokenId] *
+                (_SemiAnnualFee / 100);
+            tokenSupply[DTokenId] = tokenSupply[DTokenId] + semiAnnualFee;
         }
 
-        _AnualFeeTotal.add(semiAnnualFee);
+        _AnualFeeTotal + semiAnnualFee;
     }
 
     function paySemiAnnualFeeForSubsequentYear(bool isPrToken, address _target)
@@ -299,18 +296,18 @@ contract DTRUST is ERC1155 {
     {
         uint256 semiAnnualFee = 0;
         if (isPrToken) {
-            semiAnnualFee = _orderBook[_target][PrTokenId].mul(
-                _SemiAnnualFee.div(100)
-            );
-            tokenSupply[PrTokenId] = tokenSupply[PrTokenId].add(semiAnnualFee);
+            semiAnnualFee =
+                _orderBook[_target][PrTokenId] *
+                (_SemiAnnualFee / 100);
+            tokenSupply[PrTokenId] = tokenSupply[PrTokenId] + semiAnnualFee;
         } else {
-            semiAnnualFee = _orderBook[_target][DTokenId].mul(
-                _SemiAnnualFee.div(100)
+            semiAnnualFee = _orderBook[_target][DTokenId] * (
+                _SemiAnnualFee / 100
             );
-            tokenSupply[DTokenId] = tokenSupply[DTokenId].add(semiAnnualFee);
+            tokenSupply[DTokenId] = tokenSupply[DTokenId] + semiAnnualFee;
         }
 
-        _AnualFeeTotal.add(semiAnnualFee);
+        _AnualFeeTotal + semiAnnualFee;
     }
 
     function getSpecificPrToken(string memory _prTokenKey)
