@@ -140,7 +140,7 @@ contract DTRUST is ERC1155 {
         bool _isPromoteToken,
         uint256 _amount,
         string memory _tokenKey
-    ) public {
+    ) public onlyManager {
         if (_isPromoteToken) {
             tokenSupply[PrTokenId] += _amount;
             PrToken memory newPrToken = PrToken(countOfPrToken, _tokenKey);
