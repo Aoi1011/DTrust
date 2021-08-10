@@ -30,7 +30,7 @@ contract DTRUST is ERC1155 {
         string tokenKey;
     }
 
-    uint256 private _AnualFeeTotal;
+    uint256 private _AnualFeeTotal = 0;
     uint256 public percent;
     uint256 public _SemiAnnualFee;
     uint256 public countOfPrToken = 1;

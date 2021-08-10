@@ -27,7 +27,7 @@ contract DTRUSTFactory {
         address _settlor,
         address _beneficiary,
         address _trustee
-    ) public payable {
+    ) public {
         DTRUST newDTRUST = new DTRUST(
             _contractName,
             _contractSymbol,
@@ -42,10 +42,7 @@ contract DTRUSTFactory {
         emit CreateDTRUST(newDTRUST, _contractSymbol, _newuri, _contractName);
     }
 
-    function createPrToken(DTRUST _dtrust, string memory _tokenKey)
-        public
-        payable
-    {
+    function createPrToken(DTRUST _dtrust, string memory _tokenKey) public {
         uint256 prTokenId = 0;
         bool isSucceed = false;
 
