@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-// import "../node_modules/@nomiclabs/buidler/console.sol"; // advance debugging
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol"; // --> safe ERC1155 internals
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract DTRUST is ERC1155 {
@@ -27,6 +26,11 @@ contract DTRUST is ERC1155 {
         string tokenKey;
     }
 
+    struct Subscription {
+        uint256 start;
+        uint256 nextPayment;
+    }
+
     uint256 private _AnualFeeTotal = 0;
     uint256 public percent;
     uint256 public _SemiAnnualFee;
@@ -39,6 +43,7 @@ contract DTRUST is ERC1155 {
     string public symbol;
     string public dTrustUri;
     PrToken[] public prTokens;
+    Subscription private newSubscription;
 
     // storage//////////////////////////
     mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
@@ -78,26 +83,28 @@ contract DTRUST is ERC1155 {
     }
 
     constructor(
-        string memory _contractName,
-        string memory _contractSymbol,
         string memory _newURI,
         address payable _deployerAddress,
         address payable _settlor,
         address _beneficiary,
-        address payable _trustee
+        address payable _trustee,
+        uint256 _frequnecy
     ) ERC1155(_newURI) {
         require(address(_deployerAddress) != address(0));
         require(address(_settlor) != address(0));
         require(address(_beneficiary) != address(0));
         require(address(_trustee) != address(0));
 
-        name = _contractName;
-        symbol = _contractSymbol;
         dTrustUri = _newURI;
         manager = _deployerAddress;
         settlor = _settlor;
         beneficiary = _beneficiary;
         trustee = _trustee;
+
+        newSubscription = Subscription(
+            block.timestamp,
+            block.timestamp + _frequnecy
+        );
     }
 
     function setBeneficiaryAsset(uint256 _id, uint256 _price)
@@ -299,6 +306,7 @@ contract DTRUST is ERC1155 {
         external
         onlyManager
     {
+        
         uint256 semiAnnualFee = 0;
         if (isPrToken) {
             semiAnnualFee =
@@ -306,9 +314,9 @@ contract DTRUST is ERC1155 {
                 (_SemiAnnualFee / 100);
             tokenSupply[PrTokenId] = tokenSupply[PrTokenId] + semiAnnualFee;
         } else {
-            semiAnnualFee = _orderBook[_target][DTokenId] * (
-                _SemiAnnualFee / 100
-            );
+            semiAnnualFee =
+                _orderBook[_target][DTokenId] *
+                (_SemiAnnualFee / 100);
             tokenSupply[DTokenId] = tokenSupply[DTokenId] + semiAnnualFee;
         }
 
