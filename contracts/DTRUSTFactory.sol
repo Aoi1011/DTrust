@@ -29,7 +29,7 @@ contract DTRUSTFactory {
         address _settlor,
         address _beneficiary,
         address _trustee
-    ) public {
+    ) external {
         DTRUST newDTRUST = new DTRUST(
             _contractName,
             _contractSymbol,
