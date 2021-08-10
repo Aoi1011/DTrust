@@ -86,6 +86,11 @@ contract DTRUST is ERC1155 {
         address _beneficiary,
         address payable _trustee
     ) ERC1155(_newURI) {
+        require(address(_deployerAddress) != address(0));
+        require(address(_settlor) != address(0));
+        require(address(_beneficiary) != address(0));
+        require(address(_trustee) != address(0));
+        
         name = _contractName;
         symbol = _contractSymbol;
         dTrustUri = _newURI;
