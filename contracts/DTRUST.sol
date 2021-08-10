@@ -101,7 +101,7 @@ contract DTRUST is ERC1155 {
     }
 
     function setBeneficiaryAsset(uint256 _id, uint256 _price)
-        public
+        external
         onlyManager
     {
         tokenPrices[_id] = _price;
@@ -111,7 +111,7 @@ contract DTRUST is ERC1155 {
         address payable _beneficiary,
         uint256[] memory _ids,
         uint256[] memory _amounts
-    ) public onlyManager {
+    ) external onlyManager {
         for (uint256 i = 0; i < _ids.length; i++) {
             tokenPrices[_ids[i]] = _amounts[i];
         }
@@ -122,7 +122,7 @@ contract DTRUST is ERC1155 {
         address payable _target,
         uint256[] memory _ids,
         uint256[] memory _amounts
-    ) public onlyManager {
+    ) external onlyManager {
         for (uint256 i = 0; i < _ids.length; i++) {
             tokenPrices[_ids[i]] = _amounts[i];
         }
@@ -133,7 +133,7 @@ contract DTRUST is ERC1155 {
         address payable _target,
         uint256[] memory _ids,
         uint256[] memory _amounts
-    ) public onlyManager {
+    ) external onlyManager {
         safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
         // for (uint256 i = 0; i < _ids.length; i++) {}
     }
@@ -142,7 +142,7 @@ contract DTRUST is ERC1155 {
         bool _isPromoteToken,
         uint256 _amount,
         string memory _tokenKey
-    ) public onlyManager {
+    ) external onlyManager {
         if (_isPromoteToken) {
             tokenSupply[PrTokenId] += _amount;
             PrToken memory newPrToken = PrToken(countOfPrToken, _tokenKey);
@@ -160,7 +160,7 @@ contract DTRUST is ERC1155 {
     }
 
     function get_target(address _target, uint256 _id)
-        public
+        external
         view
         onlyManager
         returns (uint256)
@@ -182,7 +182,7 @@ contract DTRUST is ERC1155 {
         address payable _target,
         uint256 _id,
         uint256 _amount
-    ) public onlyManager {
+    ) external onlyManager {
         tokenSupply[_id] -= _amount;
         _orderBook[_target][_id] = 0;
         safeTransferFrom(msg.sender, _target, _id, _amount, "");
@@ -210,7 +210,7 @@ contract DTRUST is ERC1155 {
         address payable _target,
         uint256[] memory _ids,
         uint256[] memory _amounts
-    ) public onlyManager {
+    ) external onlyManager {
         for (uint256 i = 0; i < _ids.length; i++) {
             tokenSupply[_ids[i]] -= _amounts[i];
             _orderBook[_target][_ids[i]] = 0;
@@ -226,7 +226,7 @@ contract DTRUST is ERC1155 {
         return toFullURI(_uri, _id);
     }
 
-    function setURI(string memory _newURI) public onlyManager {
+    function setURI(string memory _newURI) external onlyManager {
         _setURI(_newURI);
     }
 
@@ -270,13 +270,13 @@ contract DTRUST is ERC1155 {
             );
     }
 
-    function updateSemiAnnualPercent(uint256 _percent) public onlyManager {
+    function updateSemiAnnualPercent(uint256 _percent) external onlyManager {
         percent = _percent;
         emit UpdateSemiAnnualPercent(percent);
     }
 
     function paySemiAnnualFeeForFirstTwoYear(bool isPrToken, address _target)
-        public
+        external
         onlyManager
     {
         uint256 semiAnnualFee = 0;
@@ -296,7 +296,7 @@ contract DTRUST is ERC1155 {
     }
 
     function paySemiAnnualFeeForSubsequentYear(bool isPrToken, address _target)
-        public
+        external
         onlyManager
     {
         uint256 semiAnnualFee = 0;
@@ -316,7 +316,7 @@ contract DTRUST is ERC1155 {
     }
 
     function getSpecificPrToken(string memory _prTokenKey)
-        public
+        external
         view
         returns (string memory)
     {
@@ -332,11 +332,11 @@ contract DTRUST is ERC1155 {
         return "";
     }
 
-    function getCountOfPrToken() public view returns (uint256) {
+    function getCountOfPrToken() external view returns (uint256) {
         return prTokens.length;
     }
 
-    function getCurrentPrToken() public view returns (uint256) {
+    function getCurrentPrToken() external view returns (uint256) {
         PrToken memory currentPrToken = prTokens[prTokens.length - 1];
         return currentPrToken.id;
     }

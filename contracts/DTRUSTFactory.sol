@@ -45,7 +45,7 @@ contract DTRUSTFactory {
         emit CreateDTRUST(newDTRUST, _contractSymbol, _newuri, _contractName);
     }
 
-    function createPrToken(DTRUST _dtrust, string memory _tokenKey) public {
+    function createPrToken(DTRUST _dtrust, string memory _tokenKey) external {
         uint256 prTokenId = 0;
         bool isSucceed = false;
 
@@ -64,7 +64,7 @@ contract DTRUSTFactory {
     }
 
     function usePrToken(DTRUST _dtrust, string memory _tokenKey)
-        public
+        external
         view
         returns (string memory)
     {
@@ -78,7 +78,7 @@ contract DTRUSTFactory {
     }
 
     function getCurrentPromoteToken(DTRUST _dtrust)
-        public
+        external
         view
         returns (uint256)
     {
@@ -90,7 +90,7 @@ contract DTRUSTFactory {
         }
     }
 
-    function getAllDeployedDTRUSTs() public view returns (DTRUST[] memory) {
+    function getAllDeployedDTRUSTs() external view returns (DTRUST[] memory) {
         return deployedDTRUSTs;
     }
 }
