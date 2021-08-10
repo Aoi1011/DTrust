@@ -67,6 +67,7 @@ contract DTRUST is ERC1155 {
     );
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Mint(address indexed sender, uint256 tokenId, uint256 amount);
+    event UpdateSemiAnnualPercent(uint256 percent);
     ////////////////////////////////////////
 
     modifier onlyManager() {
@@ -267,8 +268,9 @@ contract DTRUST is ERC1155 {
             );
     }
 
-    function updateSemiAnnualFee(uint256 _percent) public onlyManager {
+    function updateSemiAnnualPercent(uint256 _percent) public onlyManager {
         percent = _percent;
+        emit UpdateSemiAnnualPercent(percent);
     }
 
     function paySemiAnnualFeeForFirstTwoYear(bool isPrToken, address _target)
