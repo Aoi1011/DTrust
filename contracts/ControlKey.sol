@@ -45,13 +45,11 @@ contract ControlKey {
         view
         returns (StructControlKey memory existControlKey)
     {
-        require(_controlKeyId >= 0, "Control Key must be more than 0");
         require(_controlKeyId <= numControlKey, "ControlKey does not exist.");
         return controlKeys[_controlKeyId];
     }
 
     function handleUsableControlKey(uint256 _controlKeyId) public {
-        require(_controlKeyId >= 0, "Control Key must be more than 0");
         require(
             _controlKeyId <= numControlKey,
             "ControlKey must be less than total"
@@ -68,7 +66,6 @@ contract ControlKey {
     }
 
     function handleBurnableControlKey(uint256 _controlKeyId) public {
-        require(_controlKeyId >= 0, "Control Key must be more than 0");
         require(
             _controlKeyId <= numControlKey,
             "ControlKey must be less than total"
@@ -85,7 +82,6 @@ contract ControlKey {
     }
 
     function destroyControlKey(uint256 _controlKeyId) public {
-        require(_controlKeyId >= 0, "Control Key must be more than 0");
         require(
             _controlKeyId <= numControlKey,
             "ControlKey must be less than total"
