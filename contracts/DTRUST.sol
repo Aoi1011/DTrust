@@ -90,7 +90,7 @@ contract DTRUST is ERC1155 {
         require(address(_settlor) != address(0));
         require(address(_beneficiary) != address(0));
         require(address(_trustee) != address(0));
-        
+
         name = _contractName;
         symbol = _contractSymbol;
         dTrustUri = _newURI;
@@ -135,7 +135,7 @@ contract DTRUST is ERC1155 {
         uint256[] memory _amounts
     ) public onlyManager {
         safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
-        for (uint256 i = 0; i < _ids.length; i++) {}
+        // for (uint256 i = 0; i < _ids.length; i++) {}
     }
 
     function mint(
@@ -320,7 +320,8 @@ contract DTRUST is ERC1155 {
         view
         returns (string memory)
     {
-        for (uint256 i = 0; i < prTokens.length; i++) {
+        uint256 prTokenLength = prTokens.length;
+        for (uint256 i = 0; i < prTokenLength; i++) {
             if (
                 keccak256(abi.encodePacked(prTokens[i].tokenKey)) ==
                 keccak256(abi.encodePacked(_prTokenKey))

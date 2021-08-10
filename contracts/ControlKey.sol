@@ -25,7 +25,7 @@ contract ControlKey {
         address _settlor,
         address _beneficiary,
         address _trustee
-    ) public returns (uint256 controlKeyId) {
+    ) external returns (uint256 controlKeyId) {
         controlKeyId = numControlKey;
         numControlKey++;
         controlKeys[controlKeyId] = StructControlKey({
@@ -41,7 +41,7 @@ contract ControlKey {
     }
 
     function getControlKey(uint256 _controlKeyId)
-        public
+        external
         view
         returns (StructControlKey memory existControlKey)
     {
@@ -49,7 +49,7 @@ contract ControlKey {
         return controlKeys[_controlKeyId];
     }
 
-    function handleUsableControlKey(uint256 _controlKeyId) public {
+    function handleUsableControlKey(uint256 _controlKeyId) external {
         require(
             _controlKeyId <= numControlKey,
             "ControlKey must be less than total"
@@ -65,7 +65,7 @@ contract ControlKey {
         });
     }
 
-    function handleBurnableControlKey(uint256 _controlKeyId) public {
+    function handleBurnableControlKey(uint256 _controlKeyId) external {
         require(
             _controlKeyId <= numControlKey,
             "ControlKey must be less than total"
@@ -81,7 +81,7 @@ contract ControlKey {
         });
     }
 
-    function destroyControlKey(uint256 _controlKeyId) public {
+    function destroyControlKey(uint256 _controlKeyId) external {
         require(
             _controlKeyId <= numControlKey,
             "ControlKey must be less than total"
