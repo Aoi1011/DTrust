@@ -35,6 +35,7 @@ contract DTRUST is ERC1155 {
     uint256 private _AnualFeeTotal = 0;
     uint256 public basisPoint = 1;
     uint256 public countOfPrToken = 1;
+    uint256 public frequency = 0;
     address payable public manager;
     address payable public settlor;
     address payable public trustee;
@@ -70,6 +71,12 @@ contract DTRUST is ERC1155 {
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Mint(address indexed sender, uint256 tokenId, uint256 amount);
     event UpdateBasisPoint(uint256 basispoint);
+    event PaymentSentForFirstTwoYear(
+        address from,
+        uint256 tokenId,
+        uint256 amount,
+        uint256 date
+    );
     ////////////////////////////////////////
 
     modifier onlyManager() {
@@ -100,6 +107,7 @@ contract DTRUST is ERC1155 {
         settlor = _settlor;
         beneficiary = _beneficiary;
         trustee = _trustee;
+        frequency = _frequnecy;
 
         subscription = Subscription(
             block.timestamp,
@@ -301,9 +309,16 @@ contract DTRUST is ERC1155 {
             tokenId = DTokenId;
         }
         semiAnnualFee = _orderBook[_target][tokenId] * (basisPoint / 100);
-        tokenSupply[tokenId] = tokenSupply[tokenId] + semiAnnualFee;
+        tokenSupply[tokenId] += semiAnnualFee;
 
+        emit PaymentSentForFirstTwoYear(
+            _target,
+            tokenId,
+            semiAnnualFee,
+            block.timestamp
+        );
         _AnualFeeTotal += semiAnnualFee;
+        subscription.nextPayment += frequency;
     }
 
     function paySemiAnnualFeeForSubsequentYear(
