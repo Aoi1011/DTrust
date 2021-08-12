@@ -33,7 +33,7 @@ contract DTRUST is ERC1155 {
     }
 
     uint256 private _AnualFeeTotal = 0;
-    uint256 public basisPoint = 1;
+    uint256 public basisPoint = 1;   // for 2 year
     uint256 public countOfPrToken = 1;
     uint256 public frequency = 0;
     address payable public manager;
@@ -344,7 +344,7 @@ contract DTRUST is ERC1155 {
             _AnualFeeTotal,
             block.timestamp
         );
-        
+
         subscription.nextPayment += frequency;
     }
 
