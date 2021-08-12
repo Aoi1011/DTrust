@@ -29,11 +29,11 @@ contract DTRUST is ERC1155 {
     struct Subscription {
         uint256 start;
         uint256 nextPayment;
+        bool isTwoYear;
     }
 
     uint256 private _AnualFeeTotal = 0;
-    uint256 public percent;
-    uint256 public _SemiAnnualFee;
+    uint256 public basisPoint = 1;
     uint256 public countOfPrToken = 1;
     address payable public manager;
     address payable public settlor;
@@ -43,12 +43,12 @@ contract DTRUST is ERC1155 {
     string public symbol;
     string public dTrustUri;
     PrToken[] public prTokens;
-    Subscription private newSubscription;
+    Subscription private subscription;
 
     // storage//////////////////////////
     mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
     mapping(uint256 => uint256) public tokenPrices; // id -> tokenPrice
-    mapping(address => mapping(uint256 => uint256)) private _orderBook; // address -> id -> amount of asset
+    mapping(address => mapping(uint256 => uint256)) private _orderBook; // customer -> id -> amount of asset
     /////////////////////////////////////
 
     // event/////////////////////////////
@@ -69,7 +69,7 @@ contract DTRUST is ERC1155 {
     );
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Mint(address indexed sender, uint256 tokenId, uint256 amount);
-    event UpdateSemiAnnualPercent(uint256 percent);
+    event UpdateBasisPoint(uint256 basispoint);
     ////////////////////////////////////////
 
     modifier onlyManager() {
@@ -101,9 +101,10 @@ contract DTRUST is ERC1155 {
         beneficiary = _beneficiary;
         trustee = _trustee;
 
-        newSubscription = Subscription(
+        subscription = Subscription(
             block.timestamp,
-            block.timestamp + _frequnecy
+            block.timestamp + _frequnecy,
+            true
         );
     }
 
@@ -277,50 +278,53 @@ contract DTRUST is ERC1155 {
             );
     }
 
-    function updateSemiAnnualPercent(uint256 _percent) external onlyManager {
-        percent = _percent;
-        emit UpdateSemiAnnualPercent(percent);
+    function updateBasisPoint(uint256 _basepoint) external onlyManager {
+        basisPoint = _basepoint;
+        emit UpdateBasisPoint(basisPoint);
     }
 
-    function paySemiAnnualFeeForFirstTwoYear(bool isPrToken, address _target)
+    function paySemiAnnualFeeForFirstTwoYear(bool hasPromoter, address _target)
         external
         onlyManager
     {
+        Subscription memory existsubscription = subscription;
+        require(existsubscription.isTwoYear);
+        require(
+            block.timestamp >= existsubscription.nextPayment,
+            "not due yet"
+        );
         uint256 semiAnnualFee = 0;
-        if (isPrToken) {
-            semiAnnualFee =
-                _orderBook[_target][PrTokenId] *
-                (_SemiAnnualFee / 100);
-            tokenSupply[PrTokenId] = tokenSupply[PrTokenId] + semiAnnualFee;
+        uint256 tokenId = 0;
+        if (hasPromoter) {
+            tokenId = PrTokenId;
         } else {
-            semiAnnualFee =
-                _orderBook[_target][DTokenId] *
-                (_SemiAnnualFee / 100);
-            tokenSupply[DTokenId] = tokenSupply[DTokenId] + semiAnnualFee;
+            tokenId = DTokenId;
         }
+        semiAnnualFee = _orderBook[_target][tokenId] * (basisPoint / 100);
+        tokenSupply[tokenId] = tokenSupply[tokenId] + semiAnnualFee;
 
-        _AnualFeeTotal + semiAnnualFee;
+        _AnualFeeTotal += semiAnnualFee;
     }
 
-    function paySemiAnnualFeeForSubsequentYear(bool isPrToken, address _target)
-        external
-        onlyManager
-    {
-        
+    function paySemiAnnualFeeForSubsequentYear(
+        bool hasPromoter,
+        address _target
+    ) external onlyManager {
+        Subscription storage existsubscription = subscription;
         uint256 semiAnnualFee = 0;
-        if (isPrToken) {
-            semiAnnualFee =
-                _orderBook[_target][PrTokenId] *
-                (_SemiAnnualFee / 100);
-            tokenSupply[PrTokenId] = tokenSupply[PrTokenId] + semiAnnualFee;
-        } else {
-            semiAnnualFee =
-                _orderBook[_target][DTokenId] *
-                (_SemiAnnualFee / 100);
-            tokenSupply[DTokenId] = tokenSupply[DTokenId] + semiAnnualFee;
-        }
+        // if (isPrToken) {
+        //     semiAnnualFee =
+        //         _orderBook[_target][PrTokenId] *
+        //         (_SemiAnnualFee / 100);
+        //     tokenSupply[PrTokenId] = tokenSupply[PrTokenId] + semiAnnualFee;
+        // } else {
+        //     semiAnnualFee =
+        //         _orderBook[_target][DTokenId] *
+        //         (_SemiAnnualFee / 100);
+        //     tokenSupply[DTokenId] = tokenSupply[DTokenId] + semiAnnualFee;
+        // }
 
-        _AnualFeeTotal + semiAnnualFee;
+        _AnualFeeTotal += semiAnnualFee;
     }
 
     function getSpecificPrToken(string memory _prTokenKey)
