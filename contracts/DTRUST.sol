@@ -162,6 +162,7 @@ contract DTRUST is ERC1155 {
     }
 
     function mint(
+        address _receiver,
         bool _isPromoteToken,
         uint256 _amount,
         string memory _tokenKey
@@ -171,7 +172,7 @@ contract DTRUST is ERC1155 {
             PrToken memory newPrToken = PrToken(countOfPrToken, _tokenKey);
             prTokens.push(newPrToken);
             countOfPrToken++;
-            _mint(manager, PrTokenId, _amount, "");
+            _mint(_receiver, PrTokenId, _amount, "");
 
             emit Mint(msg.sender, PrTokenId, _amount);
         } else {

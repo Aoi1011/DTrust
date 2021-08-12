@@ -42,13 +42,13 @@ contract DTRUSTFactory {
         emit CreateDTRUST(newDTRUST,  _newuri, _frequency);
     }
 
-    function createPrToken(DTRUST _dtrust, string memory _tokenKey) external {
+    function createPrToken(DTRUST _dtrust, string memory _tokenKey, address _receiver) external {
         uint256 prTokenId = 0;
         bool isSucceed = false;
 
         if (isDeployed[_dtrust]) {
             DTRUST existDTrust = _dtrust;
-            existDTrust.mint(true, 1, _tokenKey);
+            existDTrust.mint(_receiver, true, 1, _tokenKey);
             prTokenId = existDTrust.getCurrentPrToken();
 
             isSucceed = true;
@@ -79,12 +79,16 @@ contract DTRUSTFactory {
         view
         returns (uint256)
     {
-        for (uint256 i = 0; i < deployedDTRUSTs.length; i++) {
+        uint256 lengthOfDtrust = deployedDTRUSTs.length; 
+        uint256 currentPrToken = 0;
+        for (uint256 i = 0; i < lengthOfDtrust; i++) {
             if (deployedDTRUSTs[i] == _dtrust) {
                 DTRUST existDTrust = deployedDTRUSTs[i];
-                return existDTrust.getCurrentPrToken();
+                currentPrToken = existDTrust.getCurrentPrToken();
+                return currentPrToken;
             }
         }
+        return currentPrToken;
     }
 
     function getAllDeployedDTRUSTs() external view returns (DTRUST[] memory) {
