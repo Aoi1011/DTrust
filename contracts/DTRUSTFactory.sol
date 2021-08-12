@@ -26,6 +26,15 @@ contract DTRUSTFactory {
         address _settlor,
         address _beneficiary,
         address _trustee,
+        bool _settlorCBWA, 
+        bool _trusteeCBWA,
+        bool _settlorCDS,
+        bool _trusteeCDS,
+        bool _settlorRD, 
+        bool _trusteeRD, 
+        bool _settlorSA, 
+        bool _trusteeTA, 
+        bool _settlorILT,
         uint256 _frequency
     ) external {
         DTRUST newDTRUST = new DTRUST(
