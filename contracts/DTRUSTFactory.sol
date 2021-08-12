@@ -26,14 +26,14 @@ contract DTRUSTFactory {
         address _settlor,
         address _beneficiary,
         address _trustee,
-        bool _settlorCBWA, 
+        bool _settlorCBWA,
         bool _trusteeCBWA,
         bool _settlorCDS,
         bool _trusteeCDS,
-        bool _settlorRD, 
-        bool _trusteeRD, 
-        bool _settlorSA, 
-        bool _trusteeTA, 
+        bool _settlorRD,
+        bool _trusteeRD,
+        bool _settlorSA,
+        bool _trusteeTA,
         bool _settlorILT,
         uint256 _frequency
     ) external {
@@ -43,15 +43,28 @@ contract DTRUSTFactory {
             payable(_settlor),
             _beneficiary,
             payable(_trustee),
+            _settlorCBWA,
+            _trusteeCBWA,
+            _settlorCDS,
+            _trusteeCDS,
+            _settlorRD,
+            _trusteeRD,
+            _settlorSA,
+            _trusteeTA,
+            _settlorILT,
             _frequency
         );
         deployedDTRUSTs.push(newDTRUST);
         isDeployed[newDTRUST] = true;
 
-        emit CreateDTRUST(newDTRUST,  _newuri, _frequency);
+        emit CreateDTRUST(newDTRUST, _newuri, _frequency);
     }
 
-    function createPrToken(DTRUST _dtrust, string memory _tokenKey, address _receiver) external {
+    function createPrToken(
+        DTRUST _dtrust,
+        string memory _tokenKey,
+        address _receiver
+    ) external {
         uint256 prTokenId = 0;
         bool isSucceed = false;
 
@@ -88,7 +101,7 @@ contract DTRUSTFactory {
         view
         returns (uint256)
     {
-        uint256 lengthOfDtrust = deployedDTRUSTs.length; 
+        uint256 lengthOfDtrust = deployedDTRUSTs.length;
         uint256 currentPrToken = 0;
         for (uint256 i = 0; i < lengthOfDtrust; i++) {
             if (deployedDTRUSTs[i] == _dtrust) {
