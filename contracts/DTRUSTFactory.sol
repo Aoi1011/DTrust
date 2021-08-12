@@ -11,9 +11,8 @@ contract DTRUSTFactory {
 
     event CreateDTRUST(
         DTRUST createdDtrust,
-        string contractSymbol,
         string indexed newuri,
-        string indexed contractName
+        uint256 frequency
     );
 
     event CreatePrToken(
@@ -23,26 +22,24 @@ contract DTRUSTFactory {
     );
 
     function createDTRUST(
-        string memory _contractSymbol,
         string memory _newuri,
-        string memory _contractName,
         address _settlor,
         address _beneficiary,
-        address _trustee
+        address _trustee,
+        uint256 _frequency
     ) external {
         DTRUST newDTRUST = new DTRUST(
-            _contractName,
-            _contractSymbol,
             _newuri,
             payable(msg.sender),
             payable(_settlor),
             _beneficiary,
-            payable(_trustee)
+            payable(_trustee),
+            _frequency
         );
         deployedDTRUSTs.push(newDTRUST);
         isDeployed[newDTRUST] = true;
 
-        emit CreateDTRUST(newDTRUST, _contractSymbol, _newuri, _contractName);
+        emit CreateDTRUST(newDTRUST,  _newuri, _frequency);
     }
 
     function createPrToken(DTRUST _dtrust, string memory _tokenKey) external {

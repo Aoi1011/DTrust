@@ -182,7 +182,7 @@ contract DTRUST is ERC1155 {
         }
     }
 
-    function get_target(address _target, uint256 _id)
+    function getTargetDeposit(address _target, uint256 _id)
         external
         view
         onlyManager
