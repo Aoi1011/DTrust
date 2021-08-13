@@ -1,6 +1,6 @@
 const DTRUSTFactory = artifacts.require("DTRUSTFactory");
 const DTRUST = artifacts.require("DTRUST");
-const ControKey = artifacts.require("ControlKey");
+const ControlKey = artifacts.require("ControlKey");
 
 module.exports = async function (deployer, network, accounts) {
 
@@ -12,8 +12,8 @@ module.exports = async function (deployer, network, accounts) {
         console.log(DTRUSTFactory.address);
     });
 
-    deployer.deploy(ControKey).then(() => {
-        console.log(ControKey.address);
+    deployer.deploy(ControlKey).then(() => {
+        console.log(ControlKey.address);
     })
 
 };

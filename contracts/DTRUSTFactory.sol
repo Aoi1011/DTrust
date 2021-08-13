@@ -26,7 +26,7 @@ contract DTRUSTFactory {
         address _settlor,
         address _beneficiary,
         address _trustee,
-        uint256 __paymentInterval,
+        uint256 _paymentInterval,
         uint256 _frequency
     ) external {
         DTRUST newDTRUST = new DTRUST(
@@ -35,7 +35,7 @@ contract DTRUSTFactory {
             payable(_settlor),
             _beneficiary,
             payable(_trustee),
-            __paymentInterval,
+            _paymentInterval,
             _frequency
         );
         deployedDTRUSTs.push(newDTRUST);
