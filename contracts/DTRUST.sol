@@ -128,15 +128,6 @@ contract DTRUST is ERC1155 {
         address payable _settlor,
         address _beneficiary,
         address payable _trustee,
-        bool _settlorCBWA,
-        bool _trusteeCBWA,
-        bool _settlorCDS,
-        bool _trusteeCDS,
-        bool _settlorRD,
-        bool _trusteeRD,
-        bool _settlorSA,
-        bool _trusteeTA,
-        bool _settlorILT,
         uint256 _paymentInterval,
         uint256 _payAnnualFrequnecy
     ) ERC1155(_newURI) {
@@ -150,15 +141,6 @@ contract DTRUST is ERC1155 {
         settlor = _settlor;
         beneficiary = _beneficiary;
         trustee = _trustee;
-        settlorCBWA = _settlorCBWA;
-        trusteeCBWA = _trusteeCBWA;
-        settlorCDS = _settlorCDS;
-        trusteeCDS = _trusteeCDS;
-        settlorRD = _settlorRD;
-        trusteeRD = _trusteeRD;
-        settlorSA = _settlorSA;
-        trusteeTA = _trusteeTA;
-        settlorILT = _settlorILT;
         payAnnualFrequency = _payAnnualFrequnecy;
 
         // scheduler = SchedulerInterface(_deployerAddress);

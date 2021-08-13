@@ -26,15 +26,6 @@ contract DTRUSTFactory {
         address _settlor,
         address _beneficiary,
         address _trustee,
-        bool _settlorCBWA,
-        bool _trusteeCBWA,
-        bool _settlorCDS,
-        bool _trusteeCDS,
-        bool _settlorRD,
-        bool _trusteeRD,
-        bool _settlorSA,
-        bool _trusteeTA,
-        bool _settlorILT,
         uint256 __paymentInterval,
         uint256 _frequency
     ) external {
@@ -44,15 +35,6 @@ contract DTRUSTFactory {
             payable(_settlor),
             _beneficiary,
             payable(_trustee),
-            _settlorCBWA,
-            _trusteeCBWA,
-            _settlorCDS,
-            _trusteeCDS,
-            _settlorRD,
-            _trusteeRD,
-            _settlorSA,
-            _trusteeTA,
-            _settlorILT,
             __paymentInterval,
             _frequency
         );
