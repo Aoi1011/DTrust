@@ -187,7 +187,7 @@ contract DTRUST is ERC1155 {
             emit Mint(msg.sender, PrTokenId, _amount);
         } else {
             tokenSupply[DTokenId] += _amount;
-            _mint(manager, DTokenId, _amount, "");
+            _mint(_receiver, DTokenId, _amount, "");
 
             emit Mint(msg.sender, DTokenId, _amount);
         }
