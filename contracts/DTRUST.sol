@@ -441,22 +441,4 @@ contract DTRUST is ERC1155 {
         );
     }
 
-    // function schedule() public returns (bool) {
-    //     lockedUntil = block.number + paymentInterval;
-
-    //     currentScheduledTransaction = scheduler.schedule.value(0.1 ether)(
-    //         this,
-    //         "",
-    //         [
-    //             1000000, // The amount of gas to be sent with the transaction. Accounts for payout + new contract deployment
-    //             0, // The amount of wei to be sent.
-    //             255, // The size of the execution window.
-    //             lockedUntil, // The start of the execution window.
-    //             20000000000 wei, // The gasprice for the transaction (aka 20 gwei)
-    //             20000000000 wei, // The fee included in the transaction.
-    //             20000000000 wei, // The bounty that awards the executor of the transaction.
-    //             30000000000 wei // The required amount of wei the claimer must send as deposit.
-    //         ]
-    //     );
-    // }
 }
