@@ -200,15 +200,6 @@ contract DTRUST is ERC1155 {
         safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
     }
 
-    function setRights(
-        address payable _target,
-        uint256[] memory _ids,
-        uint256[] memory _amounts
-    ) external onlyManager {
-        safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
-        // for (uint256 i = 0; i < _ids.length; i++) {}
-    }
-
     function mint(
         address _receiver,
         bool _isPromoteToken,
