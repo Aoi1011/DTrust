@@ -40,10 +40,12 @@ contract DTRUST is ERC1155 {
     uint256 public basisPoint = 1; // for 2 year
     uint256 public countOfPrToken = 1;
     uint256 public payAnnualFrequency = 0;
+    uint256 paymentInterval;
     address payable public manager;
     address payable public settlor;
     address payable public trustee;
     address public beneficiary;
+    address public currentScheduledTransaction;
     string public name;
     string public symbol;
     string public dTrustUri;
@@ -96,6 +98,16 @@ contract DTRUST is ERC1155 {
         uint256 amount,
         uint256 total,
         uint256 date
+    );
+    event PaymentScheduled(
+        address indexed scheduledTransaction,
+        address recipient,
+        uint256 value
+    );
+    event PaymentExecuted(
+        address indexed scheduledTransaction,
+        address recipient,
+        uint256 value
     );
     ////////////////////////////////////////
 
@@ -406,7 +418,5 @@ contract DTRUST is ERC1155 {
         return currentPrToken.id;
     }
 
-    function schedule() public returns (bool) {
-
-    }
+    function schedule() public returns (bool) {}
 }
