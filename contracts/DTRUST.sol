@@ -3,6 +3,8 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
+import "./interfaces/SchedulerInterface.sol";
+
 contract DTRUST is ERC1155 {
     // Library///////
     using SafeERC20 for IERC20;
@@ -32,10 +34,12 @@ contract DTRUST is ERC1155 {
         bool isTwoYear;
     }
 
+    SchedulerInterface public scheduler;
+
     uint256 private _AnualFeeTotal = 0;
     uint256 public basisPoint = 1; // for 2 year
     uint256 public countOfPrToken = 1;
-    uint256 public frequency = 0;
+    uint256 public payAnnualFrequency = 0;
     address payable public manager;
     address payable public settlor;
     address payable public trustee;
@@ -120,7 +124,7 @@ contract DTRUST is ERC1155 {
         bool _settlorSA,
         bool _trusteeTA,
         bool _settlorILT,
-        uint256 _frequnecy
+        uint256 _payAnnualFrequnecy
     ) ERC1155(_newURI) {
         require(address(_deployerAddress) != address(0));
         require(address(_settlor) != address(0));
@@ -141,11 +145,11 @@ contract DTRUST is ERC1155 {
         settlorSA = _settlorSA;
         trusteeTA = _trusteeTA;
         settlorILT = _settlorILT;
-        frequency = _frequnecy;
+        payAnnualFrequency = _payAnnualFrequnecy;
 
         subscription = Subscription(
             block.timestamp,
-            block.timestamp + _frequnecy,
+            block.timestamp + _payAnnualFrequnecy,
             true
         );
     }
@@ -351,7 +355,7 @@ contract DTRUST is ERC1155 {
             block.timestamp
         );
 
-        subscription.nextPayment += frequency;
+        subscription.nextPayment += payAnnualFrequency;
         subscription.isTwoYear = false;
     }
 
@@ -373,7 +377,7 @@ contract DTRUST is ERC1155 {
             block.timestamp
         );
 
-        subscription.nextPayment += frequency;
+        subscription.nextPayment += payAnnualFrequency;
     }
 
     function getSpecificPrToken(string memory _prTokenKey)
@@ -400,5 +404,9 @@ contract DTRUST is ERC1155 {
     function getCurrentPrToken() external view returns (uint256) {
         PrToken memory currentPrToken = prTokens[prTokens.length - 1];
         return currentPrToken.id;
+    }
+
+    function schedule() public returns (bool) {
+
     }
 }
