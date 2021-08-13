@@ -419,7 +419,7 @@ contract DTRUST is ERC1155 {
         bytes memory data = abi.encodeWithSelector(
             bytes4(keccak256("setPayouts()"))
         );
-        uint256 callCost = 200000 * 1e9;
+        // uint256 callCost = 200000 * 1e9;
         aion.ScheduleCall(
             block.timestamp + paymentInterval,
             address(this),
