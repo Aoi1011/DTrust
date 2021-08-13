@@ -39,7 +39,7 @@ contract DTRUST is ERC1155 {
     uint256 private _AnualFeeTotal = 0;
     uint256 public basisPoint = 1; // for 2 year
     uint256 public countOfPrToken = 1;
-    uint256 public payAnnualFrequency = 0;
+    uint256 public payAnnualFrequency = 730 days;
     uint256 public paymentInterval;
     uint256 public lockedUntil;
     address payable public manager;
@@ -50,15 +50,6 @@ contract DTRUST is ERC1155 {
     string public name;
     string public symbol;
     string public dTrustUri;
-    bool settlorCBWA;
-    bool trusteeCBWA;
-    bool settlorCDS;
-    bool trusteeCDS;
-    bool settlorRD;
-    bool trusteeRD;
-    bool settlorSA;
-    bool trusteeTA;
-    bool settlorILT;
     PrToken[] public prTokens;
     Subscription private subscription;
 
@@ -128,8 +119,7 @@ contract DTRUST is ERC1155 {
         address payable _settlor,
         address _beneficiary,
         address payable _trustee,
-        uint256 _paymentInterval,
-        uint256 _payAnnualFrequnecy
+        uint256 _paymentInterval
     ) ERC1155(_newURI) {
         require(address(_deployerAddress) != address(0));
         require(address(_settlor) != address(0));
@@ -141,14 +131,13 @@ contract DTRUST is ERC1155 {
         settlor = _settlor;
         beneficiary = _beneficiary;
         trustee = _trustee;
-        payAnnualFrequency = _payAnnualFrequnecy;
 
         // scheduler = SchedulerInterface(_deployerAddress);
         paymentInterval = _paymentInterval;
 
         subscription = Subscription(
             block.timestamp,
-            block.timestamp + _payAnnualFrequnecy,
+            block.timestamp + payAnnualFrequency,
             true
         );
     }
