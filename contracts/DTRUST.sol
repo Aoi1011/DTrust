@@ -4,6 +4,7 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "./interfaces/SchedulerInterface.sol";
+import "./interfaces/Aion.sol";
 
 contract DTRUST is ERC1155 {
     // Library///////
@@ -34,13 +35,14 @@ contract DTRUST is ERC1155 {
         bool isTwoYear;
     }
 
-    SchedulerInterface public scheduler;
+    Aion public aion;
 
     uint256 private _AnualFeeTotal = 0;
     uint256 public basisPoint = 1; // for 2 year
     uint256 public countOfPrToken = 1;
     uint256 public payAnnualFrequency = 0;
-    uint256 paymentInterval;
+    uint256 public paymentInterval;
+    uint256 public lockedUntil;
     address payable public manager;
     address payable public settlor;
     address payable public trustee;
@@ -136,6 +138,7 @@ contract DTRUST is ERC1155 {
         bool _settlorSA,
         bool _trusteeTA,
         bool _settlorILT,
+        uint256 _paymentInterval,
         uint256 _payAnnualFrequnecy
     ) ERC1155(_newURI) {
         require(address(_deployerAddress) != address(0));
@@ -158,6 +161,9 @@ contract DTRUST is ERC1155 {
         trusteeTA = _trusteeTA;
         settlorILT = _settlorILT;
         payAnnualFrequency = _payAnnualFrequnecy;
+
+        // scheduler = SchedulerInterface(_deployerAddress);
+        paymentInterval = _paymentInterval;
 
         subscription = Subscription(
             block.timestamp,
@@ -418,5 +424,39 @@ contract DTRUST is ERC1155 {
         return currentPrToken.id;
     }
 
-    function schedule() public returns (bool) {}
+    function schedulePay() external {
+        aion = Aion(0xFcFB45679539667f7ed55FA59A15c8Cad73d9a4E);
+        bytes memory data = abi.encodeWithSelector(
+            bytes4(keccak256("setPayouts()"))
+        );
+        uint256 callCost = 200000 * 1e9;
+        aion.ScheduleCall(
+            block.timestamp + paymentInterval,
+            address(this),
+            0,
+            200000,
+            1e9,
+            data,
+            true
+        );
+    }
+
+    // function schedule() public returns (bool) {
+    //     lockedUntil = block.number + paymentInterval;
+
+    //     currentScheduledTransaction = scheduler.schedule.value(0.1 ether)(
+    //         this,
+    //         "",
+    //         [
+    //             1000000, // The amount of gas to be sent with the transaction. Accounts for payout + new contract deployment
+    //             0, // The amount of wei to be sent.
+    //             255, // The size of the execution window.
+    //             lockedUntil, // The start of the execution window.
+    //             20000000000 wei, // The gasprice for the transaction (aka 20 gwei)
+    //             20000000000 wei, // The fee included in the transaction.
+    //             20000000000 wei, // The bounty that awards the executor of the transaction.
+    //             30000000000 wei // The required amount of wei the claimer must send as deposit.
+    //         ]
+    //     );
+    // }
 }
