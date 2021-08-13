@@ -35,6 +35,7 @@ contract DTRUSTFactory {
         bool _settlorSA,
         bool _trusteeTA,
         bool _settlorILT,
+        uint256 __paymentInterval,
         uint256 _frequency
     ) external {
         DTRUST newDTRUST = new DTRUST(
@@ -52,6 +53,7 @@ contract DTRUSTFactory {
             _settlorSA,
             _trusteeTA,
             _settlorILT,
+            __paymentInterval,
             _frequency
         );
         deployedDTRUSTs.push(newDTRUST);
