@@ -1,14 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "multi-token-standard/contracts/tokens/ERC1155/ERC1155.sol";
+import "multi-token-standard/contracts/tokens/ERC1155/ERC1155Metadata.sol";
+import "multi-token-standard/contracts/tokens/ERC1155/ERC1155MintBurn.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "./interfaces/Aion.sol";
+import "./libraries/Strings.sol";
 
-contract DTRUST is ERC1155 {
+contract DTRUST is ERC1155, ERC1155Metadata, ERC1155MintBurn {
     // Library///////
     using SafeERC20 for IERC20;
+    using Strings for string;
     /////////////////
 
     // constants/////
@@ -55,6 +59,7 @@ contract DTRUST is ERC1155 {
     Subscription private subscription;
 
     // storage//////////////////////////
+    mapping (uint256 => address) public creators;
     mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
     mapping(uint256 => uint256) public tokenPrices; // id -> tokenPrice
     mapping(address => mapping(uint256 => uint256)) private _orderBook; // customer -> id -> amount of asset
@@ -141,6 +146,11 @@ contract DTRUST is ERC1155 {
             block.timestamp + payAnnualFrequency,
             true
         );
+    }
+
+    function uri(uint256 _id) public view returns (string memory) {
+        require(_exists(_id), "ERC721Tradable#uri: NONEXISTENT_TOKEN");
+        return Strings.strConcat(baseMetadataURI, Strings.uint2str(_id));
     }
 
     function mint(
@@ -428,5 +438,9 @@ contract DTRUST is ERC1155 {
             data,
             true
         );
+    }
+
+    function _exists(uint256 _id) internal view returns (bool) {
+        return creators[_id] != address(0);
     }
 }
