@@ -51,7 +51,7 @@ contract DTRUST is ERC1155 {
     string public name;
     string public symbol;
     string public dTrustUri;
-    PrToken[] public prTokens;
+    PrTokenStruct[] public prTokens;
     Subscription private subscription;
 
     // storage//////////////////////////
@@ -164,7 +164,7 @@ contract DTRUST is ERC1155 {
     }
 
     function mintBatch(
-        int256[] memory _ids,
+        uint256[] memory _ids,
         string[] memory _tokenNames,
         uint256[] memory _amounts
     ) public {
@@ -362,7 +362,7 @@ contract DTRUST is ERC1155 {
     }
 
     function getCurrentPrToken() external view returns (uint256) {
-        PrToken memory currentPrToken = prTokens[prTokens.length - 1];
+        PrTokenStruct memory currentPrToken = prTokens[prTokens.length - 1];
         return currentPrToken.id;
     }
 
