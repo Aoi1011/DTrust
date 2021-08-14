@@ -53,11 +53,8 @@ contract DTRUSTFactory {
 
             isSucceed = true;
         }
-        if (isSucceed) {
-            emit CreatePrToken(prTokenId, _tokenKey, true);
-        } else {
-            emit CreatePrToken(prTokenId, _tokenKey, false);
-        }
+
+        emit CreatePrToken(prTokenId, _tokenKey, isSucceed);
     }
 
     function usePrToken(DTRUST _dtrust, string memory _tokenKey)
