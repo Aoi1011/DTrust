@@ -1,25 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "multi-token-standard/contracts/tokens/ERC1155/ERC1155.sol";
-import "multi-token-standard/contracts/tokens/ERC1155/ERC1155Metadata.sol";
-import "multi-token-standard/contracts/tokens/ERC1155/ERC1155MintBurn.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
 import "./interfaces/Aion.sol";
 import "./libraries/Strings.sol";
 
-contract DTRUST is ERC1155, ERC1155Metadata, ERC1155MintBurn {
+contract DTRUST is ERC1155 {
     // Library///////
-    using SafeERC20 for IERC20;
     using Strings for string;
     /////////////////
 
     // constants/////
     uint256 private constant PACK_INDEX =
         0x0000000000000000000000000000000000000000000000000000000000007FFF;
-    uint256 private constant PrTokenId = 0;
-    uint256 private constant DTokenId = 1;
+    uint256 private constant PrToken = 0;
+    uint256 private constant DToken = 1;
     /////////////////
 
     enum ContractRights {
@@ -28,7 +24,7 @@ contract DTRUST is ERC1155, ERC1155Metadata, ERC1155MintBurn {
         POSTPONE
     }
 
-    struct PrToken {
+    struct PrTokenStruct {
         uint256 id;
         string tokenKey;
     }
@@ -59,7 +55,7 @@ contract DTRUST is ERC1155, ERC1155Metadata, ERC1155MintBurn {
     Subscription private subscription;
 
     // storage//////////////////////////
-    mapping (uint256 => address) public creators;
+    mapping(uint256 => address) public creators;
     mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
     mapping(uint256 => uint256) public tokenPrices; // id -> tokenPrice
     mapping(address => mapping(uint256 => uint256)) private _orderBook; // customer -> id -> amount of asset
@@ -148,10 +144,14 @@ contract DTRUST is ERC1155, ERC1155Metadata, ERC1155MintBurn {
         );
     }
 
-    function uri(uint256 _id) public view returns (string memory) {
-        require(_exists(_id), "ERC721Tradable#uri: NONEXISTENT_TOKEN");
-        return Strings.strConcat(baseMetadataURI, Strings.uint2str(_id));
-    }
+    // function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155, AccessControl) returns (bool) {
+    //     return super.supportsInterface(interfaceId);
+    // }
+
+    // function uri(uint256 _id) public view override returns (string memory) {
+    //     require(_exists(_id), "ERC721Tradable#uri: NONEXISTENT_TOKEN");
+    //     return Strings.strConcat(baseMetadataURI, Strings.uint2str(_id));
+    // }
 
     function mint(
         address _to,
@@ -159,47 +159,19 @@ contract DTRUST is ERC1155, ERC1155Metadata, ERC1155MintBurn {
         uint256 _quantity,
         bytes memory _data
     ) external {
-        _mint(_to, _id, _quantity, _data);
         tokenSupply[_id] += _quantity;
+        _mint(_to, _id, _quantity, _data);
     }
 
-    function batchMint(
-        address _to,
-        uint256[] memory _ids,
-        uint256[] memory _quantities,
-        bytes memory _data
+    function mintBatch(
+        int256[] memory _ids,
+        string[] memory _tokenNames,
+        uint256[] memory _amounts
     ) public {
         for (uint256 i = 0; i < _ids.length; i++) {
-            uint256 _id = _ids[i];
-            uint256 quantity = _quantities[i];
-            tokenSupply[_id] += quantity;
+            tokenSupply[_ids[i]] = _amounts[i];
         }
-        _mintBatch(_to, _ids, _quantities, _data);
-    }
-
-    function create(
-        address _receiver,
-        uint256 _id,
-        bool _isPromoteToken,
-        uint256 _amount,
-        string memory _tokenKey
-    ) external onlyManager {
-        _mint(_receiver, _id, _amount, "");
-
-        if (_isPromoteToken) {
-            tokenSupply[PrTokenId] += _amount;
-            PrToken memory newPrToken = PrToken(countOfPrToken, _tokenKey);
-            prTokens.push(newPrToken);
-            countOfPrToken++;
-            _mint(_receiver, PrTokenId, _amount, "");
-
-            emit Mint(msg.sender, PrTokenId, _amount);
-        } else {
-            tokenSupply[DTokenId] += _amount;
-            _mint(_receiver, DTokenId, _amount, "");
-
-            emit Mint(msg.sender, DTokenId, _amount);
-        }
+        _mintBatch(manager, _ids, _amounts, "");
     }
 
     function setBeneficiaryAsset(uint256 _id, uint256 _price)
@@ -298,37 +270,8 @@ contract DTRUST is ERC1155, ERC1155Metadata, ERC1155MintBurn {
         return toFullURI(_uri, _id);
     }
 
-    function setURI(string memory _newURI) external onlyManager {
+    function setURI(string memory _newURI) public onlyManager {
         _setURI(_newURI);
-    }
-
-    function uint2str(uint256 _i)
-        private
-        pure
-        returns (string memory _uintAsString)
-    {
-        if (_i == 0) {
-            return "0";
-        }
-
-        uint256 j = _i;
-        uint256 len;
-        while (j != 0) {
-            len++;
-            j /= 10;
-        }
-
-        bytes memory bstr = new bytes(len);
-        uint256 k = len;
-        while (_i != 0) {
-            k = k - 1;
-            uint8 temp = (48 + uint8(_i - (_i / 10) * 10));
-            bytes1 b1 = bytes1(temp);
-            bstr[k] = b1;
-            _i /= 10;
-        }
-
-        return string(bstr);
     }
 
     function toFullURI(string memory _uri, uint256 _id)
@@ -338,7 +281,7 @@ contract DTRUST is ERC1155, ERC1155Metadata, ERC1155MintBurn {
     {
         return
             string(
-                abi.encodePacked(_uri, "/", uint2str(_id & PACK_INDEX), ".json")
+                abi.encodePacked(_uri, "/", Strings.uint2str(_id & PACK_INDEX), ".json")
             );
     }
 
@@ -356,9 +299,9 @@ contract DTRUST is ERC1155, ERC1155Metadata, ERC1155MintBurn {
         uint256 semiAnnualFee = 0;
         uint256 tokenId = 0;
         if (hasPromoter) {
-            tokenId = PrTokenId;
+            tokenId = PrToken;
         } else {
-            tokenId = DTokenId;
+            tokenId = DToken;
         }
         semiAnnualFee = _orderBook[_target][tokenId] * (basisPoint / 100);
         tokenSupply[tokenId] += semiAnnualFee;
@@ -383,8 +326,8 @@ contract DTRUST is ERC1155, ERC1155Metadata, ERC1155MintBurn {
         require(!subscription.isTwoYear);
         require(block.timestamp >= subscription.nextPayment, "not due yet");
         uint256 semiAnnualFee = 0;
-        semiAnnualFee = _orderBook[_target][DTokenId] * (basisPoint / 100);
-        tokenSupply[DTokenId] += semiAnnualFee;
+        semiAnnualFee = _orderBook[_target][DToken] * (basisPoint / 100);
+        tokenSupply[DToken] += semiAnnualFee;
         _AnualFeeTotal += semiAnnualFee;
 
         emit PaymentSentForSubsequentYear(
