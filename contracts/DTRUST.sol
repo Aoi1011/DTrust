@@ -220,7 +220,7 @@ contract DTRUST is ERC1155 {
         return _orderBook[_target][_id];
     }
 
-    function customerDeposit(uint256[] memory _ids, uint256[] memory _amounts)
+    function depositAsset(uint256[] memory _ids, uint256[] memory _amounts)
         external
         payable
     {
@@ -230,7 +230,7 @@ contract DTRUST is ERC1155 {
         for (uint256 i = 0; i < _ids.length; i++) {
             require(_exists(_ids[i]));
             require(payment >= tokenPrices[_ids[i]] * _amounts[i]);
-            
+
             _orderBook[msg.sender][_ids[i]] = _amounts[i];
             emit Order(msg.sender, _ids[i], _amounts[i]);
 
