@@ -144,15 +144,6 @@ contract DTRUST is ERC1155 {
         );
     }
 
-    // function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155, AccessControl) returns (bool) {
-    //     return super.supportsInterface(interfaceId);
-    // }
-
-    // function uri(uint256 _id) public view override returns (string memory) {
-    //     require(_exists(_id), "ERC721Tradable#uri: NONEXISTENT_TOKEN");
-    //     return Strings.strConcat(baseMetadataURI, Strings.uint2str(_id));
-    // }
-
     function mint(
         address _to,
         uint256 _id,
