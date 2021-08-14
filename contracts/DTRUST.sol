@@ -77,7 +77,11 @@ contract DTRUST is ERC1155 {
         address indexed spender,
         uint256 value
     );
-    event TransferBatch(address indexed from, address indexed to, uint256[] value);
+    event TransferBatch(
+        address indexed from,
+        address indexed to,
+        uint256[] value
+    );
     event Mint(address indexed sender, uint256 tokenId, uint256 amount);
     event UpdateBasisPoint(uint256 basispoint);
     event PaymentSentForFirstTwoYear(
@@ -211,15 +215,6 @@ contract DTRUST is ERC1155 {
         safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
     }
 
-    function getTargetDeposit(address _target, uint256 _id)
-        external
-        view
-        onlyManager
-        returns (uint256)
-    {
-        return _orderBook[_target][_id];
-    }
-
     function depositAsset(uint256[] memory _ids, uint256[] memory _amounts)
         external
         payable
@@ -236,6 +231,15 @@ contract DTRUST is ERC1155 {
         }
         safeBatchTransferFrom(msg.sender, address(this), _ids, _amounts, "");
         emit TransferBatch(address(this), msg.sender, _amounts);
+    }
+    
+    function getTargetDeposit(address _target, uint256 _id)
+        external
+        view
+        onlyManager
+        returns (uint256)
+    {
+        return _orderBook[_target][_id];
     }
 
     function fillOrder(
