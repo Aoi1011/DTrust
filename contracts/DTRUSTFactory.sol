@@ -9,10 +9,7 @@ contract DTRUSTFactory {
 
     mapping(DTRUST => bool) isDeployed;
 
-    event CreateDTRUST(
-        DTRUST createdDtrust,
-        string indexed newuri
-    );
+    event CreateDTRUST(DTRUST createdDtrust, string indexed newuri);
 
     event CreatePrToken(
         uint256 indexed prTokenId,
@@ -37,7 +34,7 @@ contract DTRUSTFactory {
         );
         deployedDTRUSTs.push(newDTRUST);
         isDeployed[newDTRUST] = true;
-        
+
         emit CreateDTRUST(newDTRUST, _newuri);
     }
 
@@ -51,7 +48,7 @@ contract DTRUSTFactory {
 
         if (isDeployed[_dtrust]) {
             DTRUST existDTrust = _dtrust;
-            existDTrust.mint(_receiver, true, 1, _tokenKey);
+            existDTrust.mint(_receiver, 0, 1, "");
             prTokenId = existDTrust.getCurrentPrToken();
 
             isSucceed = true;
