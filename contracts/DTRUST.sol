@@ -144,25 +144,42 @@ contract DTRUST is ERC1155 {
         );
     }
 
+    function setURI(string memory _newURI) public onlyManager {
+        _setURI(_newURI);
+    }
+
+    function getURI(string memory _uri, uint256 _id)
+        public
+        pure
+        returns (string memory)
+    {
+        return toFullURI(_uri, _id);
+    }
+
+    function toFullURI(string memory _uri, uint256 _id)
+        internal
+        pure
+        returns (string memory)
+    {
+        return
+            string(
+                abi.encodePacked(
+                    _uri,
+                    "/",
+                    Strings.uint2str(_id & PACK_INDEX),
+                    ".json"
+                )
+            );
+    }
+
     function mint(
         address _to,
         uint256 _id,
         uint256 _quantity,
         bytes memory _data
     ) external {
-        tokenSupply[_id] += _quantity;
         _mint(_to, _id, _quantity, _data);
-    }
-
-    function mintBatch(
-        uint256[] memory _ids,
-        string[] memory _tokenNames,
-        uint256[] memory _amounts
-    ) public {
-        for (uint256 i = 0; i < _ids.length; i++) {
-            tokenSupply[_ids[i]] = _amounts[i];
-        }
-        _mintBatch(manager, _ids, _amounts, "");
+        tokenSupply[_id] += _quantity;
     }
 
     function setBeneficiaryAsset(uint256 _id, uint256 _price)
@@ -203,14 +220,23 @@ contract DTRUST is ERC1155 {
         return _orderBook[_target][_id];
     }
 
-    function customerDeposit(uint256 _id, uint256 _amount) external payable {
+    function customerDeposit(uint256[] memory _ids, uint256[] memory _amounts)
+        external
+        payable
+    {
         uint256 payment = msg.value;
-        require(payment >= tokenPrices[_id] * _amount);
         require(manager != address(0));
 
-        _orderBook[msg.sender][_id] = _amount;
+        for (uint256 i = 0; i < _ids.length; i++) {
+            require(_exists(_ids[i]));
+            require(payment >= tokenPrices[_ids[i]] * _amounts[i]);
+            
+            _orderBook[msg.sender][_ids[i]] = _amounts[i];
+            emit Order(msg.sender, _ids[i], _amounts[i]);
 
-        emit Order(msg.sender, _id, _amount);
+            safeTransferFrom(msg.sender, address(this), _ids[i], _amounts[i], "");
+            emit Transfer(address(this), msg.sender, _amounts[i]);
+        }
     }
 
     function fillOrder(
@@ -251,29 +277,6 @@ contract DTRUST is ERC1155 {
             _orderBook[_target][_ids[i]] = 0;
         }
         safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
-    }
-
-    function getURI(string memory _uri, uint256 _id)
-        public
-        pure
-        returns (string memory)
-    {
-        return toFullURI(_uri, _id);
-    }
-
-    function setURI(string memory _newURI) public onlyManager {
-        _setURI(_newURI);
-    }
-
-    function toFullURI(string memory _uri, uint256 _id)
-        internal
-        pure
-        returns (string memory)
-    {
-        return
-            string(
-                abi.encodePacked(_uri, "/", Strings.uint2str(_id & PACK_INDEX), ".json")
-            );
     }
 
     function updateBasisPoint(uint256 _basepoint) external onlyManager {
