@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
+
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
@@ -142,6 +143,55 @@ contract DTRUST is ERC1155 {
         );
     }
 
+    function mint(
+        address _to,
+        uint256 _id,
+        uint256 _quantity,
+        bytes memory _data
+    ) external {
+        _mint(_to, _id, _quantity, _data);
+        tokenSupply[_id] += _quantity;
+    }
+
+    function batchMint(
+        address _to,
+        uint256[] memory _ids,
+        uint256[] memory _quantities,
+        bytes memory _data
+    ) public {
+        for (uint256 i = 0; i < _ids.length; i++) {
+            uint256 _id = _ids[i];
+            uint256 quantity = _quantities[i];
+            tokenSupply[_id] += quantity;
+        }
+        _mintBatch(_to, _ids, _quantities, _data);
+    }
+
+    function create(
+        address _receiver,
+        uint256 _id,
+        bool _isPromoteToken,
+        uint256 _amount,
+        string memory _tokenKey
+    ) external onlyManager {
+        _mint(_receiver, _id, _amount, "");
+
+        if (_isPromoteToken) {
+            tokenSupply[PrTokenId] += _amount;
+            PrToken memory newPrToken = PrToken(countOfPrToken, _tokenKey);
+            prTokens.push(newPrToken);
+            countOfPrToken++;
+            _mint(_receiver, PrTokenId, _amount, "");
+
+            emit Mint(msg.sender, PrTokenId, _amount);
+        } else {
+            tokenSupply[DTokenId] += _amount;
+            _mint(_receiver, DTokenId, _amount, "");
+
+            emit Mint(msg.sender, DTokenId, _amount);
+        }
+    }
+
     function setBeneficiaryAsset(uint256 _id, uint256 _price)
         external
         onlyManager
@@ -169,28 +219,6 @@ contract DTRUST is ERC1155 {
             tokenPrices[_ids[i]] = _amounts[i];
         }
         safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
-    }
-
-    function mint(
-        address _receiver,
-        bool _isPromoteToken,
-        uint256 _amount,
-        string memory _tokenKey
-    ) external onlyManager {
-        if (_isPromoteToken) {
-            tokenSupply[PrTokenId] += _amount;
-            PrToken memory newPrToken = PrToken(countOfPrToken, _tokenKey);
-            prTokens.push(newPrToken);
-            countOfPrToken++;
-            _mint(_receiver, PrTokenId, _amount, "");
-
-            emit Mint(msg.sender, PrTokenId, _amount);
-        } else {
-            tokenSupply[DTokenId] += _amount;
-            _mint(_receiver, DTokenId, _amount, "");
-
-            emit Mint(msg.sender, DTokenId, _amount);
-        }
     }
 
     function getTargetDeposit(address _target, uint256 _id)
@@ -401,5 +429,4 @@ contract DTRUST is ERC1155 {
             true
         );
     }
-
 }
