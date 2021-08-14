@@ -77,7 +77,7 @@ contract DTRUST is ERC1155 {
         address indexed spender,
         uint256 value
     );
-    event Transfer(address indexed from, address indexed to, uint256 value);
+    event TransferBatch(address indexed from, address indexed to, uint256[] value);
     event Mint(address indexed sender, uint256 tokenId, uint256 amount);
     event UpdateBasisPoint(uint256 basispoint);
     event PaymentSentForFirstTwoYear(
@@ -233,10 +233,9 @@ contract DTRUST is ERC1155 {
 
             _orderBook[msg.sender][_ids[i]] = _amounts[i];
             emit Order(msg.sender, _ids[i], _amounts[i]);
-
-            safeTransferFrom(msg.sender, address(this), _ids[i], _amounts[i], "");
-            emit Transfer(address(this), msg.sender, _amounts[i]);
         }
+        safeBatchTransferFrom(msg.sender, address(this), _ids, _amounts, "");
+        emit TransferBatch(address(this), msg.sender, _amounts);
     }
 
     function fillOrder(
