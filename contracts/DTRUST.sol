@@ -4,12 +4,13 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import "./abstracts/ERC1155FromERC721.sol";
 import "./interfaces/Aion.sol";
 import "./interfaces/SchedulerInterface.sol";
 import "./interfaces/IMyERC20.sol";
 import "./libraries/Strings.sol";
 
-contract DTRUST is ERC1155 {
+contract DTRUST is ERC1155, ERC1155FromERC721 {
     // Library///////
     using Strings for string;
     /////////////////
@@ -217,35 +218,54 @@ contract DTRUST is ERC1155 {
     ) external payable {
         uint256 id = uint256(address(erc20));
         mint(address(this), id, _amount, _data);
+        assetIds.push(id);
+        _orderBook[msg.sender][id] = _amount;
         require(
             erc20.transferFrom(msg.sender, address(this), _amount),
             "Cannot transfer."
         );
-        assetIds.push(id);
-        _orderBook[msg.sender][id] = _amount;
         emit Order(msg.sender, id, _amount);
     }
 
-    // function depositAsset(address _tokenAddress, uint256 _amount)
-    //     external
-    //     payable
-    // {
-    //     uint256 payment = msg.value;
-    //     // require(payment >= tokenPrices[_id] * (_amount));
-    //     require(manager != address(0));
-    //     // require(_exists(_id), "Does not exist!");
-    //     ERC1155 ERC1155interface;
-    //     ERC1155interface = ERC1155(_tokenAddress);
-    //     ERC1155interface.transferFrom(msg.sender, address(this), _amount);
+    function depositERC721Asset(
+        ERC721Token calldata _erc721Token,
+        address _from,
+        address _to,
+        bytes calldata _data
+    ) public {
+        uint256 _erc1155TokenId = _tokenHash(_erc721Token);
+        _mint(_to, _erc1155TokenId, 1, _data);
+        assetIds.push(_erc1155TokenId);
+        _orderBook[msg.sender][_erc1155TokenId] = 1;
+        _erc721Token.erc721Contract.transferFrom(
+            _from,
+            address(this),
+            _erc721Token.erc721TokenId
+        );
+        emit Order(msg.sender, _erc1155TokenId, 1);
+        // emit BorrowedERC721(_erc721Token, msg.sender, _from, _to, _data);
+    }
 
-    //     assetIds.push(_id);
+    //  function depositAsset(address _tokenAddress, uint256 _amount)
+    //         external
+    //         payable
+    //  {
+    //         uint256 payment = msg.value;
+    //         // require(payment >= tokenPrices[_id] * (_amount));
+    //         require(manager != address(0));
+    //         // require(_exists(_id), "Does not exist!");
+    //         ERC1155 ERC1155interface;
+    //         ERC1155interface = ERC1155(_tokenAddress);
+    //         ERC1155interface.transferFrom(msg.sender, address(this), _amount);
 
-    //     _orderBook[msg.sender][_id] = _amount;
-    //     emit Order(msg.sender, _id, _amount);
+    //         assetIds.push(_id);
 
-    //     safeTransferFrom(msg.sender, address(this), _id, _amount, "");
-    //     emit Transfer(address(this), msg.sender, _amount);
-    // }
+    //         _orderBook[msg.sender][_id] = _amount;
+    //         emit Order(msg.sender, _id, _amount);
+
+    //         safeTransferFrom(msg.sender, address(this), _id, _amount, "");
+    //         emit Transfer(address(this), msg.sender, _amount);
+    //     }
 
     function depositAssetBatch(
         uint256[] calldata _ids,
