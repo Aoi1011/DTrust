@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 pragma abicoder v2;
 
 import "../interfaces/IERC1155Views.sol";
-import "./IMyERC721.sol";
+import "../interfaces/IMyERC721.sol";
 
 abstract contract ERC1155FromERC721 is IERC1155Views {
     struct ERC721Token {
@@ -24,13 +24,13 @@ abstract contract ERC1155FromERC721 is IERC1155Views {
         }
     }
 
-    function name(uint256 _id) external view override returns (string memory) {
-        return IMyERC721(address(_id)).name();
-    }
+    // function name(uint256 _id) external view override returns (string memory) {
+    //     return IMyERC721(address(_id)).name();
+    // }
 
-    function symbol(uint256 _id) external view override returns (string memory) {
-        return IMyERC721(address(_id)).symbol();
-    }
+    // function symbol(uint256 _id) external view override returns (string memory) {
+    //     return IMyERC721(address(_id)).symbol();
+    // }
 
     function decimals(uint256 /*_id*/) external pure override returns (uint8) {
         return 0;
