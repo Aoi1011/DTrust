@@ -2,8 +2,10 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./interfaces/Aion.sol";
+import "./interfaces/SchedulerInterface.sol";
 import "./libraries/Strings.sol";
 
 contract DTRUST is ERC1155 {
@@ -36,6 +38,7 @@ contract DTRUST is ERC1155 {
     }
 
     Aion public aion;
+    SchedulerInterface public scheduler;
 
     uint256 private _AnualFeeTotal = 0;
     uint256 public basisPoint = 1; // for 2 year
@@ -43,6 +46,7 @@ contract DTRUST is ERC1155 {
     uint256 public payAnnualFrequency = 730 days;
     uint256 public paymentInterval;
     uint256 public lockedUntil;
+    uint256[] private assetIds;
     address payable public manager;
     address payable public settlor;
     address payable public trustee;
@@ -100,8 +104,7 @@ contract DTRUST is ERC1155 {
     );
     event PaymentScheduled(
         address indexed scheduledTransaction,
-        address recipient,
-        uint256 value
+        address recipient
     );
     event PaymentExecuted(
         address indexed scheduledTransaction,
@@ -139,7 +142,7 @@ contract DTRUST is ERC1155 {
         beneficiary = _beneficiary;
         trustee = _trustee;
 
-        // scheduler = SchedulerInterface(_deployerAddress);
+        scheduler = SchedulerInterface(_deployerAddress);
         paymentInterval = _paymentInterval;
 
         subscription = Subscription(
@@ -147,6 +150,17 @@ contract DTRUST is ERC1155 {
             block.timestamp + payAnnualFrequency,
             true
         );
+
+        schedule();
+    }
+
+    fallback() external payable {
+        if (msg.value > 0) {
+            //this handles recieving remaining funds sent while scheduling (0.1 ether)
+            return;
+        }
+
+        process();
     }
 
     function setURI(string memory _newURI) public onlyManager {
@@ -193,11 +207,22 @@ contract DTRUST is ERC1155 {
         tokenSupply[_id] += _quantity;
     }
 
-    function depositAsset(uint256 _id, uint256 _amount) external payable {
+    function borrowERC20(IMyERC20 erc20, uint256 _amount, address _from, address _to, bytes calldata _data) public {
+        _mint(_to, uint256(address(erc20)), _amount, _data);
+        require(erc20.transferFrom(_from, address(this), _amount), "Cannot transfer.");
+        emit BorrowedERC20(erc20, msg.sender, _amount, _from, _to, _data);
+    }
+
+    function depositAsset(address _tokenAddress, uint256 _amount) external payable {
         uint256 payment = msg.value;
-        require(payment >= tokenPrices[_id] * (_amount));
+        // require(payment >= tokenPrices[_id] * (_amount));
         require(manager != address(0));
-        require(_exists(_id), "Does not exist!");
+        // require(_exists(_id), "Does not exist!");
+        ERC1155 ERC1155interface;
+        ERC1155interface = ERC1155(_tokenAddress);
+        ERC1155interface.transferFrom(msg.sender, address(this), _amount);
+        assetIds.push(_id);
+
         _orderBook[msg.sender][_id] = _amount;
         emit Order(msg.sender, _id, _amount);
 
@@ -216,6 +241,9 @@ contract DTRUST is ERC1155 {
         uint256 cost;
         for (uint256 i = 0; i < _ids.length; i++) {
             require(_exists(_ids[i]), "Does not exist!");
+
+            assetIds.push(_ids[i]);
+
             cost += _ids[i] * _amounts[i];
             _orderBook[msg.sender][_ids[i]] = _amounts[i];
         }
@@ -236,16 +264,20 @@ contract DTRUST is ERC1155 {
         return _orderBook[_target][_id];
     }
 
-    function fillOrder(uint256 _id, uint256 _amount) external onlyManager {
+    function payToBeneficiary() external {
+
+    }
+
+    function fillOrder(uint256 _id, uint256 _amount) internal onlyManager {
         tokenSupply[_id] -= _amount;
         _orderBook[beneficiary][_id] = 0;
         safeTransferFrom(msg.sender, beneficiary, _id, _amount, "");
     }
 
-    function fillOrderBatch(
-        uint256[] memory _ids,
-        uint256[] memory _amounts
-    ) external onlyManager {
+    function fillOrderBatch(uint256[] memory _ids, uint256[] memory _amounts)
+        internal
+        onlyManager
+    {
         for (uint256 i = 0; i < _ids.length; i++) {
             tokenSupply[_ids[i]] -= _amounts[i];
             _orderBook[beneficiary][_ids[i]] = 0;
@@ -353,5 +385,32 @@ contract DTRUST is ERC1155 {
 
     function _exists(uint256 _id) internal view returns (bool) {
         return creators[_id] != address(0);
+    }
+
+    function process() internal {
+        fillOrder(_id, _amount);
+        fillOrderBatch(_ids, _amounts);
+        schedule();
+    }
+
+    function schedule() internal {
+        lockedUntil = block.timestamp + paymentInterval;
+
+        currentScheduledTransaction = scheduler.schedule(
+            address(this),
+            "",
+            [
+                1000000, // The amount of gas to be sent with the transaction. Accounts for payout + new contract deployment
+                0, // The amount of wei to be sent.
+                255, // The size of the execution window.
+                lockedUntil, // The start of the execution window.
+                20000000000 wei, // The gasprice for the transaction (aka 20 gwei)
+                20000000000 wei, // The fee included in the transaction.
+                20000000000 wei, // The bounty that awards the executor of the transaction.
+                30000000000 wei
+            ]
+        );
+
+        emit PaymentScheduled(currentScheduledTransaction, beneficiary);
     }
 }
