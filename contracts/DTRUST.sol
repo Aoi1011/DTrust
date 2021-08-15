@@ -258,16 +258,6 @@ contract DTRUST is ERC1155 {
         safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
     }
 
-    function payToBeneficiary(
-        address payable _beneficiary,
-        uint256 _id,
-        uint256 _amount
-    ) external onlyManager {
-        tokenPrices[_id] = _amount;
-
-        safeTransferFrom(msg.sender, _beneficiary, _id, _amount, "");
-    }
-
     function updateBasisPoint(uint256 _basepoint) external onlyManager {
         basisPoint = _basepoint;
         emit UpdateBasisPoint(basisPoint);
