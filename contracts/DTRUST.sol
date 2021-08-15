@@ -243,30 +243,8 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
             _erc721Token.erc721TokenId
         );
         emit Order(msg.sender, _erc1155TokenId, 1);
-        // emit BorrowedERC721(_erc721Token, msg.sender, _from, _to, _data);
     }
-
-    //  function depositAsset(address _tokenAddress, uint256 _amount)
-    //         external
-    //         payable
-    //  {
-    //         uint256 payment = msg.value;
-    //         // require(payment >= tokenPrices[_id] * (_amount));
-    //         require(manager != address(0));
-    //         // require(_exists(_id), "Does not exist!");
-    //         ERC1155 ERC1155interface;
-    //         ERC1155interface = ERC1155(_tokenAddress);
-    //         ERC1155interface.transferFrom(msg.sender, address(this), _amount);
-
-    //         assetIds.push(_id);
-
-    //         _orderBook[msg.sender][_id] = _amount;
-    //         emit Order(msg.sender, _id, _amount);
-
-    //         safeTransferFrom(msg.sender, address(this), _id, _amount, "");
-    //         emit Transfer(address(this), msg.sender, _amount);
-    //     }
-
+    
     function depositAssetBatch(
         uint256[] calldata _ids,
         uint256[] calldata _amounts
