@@ -6,6 +6,7 @@ import "../interfaces/IMyERC20.sol";
 
 abstract contract ERC1155FromERC20 is IERC1155Views {
     function name(uint256 _id) external view override returns (string memory) {
+        address contractAddress = address(_id);
         return IMyERC20(address(_id)).name();
     }
 

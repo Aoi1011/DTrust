@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./interfaces/Aion.sol";
 import "./interfaces/SchedulerInterface.sol";
+import "./interfaces/IMyERC20.sol";
 import "./libraries/Strings.sol";
 
 contract DTRUST is ERC1155 {
@@ -111,6 +112,14 @@ contract DTRUST is ERC1155 {
         address recipient,
         uint256 value
     );
+    event BorrowedERC20(
+        IMyERC20 erc20,
+        address sender,
+        uint256 amount,
+        address from,
+        address to,
+        bytes data
+    );
     ////////////////////////////////////////
 
     modifier onlyManager() {
@@ -207,13 +216,25 @@ contract DTRUST is ERC1155 {
         tokenSupply[_id] += _quantity;
     }
 
-    function borrowERC20(IMyERC20 erc20, uint256 _amount, address _from, address _to, bytes calldata _data) public {
+    function borrowERC20(
+        IMyERC20 erc20,
+        uint256 _amount,
+        address _from,
+        address _to,
+        bytes calldata _data
+    ) public {
         _mint(_to, uint256(address(erc20)), _amount, _data);
-        require(erc20.transferFrom(_from, address(this), _amount), "Cannot transfer.");
+        require(
+            erc20.transferFrom(_from, address(this), _amount),
+            "Cannot transfer."
+        );
         emit BorrowedERC20(erc20, msg.sender, _amount, _from, _to, _data);
     }
 
-    function depositAsset(address _tokenAddress, uint256 _amount) external payable {
+    function depositAsset(address _tokenAddress, uint256 _amount)
+        external
+        payable
+    {
         uint256 payment = msg.value;
         // require(payment >= tokenPrices[_id] * (_amount));
         require(manager != address(0));
@@ -264,9 +285,7 @@ contract DTRUST is ERC1155 {
         return _orderBook[_target][_id];
     }
 
-    function payToBeneficiary() external {
-
-    }
+    function payToBeneficiary() external {}
 
     function fillOrder(uint256 _id, uint256 _amount) internal onlyManager {
         tokenSupply[_id] -= _amount;
