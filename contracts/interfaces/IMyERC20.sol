@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-interface IERC1155Views {
-    function totalSupply(uint256 _id) external view returns (uint256);
-    function name(uint256 _id) external view returns (string memory);
-    function symbol(uint256 _id) external view returns (string memory);
-    function decimals(uint256 _id) external view returns (uint8);
-    function uri(uint256 _id) external view returns (string memory);
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+interface IMyERC20 is IERC20 {
+    function name() external view returns (string memory);
+    function symbol() external view returns (string memory);
+    function decimals() external view returns (uint8);
+    function uri() external view returns (string memory);
 }
