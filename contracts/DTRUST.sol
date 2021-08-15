@@ -48,7 +48,8 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
     uint256 public payAnnualFrequency = 730 days;
     uint256 public paymentInterval;
     uint256 public lockedUntil;
-    uint256[] private assetIds;
+    uint256[] private erc20assetIds;
+    uint256[] private erc721assetIds;
     address payable public manager;
     address payable public settlor;
     address payable public trustee;
@@ -211,16 +212,18 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
         tokenSupply[_id] += _quantity;
     }
 
-    function mintBatch(uint256[] memory _ids, uint256[] memory _amounts, bytes[] memory _datas)
-        public
-    {
+    function mintBatch(
+        uint256[] memory _ids,
+        uint256[] memory _amounts,
+        bytes[] memory _datas
+    ) public {
         _mintBatch(manager, _ids, _amounts, _datas);
         for (uint256 i = 0; i < _ids.length; i++) {
             tokenSupply[_ids[i]] = _amounts[i];
         }
     }
 
-    function depositERC20Asset(
+    function depositBatchERC20Asset(
         IMyERC20[] erc20s,
         uint256[] _amounts,
         bytes[] calldata _datas
@@ -229,9 +232,9 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
         for (uint256 i = 0; i < erc20s.length; i++) {
             uint256 id = uint256(erc20s[i]);
             ids.push(id);
-            assetIds.push(id);
+            erc20assetIds.push(id);
             _orderBook[msg.sender][id] = _amounts[i];
-            
+
             erc20s[i].transferFrom(msg.sender, address(this), _amounts[i]);
         }
         mintBatch(ids, _amounts, _datas);
@@ -240,44 +243,26 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
     }
 
     function depositERC721Asset(
-        ERC721Token calldata _erc721Token,
-        bytes calldata _data
-    ) public {
-        uint256 _erc1155TokenId = _tokenHash(_erc721Token);
-        mint(address(this), _erc1155TokenId, 1, _data);
-        assetIds.push(_erc1155TokenId);
-        _orderBook[msg.sender][_erc1155TokenId] = 1;
-        _erc721Token.erc721Contract.transferFrom(
-            msg.sender,
-            address(this),
-            _erc721Token.erc721TokenId
-        );
-        emit Order(msg.sender, _erc1155TokenId, 1);
-    }
-
-    function depositAssetBatch(
-        uint256[] calldata _ids,
-        uint256[] calldata _amounts
+        ERC721Token[] calldata _erc721Tokens,
+        bytes[] calldata _datas
     ) external payable {
-        require(manager != address(0));
-        require(_ids.length == _amounts.length);
-
-        uint256 payment = msg.value;
-        uint256 cost;
-        for (uint256 i = 0; i < _ids.length; i++) {
-            require(_exists(_ids[i]), "Does not exist!");
-
-            assetIds.push(_ids[i]);
-
-            cost += _ids[i] * _amounts[i];
-            _orderBook[msg.sender][_ids[i]] = _amounts[i];
+        uint256[] ids;
+        uint256[] amounts;
+        for (uint256 i = 0; i < _erc721Tokens.length; i++) {
+            uint256 _erc1155TokenId = _tokenHash(_erc721Tokens[i]);
+            erc721assetIds.push(_erc1155TokenId);
+            _orderBook[msg.sender][_erc1155TokenId] = 1;
+            amounts.push(1);
+            _erc721Tokens[i].erc721Contract.transferFrom(
+                msg.sender,
+                address(this),
+                _erc721Tokens[i].erc721TokenId
+            );
         }
-        require(payment >= cost);
 
-        emit OrderBatch(msg.sender, _ids, _amounts);
+        mintBatch(ids, amounts, _datas);
 
-        safeBatchTransferFrom(msg.sender, address(this), _ids, _amounts, "");
-        emit TransferBatch(address(this), msg.sender, _amounts);
+        emit OrderBatch(msg.sender, ids, amounts);
     }
 
     function getTargetDeposit(address _target, uint256 _id)
