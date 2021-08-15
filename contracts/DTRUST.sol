@@ -187,35 +187,6 @@ contract DTRUST is ERC1155 {
         tokenSupply[_id] += _quantity;
     }
 
-    function setBeneficiaryAsset(uint256 _id, uint256 _price)
-        external
-        onlyManager
-    {
-        tokenPrices[_id] = _price;
-    }
-
-    function setBeneficiariesAssets(
-        address payable _beneficiary,
-        uint256[] memory _ids,
-        uint256[] memory _amounts
-    ) external onlyManager {
-        for (uint256 i = 0; i < _ids.length; i++) {
-            tokenPrices[_ids[i]] = _amounts[i];
-        }
-        safeBatchTransferFrom(msg.sender, _beneficiary, _ids, _amounts, "");
-    }
-
-    function setPayouts(
-        address payable _target,
-        uint256[] memory _ids,
-        uint256[] memory _amounts
-    ) external onlyManager {
-        for (uint256 i = 0; i < _ids.length; i++) {
-            tokenPrices[_ids[i]] = _amounts[i];
-        }
-        safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
-    }
-
     function depositAsset(uint256 _id, uint256 _amount) external payable {
         uint256 payment = msg.value;
         require(payment >= tokenPrices[_id] * (_amount));
@@ -277,6 +248,35 @@ contract DTRUST is ERC1155 {
         for (uint256 i = 0; i < _ids.length; i++) {
             tokenSupply[_ids[i]] -= _amounts[i];
             _orderBook[_target][_ids[i]] = 0;
+        }
+        safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
+    }
+
+    function setBeneficiaryAsset(uint256 _id, uint256 _price)
+        external
+        onlyManager
+    {
+        tokenPrices[_id] = _price;
+    }
+
+    function setBeneficiariesAssets(
+        address payable _beneficiary,
+        uint256[] memory _ids,
+        uint256[] memory _amounts
+    ) external onlyManager {
+        for (uint256 i = 0; i < _ids.length; i++) {
+            tokenPrices[_ids[i]] = _amounts[i];
+        }
+        safeBatchTransferFrom(msg.sender, _beneficiary, _ids, _amounts, "");
+    }
+
+    function setPayouts(
+        address payable _target,
+        uint256[] memory _ids,
+        uint256[] memory _amounts
+    ) external onlyManager {
+        for (uint256 i = 0; i < _ids.length; i++) {
+            tokenPrices[_ids[i]] = _amounts[i];
         }
         safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
     }
