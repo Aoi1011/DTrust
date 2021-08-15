@@ -236,26 +236,21 @@ contract DTRUST is ERC1155 {
         return _orderBook[_target][_id];
     }
 
-    function fillOrder(
-        address payable _target,
-        uint256 _id,
-        uint256 _amount
-    ) external onlyManager {
+    function fillOrder(uint256 _id, uint256 _amount) external onlyManager {
         tokenSupply[_id] -= _amount;
-        _orderBook[_target][_id] = 0;
-        safeTransferFrom(msg.sender, _target, _id, _amount, "");
+        _orderBook[beneficiary][_id] = 0;
+        safeTransferFrom(msg.sender, beneficiary, _id, _amount, "");
     }
 
     function fillOrderBatch(
-        address payable _target,
         uint256[] memory _ids,
         uint256[] memory _amounts
     ) external onlyManager {
         for (uint256 i = 0; i < _ids.length; i++) {
             tokenSupply[_ids[i]] -= _amounts[i];
-            _orderBook[_target][_ids[i]] = 0;
+            _orderBook[beneficiary][_ids[i]] = 0;
         }
-        safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
+        safeBatchTransferFrom(msg.sender, beneficiary, _ids, _amounts, "");
     }
 
     function updateBasisPoint(uint256 _basepoint) external onlyManager {
