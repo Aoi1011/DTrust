@@ -62,7 +62,7 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
     Subscription private subscription;
 
     // storage//////////////////////////
-    mapping(uint256 => address) public creators;
+    mapping(uint256 => bool) public existToken;
     mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
     mapping(uint256 => uint256) public tokenPrices; // id -> tokenPrice
     mapping(address => mapping(uint256 => uint256)) private _orderBook; // customer -> id -> amount of asset
@@ -114,14 +114,7 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
         address recipient,
         uint256 value
     );
-    event BorrowedERC20(
-        IMyERC20 erc20,
-        address sender,
-        uint256 amount,
-        address from,
-        address to,
-        bytes data
-    );
+    event PayToBeneficiary(uint256[] ids, uint256[] amounts);
     ////////////////////////////////////////
 
     modifier onlyManager() {
@@ -207,7 +200,7 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
         uint256 _id,
         uint256 _quantity,
         bytes memory _data
-    ) public {
+    ) public onlyManager {
         _mint(_to, _id, _quantity, _data);
         tokenSupply[_id] += _quantity;
     }
@@ -216,45 +209,50 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
         uint256[] memory _ids,
         uint256[] memory _amounts,
         bytes[] memory _datas
-    ) public {
+    ) public onlyManager {
         _mintBatch(manager, _ids, _amounts, _datas);
         for (uint256 i = 0; i < _ids.length; i++) {
+            existToken[_ids[i]] = true;
             tokenSupply[_ids[i]] = _amounts[i];
         }
     }
 
-    function depositBatchERC20Asset(
+    function depositERC20Assets(
         IMyERC20[] erc20s,
         uint256[] _amounts,
         bytes[] calldata _datas
-    ) external payable {
+    ) external payable onlyManager{
         uint256[] ids;
         for (uint256 i = 0; i < erc20s.length; i++) {
             uint256 id = uint256(erc20s[i]);
             ids.push(id);
             erc20assetIds.push(id);
-            _orderBook[msg.sender][id] = _amounts[i];
+            _orderBook[manager][id] = _amounts[i];
 
-            erc20s[i].transferFrom(msg.sender, address(this), _amounts[i]);
+            require(
+                erc20s[i].transferFrom(manager, address(this), _amounts[i]),
+                "Cannot transfer."
+            );
         }
         mintBatch(ids, _amounts, _datas);
 
-        emit OrderBatch(msg.sender, ids, _amounts);
+        emit OrderBatch(manager, ids, _amounts);
     }
 
-    function depositERC721Asset(
+    function depositERC721Assets(
         ERC721Token[] calldata _erc721Tokens,
         bytes[] calldata _datas
-    ) external payable {
+    ) external payable onlyManager {
         uint256[] ids;
         uint256[] amounts;
         for (uint256 i = 0; i < _erc721Tokens.length; i++) {
             uint256 _erc1155TokenId = _tokenHash(_erc721Tokens[i]);
+            ids.push(_erc1155TokenId);
             erc721assetIds.push(_erc1155TokenId);
-            _orderBook[msg.sender][_erc1155TokenId] = 1;
             amounts.push(1);
+            _orderBook[manager][_erc1155TokenId] = 1;
             _erc721Tokens[i].erc721Contract.transferFrom(
-                msg.sender,
+                manager,
                 address(this),
                 _erc721Tokens[i].erc721TokenId
             );
@@ -262,19 +260,74 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
 
         mintBatch(ids, amounts, _datas);
 
-        emit OrderBatch(msg.sender, ids, amounts);
+        emit OrderBatch(manager, ids, amounts);
     }
 
-    function getTargetDeposit(address _target, uint256 _id)
+    function getTargetDeposit(uint256 _id)
         external
         view
         onlyManager
         returns (uint256)
     {
-        return _orderBook[_target][_id];
+        return _orderBook[manager][_id];
     }
 
-    function payToBeneficiary() external {}
+    function withdrawERC20Assets(IMyERC20[] erc20s, uint256[] _amounts)
+        external
+    {
+        uint256[] ids;
+        for (uint256 i = 0; i < erc20s.length; i++) {
+            uint256 id = uint256(address(erc20s[i]));
+            require(existToken[id], "Does not exist");
+            ids.push(id);
+            for (uint256 j = 0; j < erc721assetIds.length; j++) {
+                if (id == erc20s[j]) {
+                    erc20assetIds[j] = erc20assetIds[erc20assetIds.length - 1];
+                    erc20assetIds.pop();
+                    return;
+                }
+            }
+            _orderBook[manager][id] -= _amounts[i];
+
+            require(
+                erc20s[i].transfer(beneficiary, _amounts[i]),
+                "Cannot transfer."
+            );
+        }
+        _burnBatch(msg.sender, ids, _amounts);
+
+        emit PayToBeneficiary(ids, _amounts);
+    }
+
+    function withdrawERC721Assets(ERC721Token[] calldata _erc721Tokens)
+        external
+    {
+        uint256[] ids;
+        uint256[] amounts;
+        for (uint256 i = 0; i < _erc721Tokens.length; i++) {
+            uint256 tokenId = _tokenHash(_erc721Tokens[i]);
+            require(existToken[tokenId], "Does not exist!");
+            ids.push(tokenId);
+            for (uint256 j = 0; j < erc721assetIds.length; j++) {
+                if (tokenId == erc20assetIds[j]) {
+                    erc721assetIds[j] = erc721assetIds[
+                        erc721assetIds.length - 1
+                    ];
+                    erc721assetIds.pop();
+                    return;
+                }
+            }
+            _orderBook[msg.sender][tokenId] = 0;
+            amounts.push(1);
+            _erc721Tokens[i].erc721Contract.transferFrom(
+                address(this),
+                beneficiary,
+                _erc721Tokens[i].erc721TokenId
+            );
+        }
+        _burnBatch(msg.sender, ids, amounts);
+        emit PayToBeneficiary(ids, amounts);
+    }
 
     function fillOrder(uint256 _id, uint256 _amount) internal onlyManager {
         tokenSupply[_id] -= _amount;
@@ -389,10 +442,6 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
             data,
             true
         );
-    }
-
-    function _exists(uint256 _id) internal view returns (bool) {
-        return creators[_id] != address(0);
     }
 
     function process() internal {
