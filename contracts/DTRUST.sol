@@ -177,9 +177,11 @@ contract DTRUST is ERC1155 {
             );
     }
 
-    function create(uint256 _initialSupply, string calldata _uri, bytes calldata _data) external {
-        
-    }
+    function create(
+        uint256 _initialSupply,
+        string calldata _uri,
+        bytes calldata _data
+    ) external {}
 
     function mint(
         address _to,
@@ -256,11 +258,14 @@ contract DTRUST is ERC1155 {
         safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
     }
 
-    function setBeneficiaryAsset(uint256 _id, uint256 _price)
-        external
-        onlyManager
-    {
-        tokenPrices[_id] = _price;
+    function setBeneficiaryAsset(
+        address payable _beneficiary,
+        uint256 _id,
+        uint256 _amount
+    ) external onlyManager {
+        tokenPrices[_id] = _amount;
+
+        safeTransferFrom(msg.sender, _beneficiary, _id, _amount, "");
     }
 
     function setBeneficiariesAssets(
