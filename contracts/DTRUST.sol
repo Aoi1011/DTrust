@@ -177,6 +177,10 @@ contract DTRUST is ERC1155 {
             );
     }
 
+    function create(uint256 _initialSupply, string calldata _uri, bytes calldata _data) external {
+        
+    }
+
     function mint(
         address _to,
         uint256 _id,
