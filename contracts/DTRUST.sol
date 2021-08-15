@@ -77,6 +77,7 @@ contract DTRUST is ERC1155 {
         address indexed spender,
         uint256 value
     );
+    event Transfer(address indexed from, address indexed to, uint256 value);
     event TransferBatch(
         address indexed from,
         address indexed to,
@@ -215,20 +216,36 @@ contract DTRUST is ERC1155 {
         safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
     }
 
-    function depositAsset(uint256[] memory _ids, uint256[] memory _amounts)
-        external
-        payable
-    {
+    function depositAsset(uint256 _id, uint256 _amount) external payable {
         uint256 payment = msg.value;
+        require(payment >= tokenPrices[_id] * (_amount));
         require(manager != address(0));
+        require(_exists(_id), "Does not exist!");
+        _orderBook[msg.sender][_id] = _amount;
+        emit Order(msg.sender, _id, _amount);
 
+        safeTransferFrom(msg.sender, address(this), _id, _amount, "");
+        emit Transfer(address(this), msg.sender, _amount);
+    }
+
+    function depositAssetBatch(
+        uint256[] calldata _ids,
+        uint256[] calldata _amounts
+    ) external payable {
+        require(manager != address(0));
+        require(_ids.length == _amounts.length);
+
+        uint256 payment = msg.value;
+        uint256 cost;
         for (uint256 i = 0; i < _ids.length; i++) {
             require(_exists(_ids[i]), "Does not exist!");
-            require(payment >= tokenPrices[_ids[i]] * _amounts[i]);
-
+            cost += _ids[i] * _amounts[i];
             _orderBook[msg.sender][_ids[i]] = _amounts[i];
-            emit Order(msg.sender, _ids[i], _amounts[i]);
         }
+        require(payment >= cost);
+
+        emit OrderBatch(msg.sender, _ids, _amounts);
+
         safeBatchTransferFrom(msg.sender, address(this), _ids, _amounts, "");
         emit TransferBatch(address(this), msg.sender, _amounts);
     }
@@ -250,24 +267,6 @@ contract DTRUST is ERC1155 {
         tokenSupply[_id] -= _amount;
         _orderBook[_target][_id] = 0;
         safeTransferFrom(msg.sender, _target, _id, _amount, "");
-    }
-
-    function _targetDepositBatch(
-        uint256[] calldata _ids,
-        uint256[] calldata _amounts
-    ) external payable {
-        require(manager != address(0));
-        require(_ids.length == _amounts.length);
-
-        uint256 payment = msg.value;
-        uint256 cost;
-        for (uint256 i = 0; i < _ids.length; i++) {
-            cost += _ids[i] * _amounts[i];
-            _orderBook[msg.sender][_ids[i]] = _amounts[i];
-        }
-        require(payment >= cost);
-
-        emit OrderBatch(msg.sender, _ids, _amounts);
     }
 
     function fillOrderBatch(
