@@ -229,22 +229,20 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
 
     function depositERC721Asset(
         ERC721Token calldata _erc721Token,
-        address _from,
-        address _to,
         bytes calldata _data
     ) public {
         uint256 _erc1155TokenId = _tokenHash(_erc721Token);
-        _mint(_to, _erc1155TokenId, 1, _data);
+        mint(address(this), _erc1155TokenId, 1, _data);
         assetIds.push(_erc1155TokenId);
         _orderBook[msg.sender][_erc1155TokenId] = 1;
         _erc721Token.erc721Contract.transferFrom(
-            _from,
+            msg.sender,
             address(this),
             _erc721Token.erc721TokenId
         );
         emit Order(msg.sender, _erc1155TokenId, 1);
     }
-    
+
     function depositAssetBatch(
         uint256[] calldata _ids,
         uint256[] calldata _amounts
