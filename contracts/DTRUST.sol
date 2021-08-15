@@ -200,56 +200,52 @@ contract DTRUST is ERC1155 {
             );
     }
 
-    function create(
-        uint256 _initialSupply,
-        string calldata _uri,
-        bytes calldata _data
-    ) external {}
-
     function mint(
         address _to,
         uint256 _id,
         uint256 _quantity,
         bytes memory _data
-    ) external {
+    ) public {
         _mint(_to, _id, _quantity, _data);
         tokenSupply[_id] += _quantity;
     }
 
-    function borrowERC20(
+    function depositERC20Asset(
         IMyERC20 erc20,
         uint256 _amount,
-        address _from,
-        address _to,
         bytes calldata _data
-    ) public {
-        _mint(_to, uint256(address(erc20)), _amount, _data);
+    ) external payable {
+        uint256 id = uint256(address(erc20));
+        mint(address(this), id, _amount, _data);
         require(
-            erc20.transferFrom(_from, address(this), _amount),
+            erc20.transferFrom(msg.sender, address(this), _amount),
             "Cannot transfer."
         );
-        emit BorrowedERC20(erc20, msg.sender, _amount, _from, _to, _data);
+        assetIds.push(id);
+        _orderBook[msg.sender][id] = _amount;
+        emit Order(msg.sender, id, _amount);
     }
 
-    function depositAsset(address _tokenAddress, uint256 _amount)
-        external
-        payable
-    {
-        uint256 payment = msg.value;
-        // require(payment >= tokenPrices[_id] * (_amount));
-        require(manager != address(0));
-        // require(_exists(_id), "Does not exist!");
-        ERC1155 ERC1155interface;
-        ERC1155interface = ERC1155(_tokenAddress);
-        ERC1155interface.transferFrom(msg.sender, address(this), _amount);
-        assetIds.push(_id);
+    // function depositAsset(address _tokenAddress, uint256 _amount)
+    //     external
+    //     payable
+    // {
+    //     uint256 payment = msg.value;
+    //     // require(payment >= tokenPrices[_id] * (_amount));
+    //     require(manager != address(0));
+    //     // require(_exists(_id), "Does not exist!");
+    //     ERC1155 ERC1155interface;
+    //     ERC1155interface = ERC1155(_tokenAddress);
+    //     ERC1155interface.transferFrom(msg.sender, address(this), _amount);
 
-        _orderBook[msg.sender][_id] = _amount;
-        emit Order(msg.sender, _id, _amount);
+    //     assetIds.push(_id);
 
-        safeTransferFrom(msg.sender, address(this), _id, _amount, "");
-        emit Transfer(address(this), msg.sender, _amount);
-    }
+    //     _orderBook[msg.sender][_id] = _amount;
+    //     emit Order(msg.sender, _id, _amount);
+
+    //     safeTransferFrom(msg.sender, address(this), _id, _amount, "");
+    //     emit Transfer(address(this), msg.sender, _amount);
+    // }
 
     function depositAssetBatch(
         uint256[] calldata _ids,
