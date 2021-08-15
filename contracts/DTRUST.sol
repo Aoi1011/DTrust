@@ -221,7 +221,7 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
         IMyERC20[] erc20s,
         uint256[] _amounts,
         bytes[] calldata _datas
-    ) external payable onlyManager{
+    ) external payable onlyManager {
         uint256[] ids;
         for (uint256 i = 0; i < erc20s.length; i++) {
             uint256 id = uint256(erc20s[i]);
@@ -273,7 +273,7 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
     }
 
     function withdrawERC20Assets(IMyERC20[] erc20s, uint256[] _amounts)
-        external
+        internal
     {
         uint256[] ids;
         for (uint256 i = 0; i < erc20s.length; i++) {
@@ -300,7 +300,7 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
     }
 
     function withdrawERC721Assets(ERC721Token[] calldata _erc721Tokens)
-        external
+        internal
     {
         uint256[] ids;
         uint256[] amounts;
@@ -329,22 +329,22 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
         emit PayToBeneficiary(ids, amounts);
     }
 
-    function fillOrder(uint256 _id, uint256 _amount) internal onlyManager {
-        tokenSupply[_id] -= _amount;
-        _orderBook[beneficiary][_id] = 0;
-        safeTransferFrom(msg.sender, beneficiary, _id, _amount, "");
-    }
+    // function fillOrder(uint256 _id, uint256 _amount) internal onlyManager {
+    //     tokenSupply[_id] -= _amount;
+    //     _orderBook[beneficiary][_id] = 0;
+    //     safeTransferFrom(msg.sender, beneficiary, _id, _amount, "");
+    // }
 
-    function fillOrderBatch(uint256[] memory _ids, uint256[] memory _amounts)
-        internal
-        onlyManager
-    {
-        for (uint256 i = 0; i < _ids.length; i++) {
-            tokenSupply[_ids[i]] -= _amounts[i];
-            _orderBook[beneficiary][_ids[i]] = 0;
-        }
-        safeBatchTransferFrom(msg.sender, beneficiary, _ids, _amounts, "");
-    }
+    // function fillOrderBatch(uint256[] memory _ids, uint256[] memory _amounts)
+    //     internal
+    //     onlyManager
+    // {
+    //     for (uint256 i = 0; i < _ids.length; i++) {
+    //         tokenSupply[_ids[i]] -= _amounts[i];
+    //         _orderBook[beneficiary][_ids[i]] = 0;
+    //     }
+    //     safeBatchTransferFrom(msg.sender, beneficiary, _ids, _amounts, "");
+    // }
 
     function updateBasisPoint(uint256 _basepoint) external onlyManager {
         basisPoint = _basepoint;
@@ -445,8 +445,8 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
     }
 
     function process() internal {
-        fillOrder(_id, _amount);
-        fillOrderBatch(_ids, _amounts);
+        withdrawERC20Assets(erc20s, _amounts);
+        withdrawERC721Assets(_erc721Tokens);
         schedule();
     }
 
