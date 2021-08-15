@@ -258,7 +258,7 @@ contract DTRUST is ERC1155 {
         safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
     }
 
-    function setBeneficiaryAsset(
+    function payToBeneficiary(
         address payable _beneficiary,
         uint256 _id,
         uint256 _amount
@@ -266,28 +266,6 @@ contract DTRUST is ERC1155 {
         tokenPrices[_id] = _amount;
 
         safeTransferFrom(msg.sender, _beneficiary, _id, _amount, "");
-    }
-
-    function setBeneficiariesAssets(
-        address payable _beneficiary,
-        uint256[] memory _ids,
-        uint256[] memory _amounts
-    ) external onlyManager {
-        for (uint256 i = 0; i < _ids.length; i++) {
-            tokenPrices[_ids[i]] = _amounts[i];
-        }
-        safeBatchTransferFrom(msg.sender, _beneficiary, _ids, _amounts, "");
-    }
-
-    function setPayouts(
-        address payable _target,
-        uint256[] memory _ids,
-        uint256[] memory _amounts
-    ) external onlyManager {
-        for (uint256 i = 0; i < _ids.length; i++) {
-            tokenPrices[_ids[i]] = _amounts[i];
-        }
-        safeBatchTransferFrom(msg.sender, _target, _ids, _amounts, "");
     }
 
     function updateBasisPoint(uint256 _basepoint) external onlyManager {
