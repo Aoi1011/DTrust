@@ -223,7 +223,7 @@ contract DTRUST is ERC1155 {
         require(manager != address(0));
 
         for (uint256 i = 0; i < _ids.length; i++) {
-            require(_exists(_ids[i]));
+            require(_exists(_ids[i]), "Does not exist!");
             require(payment >= tokenPrices[_ids[i]] * _amounts[i]);
 
             _orderBook[msg.sender][_ids[i]] = _amounts[i];
@@ -232,7 +232,7 @@ contract DTRUST is ERC1155 {
         safeBatchTransferFrom(msg.sender, address(this), _ids, _amounts, "");
         emit TransferBatch(address(this), msg.sender, _amounts);
     }
-    
+
     function getTargetDeposit(address _target, uint256 _id)
         external
         view
