@@ -28,6 +28,18 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
         POSTPONE
     }
 
+    struct ERC20TokenAsset {
+        IMyERC20 erc20;
+        uint256 erc20TokenId;
+        uint256 erc20Payment;
+    }
+
+    struct ERC721TokenAsset {
+        IMyERC721 erc721;
+        uint256 erc721TokenId;
+        uint256 erc721Payment;
+    }
+
     struct PrTokenStruct {
         uint256 id;
         string tokenKey;
@@ -48,8 +60,8 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
     uint256 public payAnnualFrequency = 730 days;
     uint256 public paymentInterval;
     uint256 public lockedUntil;
-    uint256[] private erc20assetIds;
-    uint256[] private erc721assetIds;
+    // uint256[] private erc20assetIds;
+    // uint256[] private erc721assetIds;
     address payable public manager;
     address payable public settlor;
     address payable public trustee;
@@ -58,6 +70,8 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
     string public name;
     string public symbol;
     string public dTrustUri;
+    ERC20TokenAsset[] public erc20TokenAssets;
+    ERC721TokenAsset[] public erc721TokenAssets;
     PrTokenStruct[] public prTokens;
     Subscription private subscription;
 
@@ -220,13 +234,19 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
     function depositERC20Assets(
         IMyERC20[] erc20s,
         uint256[] _amounts,
-        bytes[] calldata _datas
+        bytes[] calldata _datas,
+        uint256[] _paymentPerFrequency
     ) external payable onlyManager {
         uint256[] ids;
         for (uint256 i = 0; i < erc20s.length; i++) {
             uint256 id = uint256(erc20s[i]);
             ids.push(id);
-            erc20assetIds.push(id);
+            ERC20TokenAsset newerc20 = ERC20TokenAsset(
+                erc20s[i],
+                id,
+                _paymentPerFrequency[i]
+            );
+            erc20TokenAssets.push(newerc20);
             _orderBook[manager][id] = _amounts[i];
 
             require(
@@ -241,14 +261,20 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
 
     function depositERC721Assets(
         ERC721Token[] calldata _erc721Tokens,
-        bytes[] calldata _datas
+        bytes[] calldata _datas,
+        uint256[] _paymentPerFrequency
     ) external payable onlyManager {
         uint256[] ids;
         uint256[] amounts;
         for (uint256 i = 0; i < _erc721Tokens.length; i++) {
             uint256 _erc1155TokenId = _tokenHash(_erc721Tokens[i]);
             ids.push(_erc1155TokenId);
-            erc721assetIds.push(_erc1155TokenId);
+            ERC721TokenAsset newerc721 = erc721TokenAssets(
+                _erc721Tokens[i],
+                _erc1155TokenId,
+                _paymentPerFrequency[i]
+            );
+            erc721TokenAssets.push(newerc721);
             amounts.push(1);
             _orderBook[manager][_erc1155TokenId] = 1;
             _erc721Tokens[i].erc721Contract.transferFrom(
@@ -280,10 +306,12 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
             uint256 id = uint256(address(erc20s[i]));
             require(existToken[id], "Does not exist");
             ids.push(id);
-            for (uint256 j = 0; j < erc721assetIds.length; j++) {
-                if (id == erc20s[j]) {
-                    erc20assetIds[j] = erc20assetIds[erc20assetIds.length - 1];
-                    erc20assetIds.pop();
+            for (uint256 j = 0; j < erc20TokenAssets.length; j++) {
+                if (id == erc20TokenAssets[j].erc20TokenId) {
+                    erc20TokenAssets[j] = erc20TokenAssets[
+                        erc20TokenAssets.length - 1
+                    ];
+                    erc20TokenAssets.pop();
                     return;
                 }
             }
@@ -308,12 +336,12 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
             uint256 tokenId = _tokenHash(_erc721Tokens[i]);
             require(existToken[tokenId], "Does not exist!");
             ids.push(tokenId);
-            for (uint256 j = 0; j < erc721assetIds.length; j++) {
-                if (tokenId == erc20assetIds[j]) {
-                    erc721assetIds[j] = erc721assetIds[
-                        erc721assetIds.length - 1
+            for (uint256 j = 0; j < erc721TokenAssets.length; j++) {
+                if (tokenId == erc721TokenAssets[j].erc721TokenId) {
+                    erc721TokenAssets[j] = erc721TokenAssets[
+                        erc721TokenAssets.length - 1
                     ];
-                    erc721assetIds.pop();
+                    erc721TokenAssets.pop();
                     return;
                 }
             }
