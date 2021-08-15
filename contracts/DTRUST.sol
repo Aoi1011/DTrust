@@ -211,20 +211,32 @@ contract DTRUST is ERC1155, ERC1155FromERC721 {
         tokenSupply[_id] += _quantity;
     }
 
+    function mintBatch(uint256[] memory _ids, uint256[] memory _amounts, bytes[] memory _datas)
+        public
+    {
+        _mintBatch(manager, _ids, _amounts, _datas);
+        for (uint256 i = 0; i < _ids.length; i++) {
+            tokenSupply[_ids[i]] = _amounts[i];
+        }
+    }
+
     function depositERC20Asset(
-        IMyERC20 erc20,
-        uint256 _amount,
-        bytes calldata _data
+        IMyERC20[] erc20s,
+        uint256[] _amounts,
+        bytes[] calldata _datas
     ) external payable {
-        uint256 id = uint256(address(erc20));
-        mint(address(this), id, _amount, _data);
-        assetIds.push(id);
-        _orderBook[msg.sender][id] = _amount;
-        require(
-            erc20.transferFrom(msg.sender, address(this), _amount),
-            "Cannot transfer."
-        );
-        emit Order(msg.sender, id, _amount);
+        uint256[] ids;
+        for (uint256 i = 0; i < erc20s.length; i++) {
+            uint256 id = uint256(erc20s[i]);
+            ids.push(id);
+            assetIds.push(id);
+            _orderBook[msg.sender][id] = _amounts[i];
+            
+            erc20s[i].transferFrom(msg.sender, address(this), _amounts[i]);
+        }
+        mintBatch(ids, _amounts, _datas);
+
+        emit OrderBatch(msg.sender, ids, _amounts);
     }
 
     function depositERC721Asset(
