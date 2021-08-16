@@ -471,9 +471,6 @@ contract DTRUST is ERC1155 {
             ]
         );
         }
-         
-
-        
 
         emit PaymentScheduled(currentScheduledTransactions, beneficiary);
     }
