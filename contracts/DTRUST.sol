@@ -4,10 +4,11 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import "./abstracts/ERC1155FromERC721.sol";
+// import "./abstracts/ERC1155FromERC721.sol";
 import "./interfaces/Aion.sol";
 import "./interfaces/SchedulerInterface.sol";
 import "./interfaces/IMyERC20.sol";
+import "./interfaces/IMyERC721.sol";
 import "./libraries/Strings.sol";
 
 contract DTRUST is ERC1155 {
