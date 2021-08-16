@@ -31,11 +31,17 @@ contract DTRUST is ERC1155 {
         IMyERC20 erc20;
         uint256 erc20TokenId;
         uint256 erc20Payment;
+        address currentScheduledTransaction;
+        uint256 paymentInterval;
+        uint256 lockedUntil;
     }
 
     struct ERC721TokenAsset {
         IMyERC721 erc721;
         uint256 erc721TokenId;
+        address currentScheduledTransaction;
+        uint256 paymentInterval;
+        uint256 lockedUntil;
     }
 
     struct PrTokenStruct {
