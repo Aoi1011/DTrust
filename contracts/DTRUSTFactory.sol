@@ -21,16 +21,14 @@ contract DTRUSTFactory {
         string memory _newuri,
         address _settlor,
         address _beneficiary,
-        address _trustee,
-        uint256[] memory _paymentIntervals
+        address _trustee
     ) external {
         DTRUST newDTRUST = new DTRUST(
             _newuri,
             payable(msg.sender),
             payable(_settlor),
             _beneficiary,
-            payable(_trustee),
-            _paymentIntervals
+            payable(_trustee)
         );
         deployedDTRUSTs.push(newDTRUST);
         isDeployed[newDTRUST] = true;

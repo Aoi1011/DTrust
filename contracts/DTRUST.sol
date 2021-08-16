@@ -126,8 +126,8 @@ contract DTRUST is ERC1155 {
         uint256 date
     );
     event PaymentScheduled(
-        address[] indexed scheduledTransactionForERC20,
-        address[] indexed schediledTransactionForERC721,
+        ERC20TokenAsset[] indexed erc20Assets,
+        ERC721TokenAsset[] indexed erc721Assets,
         address recipient
     );
     event PaymentExecuted(
@@ -154,9 +154,11 @@ contract DTRUST is ERC1155 {
         address payable _settlor,
         address _beneficiary,
         address payable _trustee
+    )
         // uint256[] memory _erc20PpaymentIntervals,
         // uint256[] memory _erc721PaymentIntervals
-    ) ERC1155(_newURI) {
+        ERC1155(_newURI)
+    {
         require(address(_deployerAddress) != address(0));
         require(address(_settlor) != address(0));
         require(address(_beneficiary) != address(0));
@@ -254,7 +256,10 @@ contract DTRUST is ERC1155 {
             ERC20TokenAsset memory newerc20 = ERC20TokenAsset(
                 erc20s[i],
                 id,
-                _paymentPerFrequency[i]
+                _amounts[i],
+                address(0),
+                _paymentPerFrequency[i],
+                block.timestamp
             );
             erc20TokenAssets.push(newerc20);
             _orderBook[manager][id] = _amounts[i];
@@ -271,7 +276,8 @@ contract DTRUST is ERC1155 {
 
     function depositERC721Assets(
         IMyERC721[] calldata _erc721Tokens,
-        bytes calldata _data
+        bytes calldata _data,
+        uint256[] memory _paymentPerFrequency
     ) external payable onlyManager {
         uint256[] memory amounts = new uint256[](_erc721Tokens.length);
         for (uint256 i = 0; i < _erc721Tokens.length; i++) {
@@ -279,7 +285,10 @@ contract DTRUST is ERC1155 {
             erc721assetIds.push(_erc1155TokenId);
             ERC721TokenAsset memory newerc721 = ERC721TokenAsset(
                 _erc721Tokens[i],
-                _erc1155TokenId
+                _erc1155TokenId,
+                address(0),
+                _paymentPerFrequency[i],
+                block.timestamp
             );
             erc721TokenAssets.push(newerc721);
             amounts[i] = 1;
@@ -467,46 +476,48 @@ contract DTRUST is ERC1155 {
 
     function schedule() internal {
         for (uint256 i = 0; i < erc20TokenAssets.length; i++) {
-            erc20okenAssets[i].lockedUntils = block.timestamp + erc20TokenAssets[i].paymentInterval;
-            erc20okenAssets[i].currentScheduledTransaction = scheduler.schedule(
-                address(this),
-                "",
-                [
-                    1000000,
-                    0,
-                    255,
-                    erc20okenAssets[i].lockedUntils,
-                    20000000000 wei,
-                    20000000000 wei,
-                    20000000000 wei,
-                    30000000000 wei
-                ]
-            );
+            erc20TokenAssets[i].lockedUntil =
+                block.timestamp +
+                erc20TokenAssets[i].paymentInterval;
+            erc20TokenAssets[i].currentScheduledTransaction = scheduler
+                .schedule(
+                    address(this),
+                    "",
+                    [
+                        1000000,
+                        0,
+                        255,
+                        erc20TokenAssets[i].lockedUntil,
+                        20000000000 wei,
+                        20000000000 wei,
+                        20000000000 wei,
+                        30000000000 wei
+                    ]
+                );
         }
 
         for (uint256 i = 0; i < erc721TokenAssets.length; i++) {
-            erc721TokenAssets[i].lockedUntils = block.timestamp + erc721TokenAssets[i].paymentInterval;
-            erc721TokenAssets[i].currentScheduledTransaction = scheduler.schedule(
-                address(this),
-                "",
-                [
-                    1000000,
-                    0,
-                    255,
-                    erc721TokenAssets[i].lockedUntils,
-                    20000000000 wei,
-                    20000000000 wei,
-                    20000000000 wei,
-                    30000000000 wei
-                ]
-            );
+            erc721TokenAssets[i].lockedUntil =
+                block.timestamp +
+                erc721TokenAssets[i].paymentInterval;
+            erc721TokenAssets[i].currentScheduledTransaction = scheduler
+                .schedule(
+                    address(this),
+                    "",
+                    [
+                        1000000,
+                        0,
+                        255,
+                        erc721TokenAssets[i].lockedUntil,
+                        20000000000 wei,
+                        20000000000 wei,
+                        20000000000 wei,
+                        30000000000 wei
+                    ]
+                );
         }
 
-        emit PaymentScheduled(
-            currentScheduledTransaction,
-            currentScheduledTransaction,
-            beneficiary
-        );
+        emit PaymentScheduled(erc20TokenAssets, erc721TokenAssets, beneficiary);
     }
 
     function _tokenHash(IMyERC721 erc721token)
