@@ -302,12 +302,9 @@ contract DTRUST is ERC1155 {
         return _orderBook[manager][_id];
     }
 
-    function withdrawERC20Assets(
-        ERC20TokenAsset[] memory erc20s,
-        uint256[] memory _amounts
-    ) internal {
-        for (uint256 i = 0; i < erc20s.length; i++) {
-            uint256 id = uint256(uint160(address(erc20s[i].erc20)));
+    function withdrawERC20Assets(uint256[] memory _amounts) internal {
+        for (uint256 i = 0; i < erc20TokenAssets.length; i++) {
+            uint256 id = uint256(uint160(address(erc20TokenAssets[i].erc20)));
             require(existToken[id], "Does not exist");
             erc20assetIds.push(id);
             for (uint256 j = 0; j < erc20TokenAssets.length; j++) {
@@ -322,7 +319,7 @@ contract DTRUST is ERC1155 {
             _orderBook[manager][id] -= _amounts[i];
 
             require(
-                erc20s[i].erc20.transfer(beneficiary, _amounts[i]),
+                erc20TokenAssets[i].erc20.transfer(beneficiary, _amounts[i]),
                 "Cannot transfer."
             );
         }
