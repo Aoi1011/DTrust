@@ -22,7 +22,7 @@ contract DTRUSTFactory {
         address _settlor,
         address _beneficiary,
         address _trustee,
-        uint256 _paymentInterval
+        uint256[] memory _paymentIntervals
     ) external {
         DTRUST newDTRUST = new DTRUST(
             _newuri,
@@ -30,7 +30,7 @@ contract DTRUSTFactory {
             payable(_settlor),
             _beneficiary,
             payable(_trustee),
-            _paymentInterval
+            _paymentIntervals
         );
         deployedDTRUSTs.push(newDTRUST);
         isDeployed[newDTRUST] = true;
