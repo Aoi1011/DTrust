@@ -485,6 +485,7 @@ contract DTRUST is ERC1155 {
         for (uint256 j = 0; j < erc721TokenAssets.length; j++) {
             erc721ForWidthdrawing[j] = erc721TokenAssets[j].erc721;
         }
+        
         withdrawERC20Assets(erc20TokenAssets, paymentsForWithdrawing);
         withdrawERC721Assets(erc721ForWidthdrawing);
         schedule();
