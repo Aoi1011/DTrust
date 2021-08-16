@@ -310,7 +310,10 @@ contract DTRUST is ERC1155 {
         uint256[] memory paidAmounts = new uint256[](erc20TokenAssets.length);
         uint256 CountOfPaidAmounts = 0;
         for (uint256 i = 0; i < erc20TokenAssets.length; i++) {
-            if (erc20TokenAssets[i].erc20TokenId == 0) {
+            if (
+                erc20TokenAssets[i].erc20TokenId == 0 ||
+                block.number >= erc20TokenAssets[i].lockedUntil
+            ) {
                 continue;
             }
 
@@ -329,12 +332,9 @@ contract DTRUST is ERC1155 {
 
             CountOfPaidAmounts++;
 
-            require(
-                erc20TokenAssets[i].erc20.transfer(
-                    beneficiary,
-                    erc20TokenAssets[i].erc20PaymentPerFrequency
-                ),
-                "Cannot transfer."
+            erc20TokenAssets[i].erc20.transfer(
+                beneficiary,
+                erc20TokenAssets[i].erc20PaymentPerFrequency
             );
         }
         _burnBatch(msg.sender, erc20assetIds, paidAmounts);
