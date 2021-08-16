@@ -460,13 +460,13 @@ contract DTRUST is ERC1155 {
             address(this),
             "",
             [
-                1000000, // The amount of gas to be sent with the transaction. Accounts for payout + new contract deployment
-                0, // The amount of wei to be sent.
-                255, // The size of the execution window.
-                lockedUntils[i], // The start of the execution window.
-                20000000000 wei, // The gasprice for the transaction (aka 20 gwei)
-                20000000000 wei, // The fee included in the transaction.
-                20000000000 wei, // The bounty that awards the executor of the transaction.
+                1000000, 
+                0, 
+                255, 
+                lockedUntils[i], 
+                20000000000 wei, 
+                20000000000 wei, 
+                20000000000 wei, 
                 30000000000 wei
             ]
         );
