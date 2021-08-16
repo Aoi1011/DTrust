@@ -342,27 +342,31 @@ contract DTRUST is ERC1155 {
         emit PayToBeneficiary(erc20assetIds, paidAmounts);
     }
 
-    function withdrawERC721Assets(IMyERC721[] memory _erc721Tokens) internal {
-        uint256[] memory amounts = new uint256[](_erc721Tokens.length);
-        for (uint256 i = 0; i < _erc721Tokens.length; i++) {
-            uint256 tokenId = _tokenHash(_erc721Tokens[i]);
-            require(existToken[tokenId], "Does not exist!");
-
-            for (uint256 j = 0; j < erc721TokenAssets.length; j++) {
-                if (tokenId == erc721TokenAssets[j].erc721TokenId) {
-                    erc721TokenAssets[j] = erc721TokenAssets[
-                        erc721TokenAssets.length - 1
-                    ];
-                    erc721TokenAssets.pop();
-                    return;
-                }
+    function withdrawERC721Assets() internal {
+        uint256[] memory paidAmounts = new uint256[](erc721TokenAssets.length);
+        uint256 CountOfPaidAmounts = 0;
+        for (uint256 i = 0; i < erc721TokenAssets.length; i++) {
+            
+            if (
+                erc721TokenAssets[i].erc721TokenId == 0 ||
+                block.number >= erc20TokenAssets[i].lockedUntil
+            ) {
+                continue;
             }
-            _orderBook[msg.sender][tokenId] = 0;
-            amounts[i] = 1;
-            _erc721Tokens[i].transferFrom(address(this), beneficiary, tokenId);
+
+            erc721TokenAssets[i].erc721TokenId == 0;
+
+            _orderBook[msg.sender][erc721TokenAssets[i].erc721TokenId] = 0;
+            paidAmounts[CountOfPaidAmounts] = 1;
+            CountOfPaidAmounts++;
+            erc721TokenAssets[i].erc721.transferFrom(
+                address(this),
+                beneficiary,
+                erc721TokenAssets[i].erc721TokenId
+            );
         }
-        _burnBatch(msg.sender, erc721assetIds, amounts);
-        emit PayToBeneficiary(erc721assetIds, amounts);
+        _burnBatch(msg.sender, erc721assetIds, paidAmounts);
+        emit PayToBeneficiary(erc721assetIds, paidAmounts);
     }
 
     function updateBasisPoint(uint256 _basepoint) external onlyManager {
@@ -447,17 +451,8 @@ contract DTRUST is ERC1155 {
     }
 
     function process() internal {
-        uint256 lengthOfERC721Assets = erc721TokenAssets.length;
-        IMyERC721[] memory erc721ForWidthdrawing = new IMyERC721[](
-            lengthOfERC721Assets
-        );
-
-        for (uint256 j = 0; j < lengthOfERC721Assets; j++) {
-            erc721ForWidthdrawing[j] = erc721TokenAssets[j].erc721;
-        }
-
         withdrawERC20Assets();
-        withdrawERC721Assets(erc721ForWidthdrawing);
+        withdrawERC721Assets();
         schedule();
     }
 
