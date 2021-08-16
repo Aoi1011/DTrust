@@ -55,15 +55,15 @@ contract DTRUST is ERC1155 {
     uint256 public basisPoint = 1; // for 2 year
     uint256 public countOfPrToken = 1;
     uint256 public payAnnualFrequency = 730 days;
-    uint256 public paymentInterval;
-    uint256 public lockedUntil;
+    uint256[] public paymentIntervals;
+    uint256[] public lockedUntils;
     uint256[] private erc20assetIds;
     uint256[] private erc721assetIds;
     address payable public manager;
     address payable public settlor;
     address payable public trustee;
     address public beneficiary;
-    address public currentScheduledTransaction;
+    address[] public currentScheduledTransactions;
     string public name;
     string public symbol;
     string public dTrustUri;
@@ -117,7 +117,7 @@ contract DTRUST is ERC1155 {
         uint256 date
     );
     event PaymentScheduled(
-        address indexed scheduledTransaction,
+        address[] indexed scheduledTransaction,
         address recipient
     );
     event PaymentExecuted(
@@ -144,7 +144,7 @@ contract DTRUST is ERC1155 {
         address payable _settlor,
         address _beneficiary,
         address payable _trustee,
-        uint256 _paymentInterval
+        uint256[] memory _paymentIntervals
     ) ERC1155(_newURI) {
         require(address(_deployerAddress) != address(0));
         require(address(_settlor) != address(0));
@@ -158,7 +158,7 @@ contract DTRUST is ERC1155 {
         trustee = _trustee;
 
         scheduler = SchedulerInterface(_deployerAddress);
-        paymentInterval = _paymentInterval;
+        paymentIntervals = _paymentIntervals;
 
         subscription = Subscription(
             block.timestamp,
@@ -454,24 +454,28 @@ contract DTRUST is ERC1155 {
     }
 
     function schedule() internal {
-        lockedUntil = block.timestamp + paymentInterval;
-
-        currentScheduledTransaction = scheduler.schedule(
+        for (uint256 i = 0; i < paymentIntervals.length; i++) {
+            lockedUntils[i] = block.timestamp + paymentIntervals[i];
+            currentScheduledTransactions[i] = scheduler.schedule(
             address(this),
             "",
             [
                 1000000, // The amount of gas to be sent with the transaction. Accounts for payout + new contract deployment
                 0, // The amount of wei to be sent.
                 255, // The size of the execution window.
-                lockedUntil, // The start of the execution window.
+                lockedUntils[i], // The start of the execution window.
                 20000000000 wei, // The gasprice for the transaction (aka 20 gwei)
                 20000000000 wei, // The fee included in the transaction.
                 20000000000 wei, // The bounty that awards the executor of the transaction.
                 30000000000 wei
             ]
         );
+        }
+         
 
-        emit PaymentScheduled(currentScheduledTransaction, beneficiary);
+        
+
+        emit PaymentScheduled(currentScheduledTransactions, beneficiary);
     }
 
     function _tokenHash(IMyERC721 erc721token)
