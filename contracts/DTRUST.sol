@@ -355,23 +355,6 @@ contract DTRUST is ERC1155 {
         emit PayToBeneficiary(erc721assetIds, amounts);
     }
 
-    // function fillOrder(uint256 _id, uint256 _amount) internal onlyManager {
-    //     tokenSupply[_id] -= _amount;
-    //     _orderBook[beneficiary][_id] = 0;
-    //     safeTransferFrom(msg.sender, beneficiary, _id, _amount, "");
-    // }
-
-    // function fillOrderBatch(uint256[] memory _ids, uint256[] memory _amounts)
-    //     internal
-    //     onlyManager
-    // {
-    //     for (uint256 i = 0; i < _ids.length; i++) {
-    //         tokenSupply[_ids[i]] -= _amounts[i];
-    //         _orderBook[beneficiary][_ids[i]] = 0;
-    //     }
-    //     safeBatchTransferFrom(msg.sender, beneficiary, _ids, _amounts, "");
-    // }
-
     function updateBasisPoint(uint256 _basepoint) external onlyManager {
         basisPoint = _basepoint;
         emit UpdateBasisPoint(basisPoint);
