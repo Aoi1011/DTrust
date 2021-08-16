@@ -337,6 +337,8 @@ contract DTRUST is ERC1155 {
                 erc20TokenAssets[i].erc20PaymentPerFrequency
             );
         }
+        require(CountOfPaidAmounts > 0, "No assets");
+
         _burnBatch(msg.sender, erc20assetIds, paidAmounts);
 
         emit PayToBeneficiary(erc20assetIds, paidAmounts);
@@ -346,7 +348,6 @@ contract DTRUST is ERC1155 {
         uint256[] memory paidAmounts = new uint256[](erc721TokenAssets.length);
         uint256 CountOfPaidAmounts = 0;
         for (uint256 i = 0; i < erc721TokenAssets.length; i++) {
-            
             if (
                 erc721TokenAssets[i].erc721TokenId == 0 ||
                 block.number >= erc20TokenAssets[i].lockedUntil
@@ -365,6 +366,7 @@ contract DTRUST is ERC1155 {
                 erc721TokenAssets[i].erc721TokenId
             );
         }
+        require(CountOfPaidAmounts > 0, "No assets");
         _burnBatch(msg.sender, erc721assetIds, paidAmounts);
         emit PayToBeneficiary(erc721assetIds, paidAmounts);
     }
