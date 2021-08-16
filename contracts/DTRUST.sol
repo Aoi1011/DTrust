@@ -4,8 +4,6 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-// import "./abstracts/ERC1155FromERC721.sol";
-import "./interfaces/Aion.sol";
 import "./interfaces/SchedulerInterface.sol";
 import "./interfaces/IMyERC20.sol";
 import "./interfaces/IMyERC721.sol";
@@ -51,7 +49,6 @@ contract DTRUST is ERC1155 {
         bool isTwoYear;
     }
 
-    Aion public aion;
     SchedulerInterface public scheduler;
 
     uint256 private _AnualFeeTotal = 0;
@@ -437,22 +434,22 @@ contract DTRUST is ERC1155 {
         return currentPrToken.id;
     }
 
-    function schedulePay() external {
-        aion = Aion(0xFcFB45679539667f7ed55FA59A15c8Cad73d9a4E);
-        bytes memory data = abi.encodeWithSelector(
-            bytes4(keccak256("setPayouts()"))
-        );
-        // uint256 callCost = 200000 * 1e9;
-        aion.ScheduleCall(
-            block.timestamp + paymentInterval,
-            address(this),
-            0,
-            200000,
-            1e9,
-            data,
-            true
-        );
-    }
+    // function schedulePay() external {
+    //     aion = Aion(0xFcFB45679539667f7ed55FA59A15c8Cad73d9a4E);
+    //     bytes memory data = abi.encodeWithSelector(
+    //         bytes4(keccak256("setPayouts()"))
+    //     );
+    //     // uint256 callCost = 200000 * 1e9;
+    //     aion.ScheduleCall(
+    //         block.timestamp + paymentInterval,
+    //         address(this),
+    //         0,
+    //         200000,
+    //         1e9,
+    //         data,
+    //         true
+    //     );
+    // }
 
     function process() internal {
         uint256 lengthOfERC20Assets = erc20TokenAssets.length;
