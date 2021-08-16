@@ -6,5 +6,5 @@ interface IERC1155Views {
     function name(uint256 _id) external view returns (string memory);
     function symbol(uint256 _id) external view returns (string memory);
     function decimals(uint256 _id) external view returns (uint8);
-    function uri(uint256 _id) external view returns (string memory);
+    // function uri(uint256 _id) external view returns (string memory);
 }
