@@ -434,23 +434,6 @@ contract DTRUST is ERC1155 {
         return currentPrToken.id;
     }
 
-    // function schedulePay() external {
-    //     aion = Aion(0xFcFB45679539667f7ed55FA59A15c8Cad73d9a4E);
-    //     bytes memory data = abi.encodeWithSelector(
-    //         bytes4(keccak256("setPayouts()"))
-    //     );
-    //     // uint256 callCost = 200000 * 1e9;
-    //     aion.ScheduleCall(
-    //         block.timestamp + paymentInterval,
-    //         address(this),
-    //         0,
-    //         200000,
-    //         1e9,
-    //         data,
-    //         true
-    //     );
-    // }
-
     function process() internal {
         uint256 lengthOfERC20Assets = erc20TokenAssets.length;
         uint256 lengthOfERC721Assets = erc721TokenAssets.length;
