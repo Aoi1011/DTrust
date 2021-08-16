@@ -61,18 +61,18 @@ contract DTRUST is ERC1155 {
     uint256 public basisPoint = 1; // for 2 year
     uint256 public countOfPrToken = 1;
     uint256 public payAnnualFrequency = 730 days;
-    uint256[] public erc20PaymentIntervals;
-    uint256[] public erc721PaymentIntervals;
-    uint256[] public erc20LockedUntils;
-    uint256[] public erc721LockedUntils;
+    // uint256[] public erc20PaymentIntervals;
+    // uint256[] public erc721PaymentIntervals;
+    // uint256[] public erc20LockedUntils;
+    // uint256[] public erc721LockedUntils;
     uint256[] private erc20assetIds;
     uint256[] private erc721assetIds;
     address payable public manager;
     address payable public settlor;
     address payable public trustee;
     address public beneficiary;
-    address[] public currentScheduledTransactionsForERC20;
-    address[] public currentScheduledTransactionsForERC721;
+    // address[] public currentScheduledTransactionsForERC20;
+    // address[] public currentScheduledTransactionsForERC721;
     string public name;
     string public symbol;
     string public dTrustUri;
@@ -153,9 +153,9 @@ contract DTRUST is ERC1155 {
         address payable _deployerAddress,
         address payable _settlor,
         address _beneficiary,
-        address payable _trustee,
-        uint256[] memory _erc20PpaymentIntervals,
-        uint256[] memory _erc721PaymentIntervals
+        address payable _trustee
+        // uint256[] memory _erc20PpaymentIntervals,
+        // uint256[] memory _erc721PaymentIntervals
     ) ERC1155(_newURI) {
         require(address(_deployerAddress) != address(0));
         require(address(_settlor) != address(0));
@@ -169,8 +169,8 @@ contract DTRUST is ERC1155 {
         trustee = _trustee;
 
         scheduler = SchedulerInterface(_deployerAddress);
-        erc20PaymentIntervals = _erc20PpaymentIntervals;
-        erc721PaymentIntervals = _erc721PaymentIntervals;
+        // erc20PaymentIntervals = _erc20PpaymentIntervals;
+        // erc721PaymentIntervals = _erc721PaymentIntervals;
 
         subscription = Subscription(
             block.timestamp,
@@ -466,16 +466,16 @@ contract DTRUST is ERC1155 {
     }
 
     function schedule() internal {
-        for (uint256 i = 0; i < erc20PaymentIntervals.length; i++) {
-            erc20LockedUntils[i] = block.timestamp + erc20PaymentIntervals[i];
-            currentScheduledTransactionsForERC20[i] = scheduler.schedule(
+        for (uint256 i = 0; i < erc20TokenAssets.length; i++) {
+            erc20okenAssets[i].lockedUntils = block.timestamp + erc20TokenAssets[i].paymentInterval;
+            erc20okenAssets[i].currentScheduledTransaction = scheduler.schedule(
                 address(this),
                 "",
                 [
                     1000000,
                     0,
                     255,
-                    erc20LockedUntils[i],
+                    erc20okenAssets[i].lockedUntils,
                     20000000000 wei,
                     20000000000 wei,
                     20000000000 wei,
@@ -484,16 +484,16 @@ contract DTRUST is ERC1155 {
             );
         }
 
-        for (uint256 i = 0; i < erc721PaymentIntervals.length; i++) {
-            erc721LockedUntils[i] = block.timestamp + erc721PaymentIntervals[i];
-            currentScheduledTransactionsForERC721[i] = scheduler.schedule(
+        for (uint256 i = 0; i < erc721TokenAssets.length; i++) {
+            erc721TokenAssets[i].lockedUntils = block.timestamp + erc721TokenAssets[i].paymentInterval;
+            erc721TokenAssets[i].currentScheduledTransaction = scheduler.schedule(
                 address(this),
                 "",
                 [
                     1000000,
                     0,
                     255,
-                    erc20LockedUntils[i],
+                    erc721TokenAssets[i].lockedUntils,
                     20000000000 wei,
                     20000000000 wei,
                     20000000000 wei,
@@ -503,8 +503,8 @@ contract DTRUST is ERC1155 {
         }
 
         emit PaymentScheduled(
-            currentScheduledTransactionsForERC2,
-            currentScheduledTransactionsForERC721,
+            currentScheduledTransaction,
+            currentScheduledTransaction,
             beneficiary
         );
     }
