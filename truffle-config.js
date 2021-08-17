@@ -26,7 +26,7 @@
 
 module.exports = {
 
-  plugins: ["truffle-security"],
+  plugins: ["solidity-coverage"],
 
   /**
    * Networks define how you connect to your ethereum client and let you set the
