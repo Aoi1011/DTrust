@@ -22,6 +22,7 @@
   "dependencies": {
     "@nomiclabs/buidler": "^1.4.8",
     "@openzeppelin/contracts": "^4.2.0",
+    "solidity-coverage": "^0.7.16",
     "truffle-security": "^1.7.3"
   }
 }
