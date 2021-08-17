@@ -15,10 +15,7 @@ contract ControlKey {
 
     mapping(uint256 => StructControlKey) controlKeys;
 
-    event GenerateControlKey(
-        uint256 indexed controlKeyId,
-        string privateKey
-    );
+    event GenerateControlKey(uint256 indexed controlKeyId, string privateKey);
 
     function generateControlKey(
         string memory _privateKey,
