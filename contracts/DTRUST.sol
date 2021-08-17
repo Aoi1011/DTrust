@@ -107,15 +107,9 @@ contract DTRUST is ERC1155 {
     );
     event Mint(address indexed sender, uint256 tokenId, uint256 amount);
     event UpdateBasisPoint(uint256 basispoint);
-    event PaymentSentForFirstTwoYear(
+    event AnnualPaymentSent(
         address from,
         uint256 tokenId,
-        uint256 amount,
-        uint256 total,
-        uint256 date
-    );
-    event PaymentSentForSubsequentYear(
-        address from,
         uint256 amount,
         uint256 total,
         uint256 date
@@ -377,11 +371,12 @@ contract DTRUST is ERC1155 {
         emit UpdateBasisPoint(basisPoint);
     }
 
-    function paySemiAnnualFeeForFirstTwoYear(
+    // for subsequentYear, hasPromoter parameter should be false 
+    function paySemiAnnualFee(
         bool hasPromoter,
         address _target,
         bytes calldata _data
-    ) external onlyManager {
+    ) external {
         require(subscription.isTwoYear);
         require(block.timestamp >= subscription.nextPayment, "not due yet");
         uint256 semiAnnualFee = 0;
@@ -394,7 +389,9 @@ contract DTRUST is ERC1155 {
         }
         uint256[] memory tokenIds = new uint256[](lengthOferc20TokenAssets);
         uint256[] memory tokenAmounts = new uint256[](lengthOferc20TokenAssets);
-        uint256[] memory erc20TokenIds = new uint256[](lengthOferc20TokenAssets);
+        uint256[] memory erc20TokenIds = new uint256[](
+            lengthOferc20TokenAssets
+        );
         for (uint256 i = 0; i < lengthOferc20TokenAssets; i++) {
             uint256 fee = _orderBook[_target][
                 erc20TokenAssets[i].erc20TokenId
@@ -411,7 +408,7 @@ contract DTRUST is ERC1155 {
         tokenSupply[tokenId] += semiAnnualFee;
         _AnualFeeTotal += semiAnnualFee;
 
-        emit PaymentSentForFirstTwoYear(
+        emit AnnualPaymentSent(
             _target,
             tokenId,
             semiAnnualFee,
@@ -421,27 +418,6 @@ contract DTRUST is ERC1155 {
 
         subscription.nextPayment += payAnnualFrequency;
         subscription.isTwoYear = false;
-    }
-
-    function paySemiAnnualFeeForSubsequentYear(address _target)
-        external
-        onlyManager
-    {
-        require(!subscription.isTwoYear);
-        require(block.timestamp >= subscription.nextPayment, "not due yet");
-        uint256 semiAnnualFee = 0;
-        semiAnnualFee = _orderBook[_target][DToken] * (basisPoint / 100);
-        tokenSupply[DToken] += semiAnnualFee;
-        _AnualFeeTotal += semiAnnualFee;
-
-        emit PaymentSentForSubsequentYear(
-            _target,
-            semiAnnualFee,
-            _AnualFeeTotal,
-            block.timestamp
-        );
-
-        subscription.nextPayment += payAnnualFrequency;
     }
 
     function getSpecificPrToken(string memory _prTokenKey)
