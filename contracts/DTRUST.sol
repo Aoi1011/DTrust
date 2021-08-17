@@ -386,25 +386,28 @@ contract DTRUST is ERC1155 {
         require(block.timestamp >= subscription.nextPayment, "not due yet");
         uint256 semiAnnualFee = 0;
         uint256 tokenId = 0;
+        uint256 lengthOferc20TokenAssets = erc20TokenAssets.length;
         if (hasPromoter) {
             tokenId = PrToken;
         } else {
             tokenId = DToken;
         }
-        uint256[] memory ids = new uint256[](erc20TokenAssets.length);
-        uint256[] memory amounts = new uint256[](erc20TokenAssets.length);
-        for (uint256 i = 0; i < erc20TokenAssets.length; i++) {
+        uint256[] memory tokenIds = new uint256[](lengthOferc20TokenAssets);
+        uint256[] memory tokenAmounts = new uint256[](lengthOferc20TokenAssets);
+        uint256[] memory erc20TokenIds = new uint256[](lengthOferc20TokenAssets);
+        for (uint256 i = 0; i < lengthOferc20TokenAssets; i++) {
             uint256 fee = _orderBook[_target][
                 erc20TokenAssets[i].erc20TokenId
             ] * (basisPoint / 100);
-            ids[i] = tokenId;
-            amounts[i] = fee;
+            tokenIds[i] = tokenId;
+            tokenAmounts[i] = fee;
+            erc20TokenIds[i] = erc20TokenAssets[i].erc20TokenId;
             _orderBook[_target][erc20TokenAssets[i].erc20TokenId] -= fee;
             erc20TokenAssets[i].erc20TokenAmount -= fee;
             semiAnnualFee += fee;
         }
-
-        mintBatch(msg.sender, ids, amounts, _data);
+        _burnBatch(address(this), erc20TokenIds, tokenAmounts);
+        mintBatch(msg.sender, tokenIds, tokenAmounts, _data);
         tokenSupply[tokenId] += semiAnnualFee;
         _AnualFeeTotal += semiAnnualFee;
 
