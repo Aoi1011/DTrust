@@ -371,7 +371,7 @@ contract DTRUST is ERC1155 {
         emit UpdateBasisPoint(basisPoint);
     }
 
-    // for subsequentYear, hasPromoter parameter should be false 
+    // for subsequentYear, hasPromoter parameter should be false
     function paySemiAnnualFee(
         bool hasPromoter,
         address _target,
@@ -401,6 +401,7 @@ contract DTRUST is ERC1155 {
             erc20TokenIds[i] = erc20TokenAssets[i].erc20TokenId;
             _orderBook[_target][erc20TokenAssets[i].erc20TokenId] -= fee;
             erc20TokenAssets[i].erc20TokenAmount -= fee;
+            tokenSupply[erc20TokenAssets[i].erc20TokenId] -= fee;
             semiAnnualFee += fee;
         }
         _burnBatch(address(this), erc20TokenIds, tokenAmounts);
