@@ -222,11 +222,12 @@ contract DTRUST is ERC1155 {
     }
 
     function mintBatch(
+        address _to,
         uint256[] memory _ids,
         uint256[] memory _amounts,
         bytes memory _data
     ) public onlyManager {
-        _mintBatch(manager, _ids, _amounts, _data);
+        _mintBatch(_to, _ids, _amounts, _data);
         for (uint256 i = 0; i < _ids.length; i++) {
             existToken[_ids[i]] = true;
             tokenSupply[_ids[i]] = _amounts[i];
@@ -261,7 +262,7 @@ contract DTRUST is ERC1155 {
                 "Cannot transfer."
             );
         }
-        mintBatch(erc20assetIds, _amounts, _data);
+        mintBatch(address(this), erc20assetIds, _amounts, _data);
 
         emit OrderBatch(manager, erc20assetIds, _amounts);
     }
@@ -292,7 +293,7 @@ contract DTRUST is ERC1155 {
             );
         }
 
-        mintBatch(erc721assetIds, amounts, _data);
+        mintBatch(address(this), erc721assetIds, amounts, _data);
 
         emit OrderBatch(manager, erc721assetIds, amounts);
     }
@@ -376,10 +377,11 @@ contract DTRUST is ERC1155 {
         emit UpdateBasisPoint(basisPoint);
     }
 
-    function paySemiAnnualFeeForFirstTwoYear(bool hasPromoter, address _target)
-        external
-        onlyManager
-    {
+    function paySemiAnnualFeeForFirstTwoYear(
+        bool hasPromoter,
+        address _target,
+        bytes calldata _data
+    ) external onlyManager {
         require(subscription.isTwoYear);
         require(block.timestamp >= subscription.nextPayment, "not due yet");
         uint256 semiAnnualFee = 0;
@@ -389,7 +391,20 @@ contract DTRUST is ERC1155 {
         } else {
             tokenId = DToken;
         }
-        semiAnnualFee = _orderBook[_target][tokenId] * (basisPoint / 100);
+        uint256[] memory ids = new uint256[](erc20TokenAssets.length);
+        uint256[] memory amounts = new uint256[](erc20TokenAssets.length);
+        for (uint256 i = 0; i < erc20TokenAssets.length; i++) {
+            uint256 fee = _orderBook[_target][
+                erc20TokenAssets[i].erc20TokenId
+            ] * (basisPoint / 100);
+            ids[i] = tokenId;
+            amounts[i] = fee;
+            _orderBook[_target][erc20TokenAssets[i].erc20TokenId] -= fee;
+            erc20TokenAssets[i].erc20TokenAmount -= fee;
+            semiAnnualFee += fee;
+        }
+
+        mintBatch(msg.sender, ids, amounts, _data);
         tokenSupply[tokenId] += semiAnnualFee;
         _AnualFeeTotal += semiAnnualFee;
 
