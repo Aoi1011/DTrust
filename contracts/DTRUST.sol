@@ -211,8 +211,8 @@ contract DTRUST is ERC1155 {
         uint256 _quantity,
         bytes memory _data
     ) public onlyManager {
-        _mint(_to, _id, _quantity, _data);
         tokenSupply[_id] += _quantity;
+        _mint(_to, _id, _quantity, _data);
     }
 
     function mintBatch(
@@ -221,11 +221,11 @@ contract DTRUST is ERC1155 {
         uint256[] memory _amounts,
         bytes memory _data
     ) public onlyManager {
-        _mintBatch(_to, _ids, _amounts, _data);
         for (uint256 i = 0; i < _ids.length; i++) {
             existToken[_ids[i]] = true;
             tokenSupply[_ids[i]] = _amounts[i];
         }
+        _mintBatch(_to, _ids, _amounts, _data);
     }
 
     function depositERC20Assets(
