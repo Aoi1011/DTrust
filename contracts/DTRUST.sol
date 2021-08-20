@@ -330,9 +330,11 @@ contract DTRUST is ERC1155 {
     }
 
     function withdrawERC721Assets() internal {
-        uint256[] memory paidAmounts = new uint256[](erc721TokenAssets.length);
+        uint256 lengthOfErc721TokenAssets = erc721TokenAssets.length;
+        uint256[] memory paidAmounts = new uint256[](lengthOfErc721TokenAssets);
         uint256 CountOfPaidAmounts = 0;
-        for (uint256 i = 0; i < erc721TokenAssets.length; i++) {
+
+        for (uint256 i = 0; i < lengthOfErc721TokenAssets; i++) {
             if (
                 erc721TokenAssets[i].erc721TokenId == 0 ||
                 block.number >= erc20TokenAssets[i].lockedUntil
