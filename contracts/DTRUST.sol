@@ -61,15 +61,13 @@ contract DTRUST is ERC1155 {
     uint256 private _AnualFeeTotal = 0;
     uint256 public basisPoint = 1; // for 2 year
     uint256 public countOfPrToken = 1;
-    uint256 public payAnnualFrequency = 730 days;
+    uint256  public constant payAnnualFrequency = 730 days;
     uint256[] private erc20assetIds;
     uint256[] private erc721assetIds;
     address payable public manager;
     address payable public settlor;
     address payable public trustee;
     address public beneficiary;
-    string public name;
-    string public symbol;
     string public dTrustUri;
     ERC20TokenAsset[] public erc20TokenAssets;
     ERC721TokenAsset[] public erc721TokenAssets;
