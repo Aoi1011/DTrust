@@ -231,18 +231,19 @@ contract DTRUST is ERC1155 {
     }
 
     function fillOrderERC20Assets(
-        IMyERC20[] memory erc20s,
+        IMyERC20[] memory _erc20Tokens,
         uint256[] memory _amounts,
         uint256[] memory _paymentPerFrequency,
         uint256[] memory _paymentIntervals,
         bytes calldata _data
     ) external onlyManager {
-        for (uint256 i = 0; i < erc20s.length; i++) {
-            uint256 id = uint256(uint160(address(erc20s[i])));
+        uint256 lengthOfErc20Tokens = _erc20Tokens.length;
+        for (uint256 i = 0; i < lengthOfErc20Tokens; i++) {
+            uint256 id = uint256(uint160(address(_erc20Tokens[i])));
             erc20assetIds.push(id);
 
             ERC20TokenAsset memory newerc20 = ERC20TokenAsset(
-                erc20s[i],
+                _erc20Tokens[i],
                 id,
                 _amounts[i],
                 _paymentPerFrequency[i],
@@ -263,8 +264,9 @@ contract DTRUST is ERC1155 {
         bytes calldata _data,
         uint256[] memory _paymentPerFrequency
     ) external payable onlyManager {
-        uint256[] memory amounts = new uint256[](_erc721Tokens.length);
-        for (uint256 i = 0; i < _erc721Tokens.length; i++) {
+        uint256 lengthOfErc721Tokens = _erc721Tokens.length;
+        uint256[] memory amounts = new uint256[](lengthOfErc721Tokens);
+        for (uint256 i = 0; i < lengthOfErc721Tokens; i++) {
             uint256 _erc1155TokenId = _tokenHash(_erc721Tokens[i]);
             erc721assetIds.push(_erc1155TokenId);
             ERC721TokenAsset memory newerc721 = ERC721TokenAsset(
@@ -296,7 +298,8 @@ contract DTRUST is ERC1155 {
     function withdrawERC20Assets() internal {
         uint256[] memory paidAmounts = new uint256[](erc20TokenAssets.length);
         uint256 CountOfPaidAmounts = 0;
-        for (uint256 i = 0; i < erc20TokenAssets.length; i++) {
+        uint256 lengthOfErc20Assets;
+        for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
             if (
                 erc20TokenAssets[i].erc20TokenId == 0 ||
                 block.number >= erc20TokenAssets[i].lockedUntil
