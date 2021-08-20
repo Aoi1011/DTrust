@@ -60,7 +60,8 @@ contract DTRUSTFactory {
         view
         returns (string memory)
     {
-        for (uint256 i = 0; i < deployedDTRUSTs.length; i++) {
+        uint256 lengthOfDtrust = deployedDTRUSTs.length;
+        for (uint256 i = 0; i < lengthOfDtrust; i++) {
             if (deployedDTRUSTs[i] == _dtrust) {
                 DTRUST existDTrust = deployedDTRUSTs[i];
                 return existDTrust.getSpecificPrToken(_tokenKey);
