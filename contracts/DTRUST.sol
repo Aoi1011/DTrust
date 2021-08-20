@@ -179,7 +179,7 @@ contract DTRUST is ERC1155 {
 
     receive() external payable {}
 
-    function setURI(string memory _newURI) public onlyManager {
+    function setURI(string memory _newURI) external onlyManager {
         _setURI(_newURI);
     }
 
@@ -212,7 +212,7 @@ contract DTRUST is ERC1155 {
         uint256 _id,
         uint256 _quantity,
         bytes memory _data
-    ) public onlyManager {
+    ) external onlyManager {
         tokenSupply[_id] += _quantity;
         _mint(_to, _id, _quantity, _data);
     }
