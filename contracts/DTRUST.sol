@@ -61,7 +61,7 @@ contract DTRUST is ERC1155 {
     uint256 private _AnualFeeTotal = 0;
     uint256 public basisPoint = 1; // for 2 year
     uint256 public countOfPrToken = 1;
-    uint256  public constant payAnnualFrequency = 730 days;
+    uint256 public constant payAnnualFrequency = 730 days;
     uint256[] private erc20assetIds;
     uint256[] private erc721assetIds;
     address payable public manager;
@@ -226,13 +226,13 @@ contract DTRUST is ERC1155 {
         _mintBatch(_to, _ids, _amounts, _data);
     }
 
-    function depositERC20Assets(
+    function fillOrderERC20Assets(
         IMyERC20[] memory erc20s,
         uint256[] memory _amounts,
         uint256[] memory _paymentPerFrequency,
         uint256[] memory _paymentIntervals,
         bytes calldata _data
-    ) external payable onlyManager {
+    ) external onlyManager {
         for (uint256 i = 0; i < erc20s.length; i++) {
             uint256 id = uint256(uint160(address(erc20s[i])));
             erc20assetIds.push(id);
@@ -248,18 +248,23 @@ contract DTRUST is ERC1155 {
             );
             erc20TokenAssets.push(newerc20);
             _orderBook[manager][id] = _amounts[i];
-
-            require(
-                erc20s[i].transferFrom(manager, address(this), _amounts[i]),
-                "Cannot transfer."
-            );
         }
         mintBatch(address(this), erc20assetIds, _amounts, _data);
 
         emit OrderBatch(manager, erc20assetIds, _amounts);
     }
 
-    function depositERC721Assets(
+    function transferERC20() external payable {
+        for (uint256 i = 0; i < erc20assetIds.length; i++) {
+            erc20TokenAssets[i].erc20.transferFrom(
+                manager,
+                address(this),
+                erc20TokenAssets[i].erc20TokenAmount
+            );
+        }
+    }
+
+    function fillOrderERC721Assets(
         IMyERC721[] calldata _erc721Tokens,
         bytes calldata _data,
         uint256[] memory _paymentPerFrequency
