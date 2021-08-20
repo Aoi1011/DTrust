@@ -112,8 +112,11 @@ contract DTRUST is ERC1155 {
         uint256 total,
         uint256 date
     );
-    event PaymentScheduled(
+    event PaymentERC20Scheduled(
         ERC20TokenAsset[] indexed erc20Assets,
+        address recipient
+    );
+    event PaymentERC721Scheduled(
         ERC721TokenAsset[] indexed erc721Assets,
         address recipient
     );
@@ -161,7 +164,8 @@ contract DTRUST is ERC1155 {
             true
         );
 
-        schedule();
+        scheduleERC20();
+        scheduleERC721();
     }
 
     fallback() external payable {
@@ -373,6 +377,7 @@ contract DTRUST is ERC1155 {
             from = manager;
             to = address(this);
         } else {
+            // widthdraw function
             from = address(this);
             to = beneficiary;
         }
@@ -469,10 +474,11 @@ contract DTRUST is ERC1155 {
     function process() internal {
         withdrawERC20Assets();
         withdrawERC721Assets();
-        schedule();
+        scheduleERC20();
+        scheduleERC721();
     }
 
-    function schedule() internal {
+    function scheduleERC20() internal {
         for (uint256 i = 0; i < erc20TokenAssets.length; i++) {
             erc20TokenAssets[i].lockedUntil =
                 block.timestamp +
@@ -493,7 +499,10 @@ contract DTRUST is ERC1155 {
                     ]
                 );
         }
+        emit PaymentERC20Scheduled(erc20TokenAssets, beneficiary);
+    }
 
+    function scheduleERC721() internal {
         for (uint256 i = 0; i < erc721TokenAssets.length; i++) {
             erc721TokenAssets[i].lockedUntil =
                 block.timestamp +
@@ -514,8 +523,7 @@ contract DTRUST is ERC1155 {
                     ]
                 );
         }
-
-        emit PaymentScheduled(erc20TokenAssets, erc721TokenAssets, beneficiary);
+        emit PaymentERC721Scheduled(erc721TokenAssets, beneficiary);
     }
 
     function _tokenHash(IMyERC721 erc721token)
