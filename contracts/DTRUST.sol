@@ -254,16 +254,6 @@ contract DTRUST is ERC1155 {
         emit OrderBatch(manager, erc20assetIds, _amounts);
     }
 
-    function transferERC20() external payable {
-        for (uint256 i = 0; i < erc20assetIds.length; i++) {
-            erc20TokenAssets[i].erc20.transferFrom(
-                manager,
-                address(this),
-                erc20TokenAssets[i].erc20TokenAmount
-            );
-        }
-    }
-
     function fillOrderERC721Assets(
         IMyERC721[] calldata _erc721Tokens,
         bytes calldata _data,
@@ -283,11 +273,6 @@ contract DTRUST is ERC1155 {
             erc721TokenAssets.push(newerc721);
             amounts[i] = 1;
             _orderBook[manager][_erc1155TokenId] = 1;
-            _erc721Tokens[i].transferFrom(
-                manager,
-                address(this),
-                _erc1155TokenId
-            );
         }
 
         mintBatch(address(this), erc721assetIds, amounts, _data);
@@ -329,11 +314,6 @@ contract DTRUST is ERC1155 {
                 .erc20PaymentPerFrequency;
 
             CountOfPaidAmounts++;
-
-            erc20TokenAssets[i].erc20.transfer(
-                beneficiary,
-                erc20TokenAssets[i].erc20PaymentPerFrequency
-            );
         }
         require(CountOfPaidAmounts > 0, "No assets");
 
@@ -358,15 +338,51 @@ contract DTRUST is ERC1155 {
             _orderBook[msg.sender][erc721TokenAssets[i].erc721TokenId] = 0;
             paidAmounts[CountOfPaidAmounts] = 1;
             CountOfPaidAmounts++;
-            erc721TokenAssets[i].erc721.transferFrom(
-                address(this),
-                beneficiary,
-                erc721TokenAssets[i].erc721TokenId
-            );
         }
         require(CountOfPaidAmounts > 0, "No assets");
         _burnBatch(msg.sender, erc721assetIds, paidAmounts);
         emit PayToBeneficiary(erc721assetIds, paidAmounts);
+    }
+
+    function transferERC20(bool _isDepositFunction) external {
+        uint256 lengthOfErc20Assets;
+        if (_isDepositFunction) {
+            for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
+                erc20TokenAssets[i].erc20.transferFrom(
+                    manager,
+                    address(this),
+                    erc20TokenAssets[i].erc20TokenAmount
+                );
+            }
+        } else {
+            // withdraw function
+            for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
+                erc20TokenAssets[i].erc20.transfer(
+                    beneficiary,
+                    erc20TokenAssets[i].erc20PaymentPerFrequency
+                );
+            }
+        }
+    }
+
+    function transferERC721(bool _isDepositFunction) external {
+        uint256 lengthOfErc721Assets;
+        address from;
+        address to;
+        if (_isDepositFunction) {
+            from = manager;
+            to = address(this);
+        } else {
+            from = address(this);
+            to = beneficiary;
+        }
+        for (uint256 i = 0; i < lengthOfErc721Assets; i++) {
+            erc721TokenAssets[i].erc721.transferFrom(
+                from,
+                to,
+                erc721TokenAssets[i].erc721TokenId
+            );
+        }
     }
 
     function updateBasisPoint(uint256 _basepoint) external onlyManager {
