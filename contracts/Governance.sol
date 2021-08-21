@@ -40,7 +40,6 @@ contract Governance {
         address indexed proposer,
         bytes data
     );
-    event RemoveVote(uint256 indexed proposalId, address indexed voter);
     event Terminate(uint256 indexed proposalId);
     event Vote(
         uint256 indexed proposalId,
@@ -123,12 +122,6 @@ contract Governance {
 
         emit Vote(_proposalId, msg.sender, false, fee);
     }
-
-    // function removeVote(uint256 _proposalId) external {
-    //     Proposal storage proposal = proposals[_proposalId];
-    //     require(proposal.result == Result.Pending, "Proposal is already finalized");
-
-    // }
 
     function finalize(uint256 _proposalId) external {
         Proposal storage proposal = proposals[_proposalId];
