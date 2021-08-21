@@ -56,8 +56,6 @@ contract DTRUST is ERC1155 {
         bool isTwoYear;
     }
 
-    // IERC20 public DTtoken;
-    // IERC20 public PRtoken;
     SchedulerInterface public scheduler;
 
     uint256 private _AnualFeeTotal = 0;
