@@ -6,6 +6,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract Governance {
     IERC20 public DTtoken;
     address[] voters;
+    Proposal[] public proposals;
+
     // voter => deposit
     mapping(address => uint256) public deposits;
 
@@ -78,23 +80,22 @@ contract Governance {
         emit SplitAnnualFee(totalOfDTtoken, lengthOfVoter);
     }
 
-    function propose() external {
-
-    }
+    function propose() external {}
 
     function voteYes(uint256 _proposalId) external {
+        Proposal storage proposal = proposals[_proposalId];
 
+        uint256 fee = (deposits[msg.sender] * 3) / 4;
+        require(deposits[msg.sender] > fee, "Not enough amount in your balance");
+        deposits[msg.sender] -= fee;
+        proposal.yesCount += 1;
+
+        emit Vote(_proposalId, msg.sender, true, fee);
     }
 
-    function voteNo(uint256 _proposalId) external {
+    function voteNo(uint256 _proposalId) external {}
 
-    }
+    function removeVote(uint256 _proposaId) external {}
 
-    function removeVote(uint256 _proposaId) external {
-
-    }
-
-    function finalize(uint256 _proposalId) external {
-        
-    }
+    function finalize(uint256 _proposalId) external {}
 }
