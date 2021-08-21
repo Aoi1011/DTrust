@@ -4,6 +4,8 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import "./DTtoken.sol";
+import "./PRtoken.sol";
 import "./interfaces/SchedulerInterface.sol";
 import "./interfaces/IMyERC20.sol";
 import "./interfaces/IMyERC721.sol";
@@ -54,8 +56,8 @@ contract DTRUST is ERC1155 {
         bool isTwoYear;
     }
 
-    IERC20 public DTtoken;
-    IERC20 public PRtoken;
+    // IERC20 public DTtoken;
+    // IERC20 public PRtoken;
     SchedulerInterface public scheduler;
 
     uint256 private _AnualFeeTotal = 0;
@@ -108,7 +110,7 @@ contract DTRUST is ERC1155 {
     event UpdateBasisPoint(uint256 basispoint);
     event AnnualPaymentSent(
         address from,
-        uint256 tokenId,
+        uint256[] tokenIds,
         uint256 amount,
         uint256 total,
         uint256 date
@@ -145,8 +147,8 @@ contract DTRUST is ERC1155 {
         address payable _settlor,
         address _beneficiary,
         address payable _trustee,
-        IERC20 _DTtoken,
-        IERC20 _PRtoken,
+        // IERC20 _DTtoken,
+        // IERC20 _PRtoken,
         address _governanceAddress
     ) ERC1155(_newURI) {
         require(address(_deployerAddress) != address(0));
@@ -168,8 +170,8 @@ contract DTRUST is ERC1155 {
             true
         );
 
-        DTtoken = _DTtoken;
-        PRtoken = _PRtoken;
+        // DTtoken = _DTtoken;
+        // PRtoken = _PRtoken;
         governanceAddress = _governanceAddress;
 
         scheduleERC20();
@@ -417,14 +419,10 @@ contract DTRUST is ERC1155 {
         require(subscription.isTwoYear);
         require(block.timestamp >= subscription.nextPayment, "not due yet");
         uint256 semiAnnualFee = 0;
-        uint256 tokenId = 0;
+        DTtoken dttoken;
+        PRtoken prtoken;
+        
         uint256 lengthOferc20TokenAssets = erc20TokenAssets.length;
-        if (hasPromoter) {
-            tokenId = PrToken;
-        } else {
-            tokenId = DToken;
-        }
-        uint256[] memory tokenIds = new uint256[](lengthOferc20TokenAssets);
         uint256[] memory tokenAmounts = new uint256[](lengthOferc20TokenAssets);
         uint256[] memory erc20TokenIds = new uint256[](
             lengthOferc20TokenAssets
@@ -433,7 +431,6 @@ contract DTRUST is ERC1155 {
             uint256 fee = _orderBook[_target][
                 erc20TokenAssets[i].erc20TokenId
             ] * (basisPoint / 100);
-            tokenIds[i] = tokenId;
             tokenAmounts[i] = fee;
             erc20TokenIds[i] = erc20TokenAssets[i].erc20TokenId;
             _orderBook[_target][erc20TokenAssets[i].erc20TokenId] -= fee;
@@ -441,14 +438,17 @@ contract DTRUST is ERC1155 {
             tokenSupply[erc20TokenAssets[i].erc20TokenId] -= fee;
             semiAnnualFee += fee;
         }
+        if (hasPromoter) {
+            prtoken.mint(_target, semiAnnualFee);
+        } else {
+            dttoken.mint(governanceAddress, semiAnnualFee);
+        }
         _burnBatch(address(this), erc20TokenIds, tokenAmounts);
-        mintBatch(msg.sender, tokenIds, tokenAmounts, _data);
-        tokenSupply[tokenId] += semiAnnualFee;
         _AnualFeeTotal += semiAnnualFee;
 
         emit AnnualPaymentSent(
             _target,
-            tokenId,
+            erc20TokenIds,
             semiAnnualFee,
             _AnualFeeTotal,
             block.timestamp
