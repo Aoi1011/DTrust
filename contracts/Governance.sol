@@ -163,8 +163,7 @@ contract Governance {
         require(msg.sender == address(this), "Proposal fee can only be set via governance");
         proposalFee = fee;
     }
-
-
+    
     function getProposal(uint _proposalId) external view returns (Proposal memory) {
         return proposals[_proposalId];
     }
