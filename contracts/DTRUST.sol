@@ -63,7 +63,9 @@ contract DTRUST is ERC1155 {
     address payable public settlor;
     address payable public trustee;
     address public beneficiary;
+    address public promoter;
     string public dTrustUri;
+    bool public hasPromoter;
     ERC20TokenAsset[] public erc20TokenAssets;
     ERC721TokenAsset[] public erc721TokenAssets;
     Subscription private subscription;
@@ -138,7 +140,9 @@ contract DTRUST is ERC1155 {
         address _beneficiary,
         address payable _trustee,
         address _governanceAddress, 
-        uint256 _basisPoint
+        uint256 _basisPoint, 
+        bool _hasPromoter, 
+        address _promoter
     ) ERC1155(_newURI) {
         require(address(_deployerAddress) != address(0));
         require(address(_settlor) != address(0));
@@ -161,6 +165,9 @@ contract DTRUST is ERC1155 {
 
         governanceAddress = _governanceAddress;
         basisPoint = _basisPoint;
+
+        hasPromoter = _hasPromoter;
+        promoter = _promoter;
 
         scheduleERC20();
         scheduleERC721();
@@ -395,7 +402,6 @@ contract DTRUST is ERC1155 {
 
     // for subsequentYear, hasPromoter parameter should be false
     function paySemiAnnualFee(
-        bool hasPromoter,
         address _target
     ) external {
         require(subscription.isTwoYear);
@@ -421,7 +427,7 @@ contract DTRUST is ERC1155 {
             semiAnnualFee += fee;
         }
         if (hasPromoter) {
-            prtoken.mint(_target, semiAnnualFee);
+            prtoken.mint(promoter, semiAnnualFee, "");
         } else {
             dttoken.mint(governanceAddress, semiAnnualFee);
         }
