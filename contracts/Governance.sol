@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract Governance {
     IERC20 public DTtoken;
     address[] public voters;
-    uint256 public votePeriod = 2 days;
+    uint256 public votePeriod = 90 days;
     Proposal[] public proposals;
 
     // voter => deposit
