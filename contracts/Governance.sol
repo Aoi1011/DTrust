@@ -6,8 +6,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract Governance {
     IERC20 public DTtoken;
     address[] public voters;
-    uint256 public votePeriod = 90 days;
+    uint256 public proposalFee;
+
     Proposal[] public proposals;
+
+    uint256 public constant votePeriod = 90 days;
 
     // voter => deposit
     mapping(address => uint256) public deposits;
@@ -17,10 +20,8 @@ contract Governance {
 
     struct Proposal {
         Result result;
-        address target;
         bytes data;
         address proposer;
-        address feeRecipient;
         uint256 fee;
         uint256 startTime;
         uint256 yesCount;
@@ -37,7 +38,6 @@ contract Governance {
     event Propose(
         uint256 indexed proposalId,
         address indexed proposer,
-        address indexed target,
         bytes data
     );
     event RemoveVote(uint256 indexed proposalId, address indexed voter);
@@ -81,7 +81,21 @@ contract Governance {
         emit SplitAnnualFee(totalOfDTtoken, lengthOfVoter);
     }
 
-    function propose() external {}
+    function propose(bytes memory _data) external returns (uint256) {
+        uint256 proposalId = proposals.length;
+        
+        Proposal memory proposal;
+        proposal.data = _data;
+        proposal.proposer = msg.sender;
+        proposal.fee = proposalFee;
+        proposal.startTime = block.timestamp;
+
+        proposals.push(proposal);
+
+        emit Propose(proposalId, msg.sender, _data);
+
+        return proposalId;
+    }
 
     function voteYes(uint256 _proposalId) external {
         Proposal storage proposal = proposals[_proposalId];
@@ -133,7 +147,7 @@ contract Governance {
             //     DTtoken.transfer(proposal.feeRecipient, proposal.fee),
             //     "Governance::finalize: Return proposal fee failed"
             // );
-            proposal.target.call(proposal.data);
+            // proposal.target.call(proposal.data);
 
             emit Execute(_proposalId);
         } else {
@@ -151,6 +165,12 @@ contract Governance {
             emit Terminate(_proposalId);
         }
     }
+
+    function setProposalFee(uint256 fee) public {
+        require(msg.sender == address(this), "Proposal fee can only be set via governance");
+        proposalFee = fee;
+    }
+
 
     function getProposal(uint _proposalId) external view returns (Proposal memory) {
         return proposals[_proposalId];
