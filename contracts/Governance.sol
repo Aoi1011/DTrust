@@ -22,7 +22,8 @@ contract Governance {
 
     struct Proposal {
         Result result;
-        bytes data;
+        bytes32 contentOfQuestion;
+        uint256 proposalBasisPoint;
         address proposer;
         uint256 fee;
         uint256 startTime;
@@ -37,11 +38,7 @@ contract Governance {
     }
 
     event Execute(uint256 indexed proposalId);
-    event Propose(
-        uint256 indexed proposalId,
-        address indexed proposer,
-        bytes data
-    );
+    event Propose(uint256 indexed proposalId, address indexed proposer);
     event Terminate(uint256 indexed proposalId);
     event Vote(
         uint256 indexed proposalId,
@@ -83,18 +80,42 @@ contract Governance {
         emit SplitAnnualFee(totalOfDTtoken, lengthOfVoter);
     }
 
-    function propose(bytes memory _data) external onlyVoter returns (uint256) {
+    function proposeForDtrustBasisPoint(uint256 _basisPoint)
+        external
+        onlyVoter
+        returns (uint256)
+    {
         uint256 proposalId = proposals.length;
 
         Proposal memory proposal;
-        proposal.data = _data;
+        proposal.proposalBasisPoint = _basisPoint;
         proposal.proposer = msg.sender;
         proposal.fee = proposalFee;
         proposal.startTime = block.timestamp;
 
         proposals.push(proposal);
 
-        emit Propose(proposalId, msg.sender, _data);
+        emit Propose(proposalId, msg.sender);
+
+        return proposalId;
+    }
+
+    function proposeForDTrustQuestionOfContent(bytes32 _content)
+        external
+        onlyVoter
+        returns (uint256)
+    {
+        uint256 proposalId = proposals.length;
+
+        Proposal memory proposal;
+        proposal.contentOfQuestion = _content;
+        proposal.proposer = msg.sender;
+        proposal.fee = proposalFee;
+        proposal.startTime = block.timestamp;
+
+        proposals.push(proposal);
+
+        emit Propose(proposalId, msg.sender);
 
         return proposalId;
     }
