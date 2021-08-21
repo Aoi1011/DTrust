@@ -6,12 +6,14 @@ import "./ControlKey.sol";
 
 contract DTRUSTFactory {
     DTRUST[] public deployedDTRUSTs;
+    uint256 public basisPoint;
 
     address public governanceAddress;
 
     mapping(DTRUST => bool) isDeployed;
 
     event CreateDTRUST(DTRUST createdDtrust, string indexed newuri);
+    event UpdateBasisPoint(uint256 basispoint);
 
     event CreatePrToken(
         uint256 indexed prTokenId,
@@ -21,6 +23,7 @@ contract DTRUSTFactory {
 
     constructor(address _governanceAddress) {
         governanceAddress = _governanceAddress;
+        basisPoint = 1;
     }
 
     function createDTRUST(
@@ -35,12 +38,18 @@ contract DTRUSTFactory {
             payable(_settlor),
             _beneficiary,
             payable(_trustee),
-            governanceAddress
+            governanceAddress,
+            basisPoint
         );
         deployedDTRUSTs.push(newDTRUST);
         isDeployed[newDTRUST] = true;
 
         emit CreateDTRUST(newDTRUST, _newuri);
+    }
+
+    function updateBasisPoint(uint256 _basepoint) external {
+        basisPoint = _basepoint;
+        emit UpdateBasisPoint(basisPoint);
     }
 
     function createPrToken(

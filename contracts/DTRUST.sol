@@ -54,7 +54,7 @@ contract DTRUST is ERC1155 {
     SchedulerInterface public scheduler;
 
     uint256 private _AnualFeeTotal = 0;
-    uint256 public basisPoint = 1; // for 2 year
+    uint256 public basisPoint; // for 2 year
     uint256 public constant payAnnualFrequency = 730 days;
     uint256[] private erc20assetIds;
     uint256[] private erc721assetIds;
@@ -98,7 +98,6 @@ contract DTRUST is ERC1155 {
         uint256[] value
     );
     event Mint(address indexed sender, uint256 tokenId, uint256 amount);
-    event UpdateBasisPoint(uint256 basispoint);
     event AnnualPaymentSent(
         address from,
         uint256[] tokenIds,
@@ -138,7 +137,8 @@ contract DTRUST is ERC1155 {
         address payable _settlor,
         address _beneficiary,
         address payable _trustee,
-        address _governanceAddress
+        address _governanceAddress, 
+        uint256 _basisPoint
     ) ERC1155(_newURI) {
         require(address(_deployerAddress) != address(0));
         require(address(_settlor) != address(0));
@@ -159,9 +159,8 @@ contract DTRUST is ERC1155 {
             true
         );
 
-        // DTtoken = _DTtoken;
-        // PRtoken = _PRtoken;
         governanceAddress = _governanceAddress;
+        basisPoint = _basisPoint;
 
         scheduleERC20();
         scheduleERC721();
@@ -392,11 +391,6 @@ contract DTRUST is ERC1155 {
                 erc721TokenAssets[i].erc721TokenId
             );
         }
-    }
-
-    function updateBasisPoint(uint256 _basepoint) external onlyManager {
-        basisPoint = _basepoint;
-        emit UpdateBasisPoint(basisPoint);
     }
 
     // for subsequentYear, hasPromoter parameter should be false
