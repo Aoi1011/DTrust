@@ -53,10 +53,7 @@ contract Governance {
     event SplitAnnualFee(uint256 totalOfDTtoken, uint256 lengthOfVoter);
 
     modifier onlyVoter() {
-        require(
-            isVoter[msg.sender],
-            "Error: The caller is not any of the defined managers (settlor and trustee)!"
-        );
+        require(isVoter[msg.sender], "Error: The caller is not voter!");
         _;
     }
 
@@ -69,12 +66,12 @@ contract Governance {
         voters.push(_newVoter);
     }
 
-    function deposit(uint256 _amount) external {
+    function deposit(uint256 _amount) external onlyVoter {
         deposits[msg.sender] += _amount;
         DTtoken.transferFrom(msg.sender, address(this), _amount);
     }
 
-    function withdraw(uint256 _amount) external {
+    function withdraw(uint256 _amount) external onlyVoter {
         deposits[msg.sender] -= deposits[msg.sender];
         DTtoken.transfer(msg.sender, _amount);
     }
@@ -90,7 +87,7 @@ contract Governance {
         emit SplitAnnualFee(totalOfDTtoken, lengthOfVoter);
     }
 
-    function propose(bytes memory _data) external returns (uint256) {
+    function propose(bytes memory _data) external onlyVoter returns (uint256) {
         uint256 proposalId = proposals.length;
 
         Proposal memory proposal;
@@ -106,7 +103,7 @@ contract Governance {
         return proposalId;
     }
 
-    function voteYes(uint256 _proposalId) external {
+    function voteYes(uint256 _proposalId) external onlyVoter {
         Proposal storage proposal = proposals[_proposalId];
 
         uint256 _deposit = deposits[msg.sender];
@@ -118,7 +115,7 @@ contract Governance {
         emit Vote(_proposalId, msg.sender, true, fee);
     }
 
-    function voteNo(uint256 _proposalId) external {
+    function voteNo(uint256 _proposalId) external onlyVoter {
         Proposal storage proposal = proposals[_proposalId];
         require(
             proposal.result == Result.Pending,
@@ -180,12 +177,13 @@ contract Governance {
     function getProposal(uint256 _proposalId)
         external
         view
+        onlyVoter
         returns (Proposal memory)
     {
         return proposals[_proposalId];
     }
 
-    function getProposalsCount() external view returns (uint256) {
+    function getProposalsCount() external view onlyVoter returns (uint256) {
         return proposals.length;
     }
 }
