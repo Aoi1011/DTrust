@@ -3,6 +3,8 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import "./DTRUSTFactory.sol";
+
 contract Governance {
     IERC20 public DTtoken;
     address[] public voters;
@@ -22,7 +24,7 @@ contract Governance {
 
     struct Proposal {
         Result result;
-        bytes32 contentOfQuestion;
+        bytes32 proposalContentOfQuestion;
         uint256 proposalBasisPoint;
         address proposer;
         uint256 fee;
@@ -147,8 +149,9 @@ contract Governance {
         emit Vote(_proposalId, msg.sender, false, fee);
     }
 
-    function finalize(uint256 _proposalId) external {
+    function finalizeDtrustBasisPoint(uint256 _proposalId) external {
         Proposal storage proposal = proposals[_proposalId];
+        DTRUSTFactory dtrustFactory;
         require(
             proposal.result == Result.Pending,
             "Proposal is already finalized"
@@ -158,13 +161,14 @@ contract Governance {
                 block.timestamp > proposal.startTime + votePeriod,
                 "Proposal cannot be executed until end of vote period"
             );
-
+            if (proposal.contentOfQuestion != bytes32(0)) {
+                
+            } else if (
+                proposal.proposalBasisPoint != 0
+            ) {
+                dtrustFactory.updateBasisPoint(proposal.proposalBasisPoint);
+            }
             proposal.result = Result.Yes;
-            // require(
-            //     DTtoken.transfer(proposal.feeRecipient, proposal.fee),
-            //     "Governance::finalize: Return proposal fee failed"
-            // );
-            // proposal.target.call(proposal.data);
 
             emit Execute(_proposalId);
         } else {
