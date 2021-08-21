@@ -55,60 +55,7 @@ contract DTRUSTFactory {
         basisPoint = _basepoint;
         emit UpdateBasisPoint(basisPoint);
     }
-
-    // function createPrToken(
-    //     DTRUST _dtrust,
-    //     string memory _tokenKey,
-    //     address _receiver
-    // ) external {
-    //     uint256 prTokenId = 0;
-    //     bool isSucceed = false;
-
-    //     if (isDeployed[_dtrust]) {
-    //         DTRUST existDTrust = _dtrust;
-    //         existDTrust.mint(_receiver, 0, 1, "");
-    //         prTokenId = existDTrust.getCurrentPrToken();
-
-    //         isSucceed = true;
-    //     }
-
-    //     emit CreatePrToken(prTokenId, _tokenKey, isSucceed);
-    // }
-
-    // function usePrToken(string memory _tokenKey)
-    //     external
-    //     view
-    //     returns (string memory)
-    // {
-    //     require(tokenExist[_tokenKey], "Does not exist!!");
-    //     Token memory existToken = tokens[_tokenKey];
-        
-    //     // for (uint256 i = 0; i < lengthOfDtrust; i++) {
-    //     //     if (deployedDTRUSTs[i] == _dtrust) {
-    //     //         DTRUST existDTrust = deployedDTRUSTs[i];
-    //     //         return existDTrust.getSpecificPrToken(_tokenKey);
-    //     //     }
-    //     // }
-    //     return "";
-    // }
-
-    // function getCurrentPromoteToken(DTRUST _dtrust)
-    //     external
-    //     view
-    //     returns (uint256)
-    // {
-    //     uint256 lengthOfDtrust = deployedDTRUSTs.length;
-    //     uint256 currentPrToken = 0;
-    //     for (uint256 i = 0; i < lengthOfDtrust; i++) {
-    //         if (deployedDTRUSTs[i] == _dtrust) {
-    //             DTRUST existDTrust = deployedDTRUSTs[i];
-    //             currentPrToken = existDTrust.getCurrentPrToken();
-    //             return currentPrToken;
-    //         }
-    //     }
-    //     return currentPrToken;
-    // }
-
+    
     function getAllDeployedDTRUSTs() external view returns (DTRUST[] memory) {
         return deployedDTRUSTs;
     }
