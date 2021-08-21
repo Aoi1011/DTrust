@@ -12,6 +12,22 @@ contract Governance {
     // Voter => Withdraw timestamp
     mapping(address => uint256) public withdrawTimes;
 
+    event Execute(uint256 indexed proposalId);
+    event Propose(
+        uint256 indexed proposalId,
+        address indexed proposer,
+        address indexed target,
+        bytes data
+    );
+    event RemoveVote(uint256 indexed proposalId, address indexed voter);
+    event Terminate(uint256 indexed proposalId);
+    event Vote(
+        uint256 indexed proposalId,
+        address indexed voter,
+        bool approve,
+        uint256 weight
+    );
+
     event SplitAnnualFee(uint256 totalOfDTtoken, uint256 lengthOfVoter);
 
     constructor(IERC20 _DTtoken) {
@@ -37,11 +53,10 @@ contract Governance {
         uint256 totalOfDTtoken = DTtoken.totalSupply();
         uint256 lengthOfVoter = voters.length;
         for (uint256 i = 0; i < lengthOfVoter; i++) {
-            uint256 fee = _annualAmount * (deposits[voters[i]] * totalOfDTtoken);
+            uint256 fee = _annualAmount *
+                (deposits[voters[i]] * totalOfDTtoken);
             deposits[voters[i]] += fee;
         }
         emit SplitAnnualFee(totalOfDTtoken, lengthOfVoter);
     }
-
-
 }
