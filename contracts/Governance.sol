@@ -5,7 +5,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract Governance {
     IERC20 public DTtoken;
-    address[] voters;
+    address[] public voters;
+    uint256 public votePeriod = 2 days;
     Proposal[] public proposals;
 
     // voter => deposit
@@ -85,17 +86,69 @@ contract Governance {
     function voteYes(uint256 _proposalId) external {
         Proposal storage proposal = proposals[_proposalId];
 
-        uint256 fee = (deposits[msg.sender] * 3) / 4;
-        require(deposits[msg.sender] > fee, "Not enough amount in your balance");
+        uint256 _deposit = deposits[msg.sender];
+        uint256 fee = (_deposit * 3) / 4;
+        require(_deposit > fee, "Not enough amount in your balance");
         deposits[msg.sender] -= fee;
         proposal.yesCount += 1;
 
         emit Vote(_proposalId, msg.sender, true, fee);
     }
 
-    function voteNo(uint256 _proposalId) external {}
+    function voteNo(uint256 _proposalId) external {
+        Proposal storage proposal = proposals[_proposalId];
+        require(
+            proposal.result == Result.Pending,
+            "Proposal is already finalized"
+        );
 
-    function removeVote(uint256 _proposaId) external {}
+        uint256 _deposit = deposits[msg.sender];
+        uint256 fee = (_deposit * 3) / 4;
+        deposits[msg.sender] -= fee;
+        proposal.noCount += 1;
 
-    function finalize(uint256 _proposalId) external {}
+        emit Vote(_proposalId, msg.sender, false, fee);
+    }
+
+    // function removeVote(uint256 _proposalId) external {
+    //     Proposal storage proposal = proposals[_proposalId];
+    //     require(proposal.result == Result.Pending, "Proposal is already finalized");
+
+    // }
+
+    function finalize(uint256 _proposalId) external {
+        Proposal storage proposal = proposals[_proposalId];
+        require(
+            proposal.result == Result.Pending,
+            "Proposal is already finalized"
+        );
+        if (proposal.yesCount > proposal.noCount) {
+            require(
+                block.timestamp > proposal.startTime + votePeriod,
+                "Proposal cannot be executed until end of vote period"
+            );
+
+            proposal.result = Result.Yes;
+            // require(
+            //     DTtoken.transfer(proposal.feeRecipient, proposal.fee),
+            //     "Governance::finalize: Return proposal fee failed"
+            // );
+            proposal.target.call(proposal.data);
+
+            emit Execute(_proposalId);
+        } else {
+            require(
+                block.timestamp > proposal.startTime + votePeriod,
+                "Proposal cannot be terminated until end of yes vote period"
+            );
+
+            proposal.result = Result.No;
+            // require(
+            //     token.transfer(address(void), proposal.fee),
+            //     "Governance::finalize: Transfer to void failed"
+            // );
+
+            emit Terminate(_proposalId);
+        }
+    }
 }
