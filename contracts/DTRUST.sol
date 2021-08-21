@@ -17,7 +17,6 @@ contract DTRUST is ERC1155 {
     // constants/////
     uint256 private constant PACK_INDEX =
         0x0000000000000000000000000000000000000000000000000000000000007FFF;
-    uint256 private constant PrToken = 0;
     /////////////////
 
     enum ContractRights {
@@ -56,6 +55,7 @@ contract DTRUST is ERC1155 {
     }
 
     IERC20 public DTtoken;
+    IERC20 public PRtoken;
     SchedulerInterface public scheduler;
 
     uint256 private _AnualFeeTotal = 0;

@@ -3,11 +3,11 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract PrToken is ERC20 {
+contract PRtoken is ERC20 {
     address public registry;
 
     constructor(address _registry, uint256 _initialSupply)
-        ERC20("PrToken", "PR")
+        ERC20("PRtoken", "PR")
     {
         registry = _registry;
         _mint(msg.sender, _initialSupply);
