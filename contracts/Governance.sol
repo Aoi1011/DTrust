@@ -30,6 +30,12 @@ contract Governance {
 
     event SplitAnnualFee(uint256 totalOfDTtoken, uint256 lengthOfVoter);
 
+    enum Result {
+        Pending,
+        Yes,
+        No
+    }
+
     constructor(IERC20 _DTtoken) {
         DTtoken = _DTtoken;
     }
