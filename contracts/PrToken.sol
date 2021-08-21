@@ -10,7 +10,6 @@ contract PRtoken is ERC20 {
     struct Token {
         uint256 tokenId;
         string tokenKey;
-        bool usable;
     }
 
     uint256 public constant INITIAL_SUPPLY = 0;
@@ -44,20 +43,7 @@ contract PRtoken is ERC20 {
         _mint(_account, value);
     }
 
-    function usePrToken(string memory _tokenKey)
-        external
-        view
-        returns (string memory)
-    {
-        require(tokenExist[_tokenKey], "Does not exist!!");
-        Token memory existToken = tokens[_tokenKey];
-
-        // for (uint256 i = 0; i < lengthOfDtrust; i++) {
-        //     if (deployedDTRUSTs[i] == _dtrust) {
-        //         DTRUST existDTrust = deployedDTRUSTs[i];
-        //         return existDTrust.getSpecificPrToken(_tokenKey);
-        //     }
-        // }
-        return "";
-    }
+    function usePRtoken(string memory _tokenKey) view external returns (bool) {
+        return tokenExist[_tokenKey];
+    } 
 }

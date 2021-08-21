@@ -71,18 +71,20 @@ contract DTRUSTFactory {
     //     emit CreatePrToken(prTokenId, _tokenKey, isSucceed);
     // }
 
-    function usePrToken(DTRUST _dtrust, string memory _tokenKey)
+    function usePrToken(string memory _tokenKey)
         external
         view
         returns (string memory)
     {
-        uint256 lengthOfDtrust = deployedDTRUSTs.length;
-        for (uint256 i = 0; i < lengthOfDtrust; i++) {
-            if (deployedDTRUSTs[i] == _dtrust) {
-                DTRUST existDTrust = deployedDTRUSTs[i];
-                return existDTrust.getSpecificPrToken(_tokenKey);
-            }
-        }
+        require(tokenExist[_tokenKey], "Does not exist!!");
+        Token memory existToken = tokens[_tokenKey];
+        
+        // for (uint256 i = 0; i < lengthOfDtrust; i++) {
+        //     if (deployedDTRUSTs[i] == _dtrust) {
+        //         DTRUST existDTrust = deployedDTRUSTs[i];
+        //         return existDTrust.getSpecificPrToken(_tokenKey);
+        //     }
+        // }
         return "";
     }
 
