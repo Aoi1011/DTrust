@@ -7,6 +7,8 @@ import "./ControlKey.sol";
 contract DTRUSTFactory {
     DTRUST[] public deployedDTRUSTs;
 
+    address public governanceAddress;
+
     mapping(DTRUST => bool) isDeployed;
 
     event CreateDTRUST(DTRUST createdDtrust, string indexed newuri);
@@ -16,6 +18,10 @@ contract DTRUSTFactory {
         string prTokenKey,
         bool isSucceed
     );
+
+    constructor(address _governanceAddress) {
+        governanceAddress = _governanceAddress;
+    }
 
     function createDTRUST(
         string memory _newuri,
@@ -28,7 +34,8 @@ contract DTRUSTFactory {
             payable(msg.sender),
             payable(_settlor),
             _beneficiary,
-            payable(_trustee)
+            payable(_trustee),
+            governanceAddress
         );
         deployedDTRUSTs.push(newDTRUST);
         isDeployed[newDTRUST] = true;

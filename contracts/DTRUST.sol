@@ -147,8 +147,6 @@ contract DTRUST is ERC1155 {
         address payable _settlor,
         address _beneficiary,
         address payable _trustee,
-        // IERC20 _DTtoken,
-        // IERC20 _PRtoken,
         address _governanceAddress
     ) ERC1155(_newURI) {
         require(address(_deployerAddress) != address(0));
@@ -413,8 +411,7 @@ contract DTRUST is ERC1155 {
     // for subsequentYear, hasPromoter parameter should be false
     function paySemiAnnualFee(
         bool hasPromoter,
-        address _target,
-        bytes calldata _data
+        address _target
     ) external {
         require(subscription.isTwoYear);
         require(block.timestamp >= subscription.nextPayment, "not due yet");

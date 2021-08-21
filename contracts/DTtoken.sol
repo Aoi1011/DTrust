@@ -4,14 +4,14 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract DTtoken is ERC20 {
-    string constant name = "DTtoken";
-    string constant symbol = "DT";
+
+    uint256 public constant INITIAL_SUPPLY = 1000;
 
     address public registry;
 
-    constructor(address _registry, uint256 _initialSupply) ERC20(name, symbol) {
+    constructor(address _registry) ERC20("DTtoken", "DT") {
         registry = _registry;
-        _mint(msg.sender, _initialSupply);
+        _mint(msg.sender, INITIAL_SUPPLY);
     }
 
     function mint(address _account, uint256 value) external {
