@@ -153,6 +153,10 @@ contract Governance {
     }
 
     function getProposal(uint _proposalId) external view returns (Proposal memory) {
-        return proposals[proposalId];
+        return proposals[_proposalId];
+    }
+
+    function getProposalsCount() external view returns (uint256) {
+        return proposals.length;
     }
 }
