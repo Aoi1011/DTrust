@@ -45,11 +45,6 @@ contract DTRUST is ERC1155 {
         uint256 lockedUntil;
     }
 
-    struct PrTokenStruct {
-        uint256 id;
-        string tokenKey;
-    }
-
     struct Subscription {
         uint256 start;
         uint256 nextPayment;
@@ -71,7 +66,6 @@ contract DTRUST is ERC1155 {
     string public dTrustUri;
     ERC20TokenAsset[] public erc20TokenAssets;
     ERC721TokenAsset[] public erc721TokenAssets;
-    PrTokenStruct[] public prTokens;
     Subscription private subscription;
 
     // storage//////////////////////////
@@ -450,32 +444,6 @@ contract DTRUST is ERC1155 {
 
         subscription.nextPayment += payAnnualFrequency;
         subscription.isTwoYear = false;
-    }
-
-    function getSpecificPrToken(string memory _prTokenKey)
-        external
-        view
-        returns (string memory)
-    {
-        uint256 prTokenLength = prTokens.length;
-        for (uint256 i = 0; i < prTokenLength; i++) {
-            if (
-                keccak256(abi.encodePacked(prTokens[i].tokenKey)) ==
-                keccak256(abi.encodePacked(_prTokenKey))
-            ) {
-                return getURI(dTrustUri, i);
-            }
-        }
-        return "";
-    }
-
-    function getCountOfPrToken() external view returns (uint256) {
-        return prTokens.length;
-    }
-
-    function getCurrentPrToken() external view returns (uint256) {
-        PrTokenStruct memory currentPrToken = prTokens[prTokens.length - 1];
-        return currentPrToken.id;
     }
 
     function process() internal {
