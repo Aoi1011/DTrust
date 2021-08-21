@@ -52,24 +52,24 @@ contract DTRUSTFactory {
         emit UpdateBasisPoint(basisPoint);
     }
 
-    function createPrToken(
-        DTRUST _dtrust,
-        string memory _tokenKey,
-        address _receiver
-    ) external {
-        uint256 prTokenId = 0;
-        bool isSucceed = false;
+    // function createPrToken(
+    //     DTRUST _dtrust,
+    //     string memory _tokenKey,
+    //     address _receiver
+    // ) external {
+    //     uint256 prTokenId = 0;
+    //     bool isSucceed = false;
 
-        if (isDeployed[_dtrust]) {
-            DTRUST existDTrust = _dtrust;
-            existDTrust.mint(_receiver, 0, 1, "");
-            prTokenId = existDTrust.getCurrentPrToken();
+    //     if (isDeployed[_dtrust]) {
+    //         DTRUST existDTrust = _dtrust;
+    //         existDTrust.mint(_receiver, 0, 1, "");
+    //         prTokenId = existDTrust.getCurrentPrToken();
 
-            isSucceed = true;
-        }
+    //         isSucceed = true;
+    //     }
 
-        emit CreatePrToken(prTokenId, _tokenKey, isSucceed);
-    }
+    //     emit CreatePrToken(prTokenId, _tokenKey, isSucceed);
+    // }
 
     function usePrToken(DTRUST _dtrust, string memory _tokenKey)
         external
