@@ -61,12 +61,8 @@ contract Governance {
         DTtoken = _DTtoken;
     }
 
-    function registerVoter(address _newVoter) external {
-        require(_newVoter != address(0));
-        voters.push(_newVoter);
-    }
-
-    function deposit(uint256 _amount) external onlyVoter {
+    function deposit(uint256 _amount) external {
+        voters.push(msg.sender);
         deposits[msg.sender] += _amount;
         DTtoken.transferFrom(msg.sender, address(this), _amount);
     }
