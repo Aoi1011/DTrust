@@ -33,15 +33,15 @@ contract Governance {
         DTtoken.transfer(msg.sender, _amount);
     }
 
-    function splitAnnualFee(uint256 _amount) external {
+    function splitAnnualFee(uint256 _annualAmount) external {
         uint256 totalOfDTtoken = DTtoken.totalSupply();
         uint256 lengthOfVoter = voters.length;
         for (uint256 i = 0; i < lengthOfVoter; i++) {
-            uint256 fee = _amount * (deposits[voters[i]] * totalOfDTtoken);
+            uint256 fee = _annualAmount * (deposits[voters[i]] * totalOfDTtoken);
             deposits[voters[i]] += fee;
         }
         emit SplitAnnualFee(totalOfDTtoken, lengthOfVoter);
     }
 
-    
+
 }

@@ -18,7 +18,6 @@ contract DTRUST is ERC1155 {
     uint256 private constant PACK_INDEX =
         0x0000000000000000000000000000000000000000000000000000000000007FFF;
     uint256 private constant PrToken = 0;
-    uint256 private constant DToken = 1;
     /////////////////
 
     enum ContractRights {
@@ -56,6 +55,7 @@ contract DTRUST is ERC1155 {
         bool isTwoYear;
     }
 
+    IERC20 public DTtoken;
     SchedulerInterface public scheduler;
 
     uint256 private _AnualFeeTotal = 0;
@@ -64,6 +64,7 @@ contract DTRUST is ERC1155 {
     uint256 public constant payAnnualFrequency = 730 days;
     uint256[] private erc20assetIds;
     uint256[] private erc721assetIds;
+    address public governanceAddress;
     address payable public manager;
     address payable public settlor;
     address payable public trustee;
@@ -143,7 +144,9 @@ contract DTRUST is ERC1155 {
         address payable _deployerAddress,
         address payable _settlor,
         address _beneficiary,
-        address payable _trustee
+        address payable _trustee,
+        IERC20 _DTtoken,
+        address _governanceAddress
     ) ERC1155(_newURI) {
         require(address(_deployerAddress) != address(0));
         require(address(_settlor) != address(0));
@@ -163,6 +166,9 @@ contract DTRUST is ERC1155 {
             block.timestamp + payAnnualFrequency,
             true
         );
+
+        DTtoken = _DTtoken;
+        governanceAddress = _governanceAddress;
 
         scheduleERC20();
         scheduleERC721();
