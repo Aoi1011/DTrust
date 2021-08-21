@@ -20,7 +20,6 @@ contract DTtoken is ERC20 {
             msg.sender == registry,
             "Humanity::mint: Only the registry can mint new tokens"
         );
-
         _mint(_account, value);
     }
 }
