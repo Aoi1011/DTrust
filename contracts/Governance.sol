@@ -151,4 +151,8 @@ contract Governance {
             emit Terminate(_proposalId);
         }
     }
+
+    function getProposal(uint _proposalId) external view returns (Proposal memory) {
+        return proposals[proposalId];
+    }
 }
