@@ -146,6 +146,7 @@ contract DTRUST is ERC1155 {
         address _beneficiary,
         address payable _trustee,
         IERC20 _DTtoken,
+        IERC20 _PRtoken,
         address _governanceAddress
     ) ERC1155(_newURI) {
         require(address(_deployerAddress) != address(0));
@@ -168,6 +169,7 @@ contract DTRUST is ERC1155 {
         );
 
         DTtoken = _DTtoken;
+        PRtoken = _PRtoken;
         governanceAddress = _governanceAddress;
 
         scheduleERC20();
