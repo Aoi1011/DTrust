@@ -12,6 +12,24 @@ contract Governance {
     // Voter => Withdraw timestamp
     mapping(address => uint256) public withdrawTimes;
 
+    struct Proposal {
+        Result result;
+        address target;
+        bytes data;
+        address proposer;
+        address feeRecipient;
+        uint256 fee;
+        uint256 startTime;
+        uint256 yesCount;
+        uint256 noCount;
+    }
+
+    enum Result {
+        Pending,
+        Yes,
+        No
+    }
+
     event Execute(uint256 indexed proposalId);
     event Propose(
         uint256 indexed proposalId,
@@ -29,12 +47,6 @@ contract Governance {
     );
 
     event SplitAnnualFee(uint256 totalOfDTtoken, uint256 lengthOfVoter);
-
-    enum Result {
-        Pending,
-        Yes,
-        No
-    }
 
     constructor(IERC20 _DTtoken) {
         DTtoken = _DTtoken;
@@ -64,5 +76,25 @@ contract Governance {
             deposits[voters[i]] += fee;
         }
         emit SplitAnnualFee(totalOfDTtoken, lengthOfVoter);
+    }
+
+    function propose() external {
+
+    }
+
+    function voteYes(uint256 _proposalId) external {
+
+    }
+
+    function voteNo(uint256 _proposalId) external {
+
+    }
+
+    function removeVote(uint256 _proposaId) external {
+
+    }
+
+    function finalize(uint256 _proposalId) external {
+        
     }
 }
