@@ -15,6 +15,8 @@ contract Governance {
     // voter => deposit
     mapping(address => uint256) public deposits;
 
+    mapping(address => bool) public isVoter;
+
     // Voter => Withdraw timestamp
     mapping(address => uint256) public withdrawTimes;
 
@@ -50,6 +52,14 @@ contract Governance {
 
     event SplitAnnualFee(uint256 totalOfDTtoken, uint256 lengthOfVoter);
 
+    modifier onlyVoter() {
+        require(
+            isVoter[msg.sender],
+            "Error: The caller is not any of the defined managers (settlor and trustee)!"
+        );
+        _;
+    }
+
     constructor(IERC20 _DTtoken) {
         DTtoken = _DTtoken;
     }
@@ -82,7 +92,7 @@ contract Governance {
 
     function propose(bytes memory _data) external returns (uint256) {
         uint256 proposalId = proposals.length;
-        
+
         Proposal memory proposal;
         proposal.data = _data;
         proposal.proposer = msg.sender;
@@ -160,11 +170,18 @@ contract Governance {
     }
 
     function setProposalFee(uint256 fee) public {
-        require(msg.sender == address(this), "Proposal fee can only be set via governance");
+        require(
+            msg.sender == address(this),
+            "Proposal fee can only be set via governance"
+        );
         proposalFee = fee;
     }
-    
-    function getProposal(uint _proposalId) external view returns (Proposal memory) {
+
+    function getProposal(uint256 _proposalId)
+        external
+        view
+        returns (Proposal memory)
+    {
         return proposals[_proposalId];
     }
 
