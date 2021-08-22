@@ -6,24 +6,18 @@ const PRtoken = artifacts.require("PRtoken");
 
 module.exports = async function (deployer, network, accounts) {
 
-    deployer.deploy(DTtoken).then(() => {
-        console.log(DTtoken.address);
-    });
+    const manager = "0x1Bb0ebE711a73347ae2F2A765A06AfAfB14c9A93";
 
-    deployer.deploy(PRtoken).then(() => {
-        console.log(PRtoken.address);
-    })
+    let governanceAddress = "";
+    let governance = {};
 
-    deployer.deploy(Governance).then(() => {
-        console.log(Governance.address);
-    });
-
-    deployer.deploy(DTRUSTFactory).then(() => {
-        console.log(DTRUSTFactory.address);
-    });
-
-    deployer.deploy(ControlKey).then(() => {
-        console.log(ControlKey.address);
-    });
+    deployer.deploy(Governance)
+        .then((result) => {
+            deployer.deploy(DTtoken, result.address);
+            result.registerDTtoken(DTtoken.address)
+            deployer.deploy(DTRUSTFactory, result.address);
+        })
+        .then(() => deployer.deploy(PRtoken, manager))
+        .then(() => deployer.deploy(ControlKey));
 
 };

@@ -60,7 +60,10 @@ contract Governance {
         _;
     }
 
-    constructor(IERC20 _DTtoken) {
+    constructor() {
+    }
+
+    function registerDTtoken(IERC20 _DTtoken) external {
         DTtoken = _DTtoken;
     }
 
