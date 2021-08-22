@@ -30,8 +30,8 @@ contract DTRUSTFactory {
         string memory _newuri,
         address _settlor,
         address _beneficiary,
-        address _trustee, 
-        bool _hasPromoter, 
+        address _trustee,
+        bool _hasPromoter,
         address promoter
     ) external {
         DTRUST newDTRUST = new DTRUST(
@@ -41,8 +41,8 @@ contract DTRUSTFactory {
             _beneficiary,
             payable(_trustee),
             governanceAddress,
-            basisPoint, 
-            _hasPromoter, 
+            basisPoint,
+            _hasPromoter,
             promoter
         );
         deployedDTRUSTs.push(newDTRUST);
@@ -51,12 +51,16 @@ contract DTRUSTFactory {
         emit CreateDTRUST(newDTRUST, _newuri);
     }
 
+    function getAllDeployedDTRUSTs() external view returns (DTRUST[] memory) {
+        return deployedDTRUSTs;
+    }
+
     function updateBasisPoint(uint256 _basepoint) external {
         basisPoint = _basepoint;
         emit UpdateBasisPoint(basisPoint);
     }
-    
-    function getAllDeployedDTRUSTs() external view returns (DTRUST[] memory) {
-        return deployedDTRUSTs;
+
+    function updateQuestion(bytes32 _content) external {
+
     }
 }

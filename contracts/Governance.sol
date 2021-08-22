@@ -24,6 +24,7 @@ contract Governance {
 
     struct Proposal {
         Result result;
+        ProposalType proposalType;
         bytes32 proposalContentOfQuestion;
         uint256 proposalBasisPoint;
         address proposer;
@@ -39,9 +40,14 @@ contract Governance {
         No
     }
 
+    enum ProposalType {
+        BasisPoint,
+        Question
+    }
+
     event Execute(uint256 indexed proposalId);
     event Propose(uint256 indexed proposalId, address indexed proposer);
-    event Terminate(uint256 indexed proposalId);
+    event Terminate(uint256 indexed proposalId, Result result);
     event Vote(
         uint256 indexed proposalId,
         address indexed voter,
@@ -90,6 +96,7 @@ contract Governance {
         uint256 proposalId = proposals.length;
 
         Proposal memory proposal;
+        proposal.proposalType = ProposalType.BasisPoint;
         proposal.proposalBasisPoint = _basisPoint;
         proposal.proposer = msg.sender;
         proposal.fee = proposalFee;
@@ -110,7 +117,8 @@ contract Governance {
         uint256 proposalId = proposals.length;
 
         Proposal memory proposal;
-        proposal.contentOfQuestion = _content;
+        proposal.proposalType = ProposalType.Question;
+        proposal.proposalContentOfQuestion = _content;
         proposal.proposer = msg.sender;
         proposal.fee = proposalFee;
         proposal.startTime = block.timestamp;
@@ -149,7 +157,7 @@ contract Governance {
         emit Vote(_proposalId, msg.sender, false, fee);
     }
 
-    function finalizeDtrustBasisPoint(uint256 _proposalId) external {
+    function finalize(uint256 _proposalId) external {
         Proposal storage proposal = proposals[_proposalId];
         DTRUSTFactory dtrustFactory;
         require(
@@ -161,12 +169,12 @@ contract Governance {
                 block.timestamp > proposal.startTime + votePeriod,
                 "Proposal cannot be executed until end of vote period"
             );
-            if (proposal.contentOfQuestion != bytes32(0)) {
-                
-            } else if (
-                proposal.proposalBasisPoint != 0
-            ) {
+            if (proposal.proposalType == ProposalType.BasisPoint) {
                 dtrustFactory.updateBasisPoint(proposal.proposalBasisPoint);
+            } else if (proposal.proposalType == ProposalType.Question) {
+                dtrustFactory.updateQuestion(
+                    proposal.proposalContentOfQuestion
+                );
             }
             proposal.result = Result.Yes;
 
@@ -178,12 +186,8 @@ contract Governance {
             );
 
             proposal.result = Result.No;
-            // require(
-            //     token.transfer(address(void), proposal.fee),
-            //     "Governance::finalize: Transfer to void failed"
-            // );
 
-            emit Terminate(_proposalId);
+            emit Terminate(_proposalId, proposal.result);
         }
     }
 
