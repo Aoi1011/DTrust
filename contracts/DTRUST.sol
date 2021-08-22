@@ -496,22 +496,22 @@ contract DTRUST is ERC1155 {
         for (uint256 i = 0; i < erc20assetIds.length; i++) {
             erc20TokenAssets[i].lockedUntil =
                 block.timestamp +
-                erc20TokenAssets[i].paymentInterval;
-            erc20TokenAssets[i].currentScheduledTransaction = scheduler
-                .schedule(
-                    address(this),
-                    "",
-                    [
-                        1000000,
-                        0,
-                        255,
-                        erc20TokenAssets[i].lockedUntil,
-                        20000000000 wei,
-                        20000000000 wei,
-                        20000000000 wei,
-                        30000000000 wei
-                    ]
-                );
+                erc20TokenAssets[erc20assetIds[i]].paymentInterval;
+            erc20TokenAssets[erc20assetIds[i]]
+                .currentScheduledTransaction = scheduler.schedule(
+                address(this),
+                "",
+                [
+                    1000000,
+                    0,
+                    255,
+                    erc20TokenAssets[i].lockedUntil,
+                    20000000000 wei,
+                    20000000000 wei,
+                    20000000000 wei,
+                    30000000000 wei
+                ]
+            );
         }
         emit PaymentERC20Scheduled(erc20assetIds, beneficiary);
     }
