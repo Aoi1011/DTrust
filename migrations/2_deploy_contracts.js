@@ -1,12 +1,22 @@
+const Governance = artifacts.require("Governance");
 const DTRUSTFactory = artifacts.require("DTRUSTFactory");
-const DTRUST = artifacts.require("DTRUST");
 const ControlKey = artifacts.require("ControlKey");
+const DTtoken = artifacts.require("DTtoken");
+const PRtoken = artifacts.require("PRtoken");
 
 module.exports = async function (deployer, network, accounts) {
 
-    // deployer.deploy(DTRUST, "DTRUSTAdmin", "DTA", "DTRUSTAdmin", accounts[0], accounts[0], accounts[0], accounts[0]).then(() => {
-    //     console.log(DTRUST.address);
-    // });
+    deployer.deploy(DTtoken).then(() => {
+        console.log(DTtoken.address);
+    });
+
+    deployer.deploy(PRtoken).then(() => {
+        console.log(PRtoken.address);
+    })
+
+    deployer.deploy(Governance).then(() => {
+        console.log(Governance.address);
+    });
 
     deployer.deploy(DTRUSTFactory).then(() => {
         console.log(DTRUSTFactory.address);
@@ -14,6 +24,6 @@ module.exports = async function (deployer, network, accounts) {
 
     deployer.deploy(ControlKey).then(() => {
         console.log(ControlKey.address);
-    })
+    });
 
 };
