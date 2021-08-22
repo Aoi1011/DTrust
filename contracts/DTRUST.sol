@@ -66,17 +66,12 @@ contract DTRUST is ERC1155 {
     address public promoter;
     string public dTrustUri;
     bool public hasPromoter;
-    // ERC20TokenAsset[] public erc20TokenAssets;
-    // ERC721TokenAsset[] public erc721TokenAssets;
     Subscription private subscription;
 
     // storage//////////////////////////
     mapping(uint256 => bool) public existToken;
-    // mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
-    // mapping(uint256 => uint256) public tokenPrices; // id -> tokenPrice
     mapping(uint256 => ERC20TokenAsset) public erc20TokenAssets;
     mapping(uint256 => ERC721TokenAsset) public erc721TokenAssets;
-    // mapping(address => mapping(uint256 => uint256)) private _orderBook; // customer -> id -> amount of asset
     /////////////////////////////////////
 
     // event/////////////////////////////
@@ -220,7 +215,6 @@ contract DTRUST is ERC1155 {
         uint256 _quantity,
         bytes memory _data
     ) external onlyManager {
-        // tokenSupply[_id] += _quantity;
         existToken[_id] = true;
         _mint(_to, _id, _quantity, _data);
     }
@@ -233,7 +227,6 @@ contract DTRUST is ERC1155 {
     ) public onlyManager {
         for (uint256 i = 0; i < _ids.length; i++) {
             existToken[_ids[i]] = true;
-            // tokenSupply[_ids[i]] = _amounts[i];
         }
         _mintBatch(_to, _ids, _amounts, _data);
     }
@@ -270,7 +263,7 @@ contract DTRUST is ERC1155 {
         IMyERC721[] calldata _erc721Tokens,
         bytes calldata _data,
         uint256[] memory _paymentPerFrequency
-    ) external payable onlyManager {
+    ) external onlyManager {
         uint256 lengthOfErc721Tokens = _erc721Tokens.length;
         uint256[] memory amounts = new uint256[](lengthOfErc721Tokens);
         for (uint256 i = 0; i < lengthOfErc721Tokens; i++) {
@@ -316,7 +309,9 @@ contract DTRUST is ERC1155 {
         uint256[] memory erc20TokenIds = new uint256[](lengthOfErc20Assets);
 
         for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
-            ERC20TokenAsset memory currentAsset = erc20TokenAssets[erc20assetIds[i]];
+            ERC20TokenAsset memory currentAsset = erc20TokenAssets[
+                erc20assetIds[i]
+            ];
             if (
                 currentAsset.erc20TokenId == 0 ||
                 block.number >= currentAsset.lockedUntil
@@ -335,6 +330,8 @@ contract DTRUST is ERC1155 {
                 currentAsset.erc20TokenAmount = 0;
 
                 erc20TokenAssets[erc20assetIds[i]] = currentAsset;
+                erc20TokenIds[countOfToken] = erc20assetIds[i];
+
                 countOfToken++;
                 continue;
             }
@@ -353,26 +350,31 @@ contract DTRUST is ERC1155 {
     }
 
     function schedulePaymentERC721Assets() internal {
-        uint256 lengthOfErc721TokenAssets = erc721assetIds.length;
-        uint256[] memory paidAmounts = new uint256[](lengthOfErc721TokenAssets);
-        uint256 CountOfPaidAmounts = 0;
+        uint256 countOfToken = 0;
+        uint256 lengthOfErc721Assets = erc721assetIds.length;
+        uint256[] memory erc721okenIds = new uint256[](lengthOfErc721Assets);
+        uint256[] memory amountsOfPayment = new uint256[](lengthOfErc721Assets);
 
-        for (uint256 i = 0; i < lengthOfErc721TokenAssets; i++) {
+        for (uint256 i = 0; i < lengthOfErc721Assets; i++) {
+            ERC721TokenAsset memory currentAsset = erc721TokenAssets[
+                erc721assetIds[i]
+            ];
             if (
-                erc721TokenAssets[i].erc721TokenId == 0 ||
-                block.number >= erc20TokenAssets[i].lockedUntil
+                currentAsset.erc721TokenId == 0 ||
+                block.number >= currentAsset.lockedUntil
             ) {
                 continue;
             }
 
-            erc721TokenAssets[i].erc721TokenId == 0;
+            currentAsset.erc721TokenId == 0;
 
-            paidAmounts[CountOfPaidAmounts] = 1;
-            CountOfPaidAmounts++;
+            erc721okenIds[countOfToken] = erc721assetIds[i];
+            amountsOfPayment[countOfToken] = 1;
+            countOfToken++;
         }
-        require(CountOfPaidAmounts > 0, "No assets");
-        _burnBatch(msg.sender, erc721assetIds, paidAmounts);
-        emit PayToBeneficiary(erc721assetIds, paidAmounts);
+        require(countOfToken > 0, "No assets");
+        _burnBatch(msg.sender, erc721okenIds, amountsOfPayment);
+        emit PayToBeneficiary(erc721assetIds, amountsOfPayment);
     }
 
     function transferERC20(bool _isDepositFunction) external {
@@ -431,7 +433,9 @@ contract DTRUST is ERC1155 {
         uint256[] memory erc20TokenIds = new uint256[](lengthOfErc20Assets);
 
         for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
-            ERC20TokenAsset memory currentAsset = erc20TokenAssets[erc20assetIds[i]];
+            ERC20TokenAsset memory currentAsset = erc20TokenAssets[
+                erc20assetIds[i]
+            ];
             if (currentAsset.erc20TokenId == 0) {
                 continue;
             }
