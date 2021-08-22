@@ -4,9 +4,10 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./DTRUSTFactory.sol";
+import "./DTtoken.sol";
 
 contract Governance {
-    IERC20 public DTtoken;
+    IERC20 public dttoken;
     address[] public voters;
 
     Proposal[] public proposals;
@@ -64,22 +65,22 @@ contract Governance {
     }
 
     function registerDTtoken(IERC20 _DTtoken) external {
-        DTtoken = _DTtoken;
+        dttoken = _DTtoken;
     }
 
     function deposit(uint256 _amount) external {
         voters.push(msg.sender);
         deposits[msg.sender] += _amount;
-        DTtoken.transferFrom(msg.sender, address(this), _amount);
+        dttoken.transferFrom(msg.sender, address(this), _amount);
     }
 
     function withdraw(uint256 _amount) external onlyVoter {
         deposits[msg.sender] -= deposits[msg.sender];
-        DTtoken.transfer(msg.sender, _amount);
+        dttoken.transfer(msg.sender, _amount);
     }
 
     function splitAnnualFee(uint256 _annualAmount) external {
-        uint256 totalOfDTtoken = DTtoken.totalSupply();
+        uint256 totalOfDTtoken = dttoken.totalSupply();
         uint256 lengthOfVoter = voters.length;
         for (uint256 i = 0; i < lengthOfVoter; i++) {
             uint256 fee = _annualAmount *
