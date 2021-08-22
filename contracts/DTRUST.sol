@@ -370,6 +370,8 @@ contract DTRUST is ERC1155 {
 
             erc721okenIds[countOfToken] = erc721assetIds[i];
             amountsOfPayment[countOfToken] = 1;
+
+            erc721TokenAssets[erc721assetIds[i]] = currentAsset;
             countOfToken++;
         }
         require(countOfToken > 0, "No assets");
