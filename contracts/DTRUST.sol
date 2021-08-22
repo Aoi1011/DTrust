@@ -309,41 +309,106 @@ contract DTRUST is ERC1155 {
         }
     }
 
-    function withdrawERC20Assets() internal {
-        uint256[] memory paidAmounts = new uint256[](erc20assetIds.length);
-        uint256 CountOfPaidAmounts = 0;
-        uint256 lengthOfErc20Assets;
-        for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
-            if (
-                erc20TokenAssets[i].erc20TokenId == 0 ||
-                block.number >= erc20TokenAssets[i].lockedUntil
-            ) {
+    function loopERC20Assets(uint256 fee)
+        internal
+        returns (
+            uint256[] memory,
+            uint256[] memory,
+            uint256
+        )
+    {
+        uint256 lengthOferc20TokenAssets = erc20assetIds.length;
+        uint256[] memory erc20TokenIds = new uint256[](
+            lengthOferc20TokenAssets
+        );
+        uint256[] memory amountsOfPayment = new uint256[](
+            lengthOferc20TokenAssets
+        );
+
+        for (uint256 i = 0; i < lengthOferc20TokenAssets; i++) {
+            uint256 countOfToken = 0;
+            if (erc20TokenAssets[erc20assetIds[i]].erc20TokenId == 0) {
                 continue;
             }
-            uint256 erc20PaymentPerFrequency = erc20TokenAssets[i]
-                .erc20PaymentPerFrequency;
+            uint256 _fee = erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount *
+                (basisPoint / 100);
 
-            erc20TokenAssets[i].erc20TokenAmount -= erc20PaymentPerFrequency;
-            if (erc20TokenAssets[i].erc20TokenAmount <= 0) {
-                erc20TokenAssets[i].erc20TokenId = 0;
+            if (erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount < fee) {
+                erc20TokenIds[countOfToken] = erc20assetIds[i];
+                amountsOfPayment[countOfToken] = erc20TokenAssets[
+                    erc20assetIds[i]
+                ].erc20TokenAmount;
+
+                erc20TokenAssets[erc20assetIds[i]].erc20TokenId = 0;
+                erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount = 0;
+                continue;
             }
 
-            // _orderBook[manager][
-            //     erc20TokenAssets[i].erc20TokenId
-            // ] -= erc20PaymentPerFrequency;
-
-            paidAmounts[CountOfPaidAmounts] = erc20PaymentPerFrequency;
-
-            CountOfPaidAmounts++;
+            amountsOfPayment[countOfToken] = _fee;
+            erc20TokenIds[countOfToken] = erc20assetIds[i];
+            erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount -= _fee;
+            fee += _fee;
+            countOfToken++;
         }
-        require(CountOfPaidAmounts > 0, "No assets");
 
-        _burnBatch(msg.sender, erc20assetIds, paidAmounts);
-
-        emit PayToBeneficiary(erc20assetIds, paidAmounts);
+        return (erc20TokenIds, amountsOfPayment, fee);
     }
 
-    function withdrawERC721Assets() internal {
+    function schedulePaymentERC20Assets() internal {
+        // uint256[] memory paidAmounts = new uint256[](erc20assetIds.length);
+        // uint256 CountOfPaidAmounts = 0;
+        // uint256 lengthOfErc20Assets = erc20assetIds.length;
+        // for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
+        //     if (
+        //         erc20TokenAssets[erc20assetIds[i]].erc20TokenId == 0 ||
+        //         block.number >= erc20TokenAssets[i].lockedUntil
+        //     ) {
+        //         continue;
+        //     }
+
+        //     uint256 erc20PaymentPerFrequency = erc20TokenAssets[i]
+        //         .erc20PaymentPerFrequency;
+
+        //     if (
+        //         erc20PaymentPerFrequency >
+        //         erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount
+        //     ) {
+        //         erc20TokenIds[countOfToken] = erc20assetIds[i];
+        //         tokenAmounts[countOfToken] = erc20TokenAssets[erc20assetIds[i]]
+        //             .erc20TokenAmount;
+
+        //         erc20TokenAssets[erc20assetIds[i]].erc20TokenId = 0;
+        //         erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount = 0;
+        //         continue;
+        //     }
+
+        //     erc20TokenAssets[i].erc20TokenAmount -= erc20PaymentPerFrequency;
+        //     if (erc20TokenAssets[i].erc20TokenAmount <= 0) {
+        //         erc20TokenAssets[i].erc20TokenId = 0;
+        //     }
+
+        //     // _orderBook[manager][
+        //     //     erc20TokenAssets[i].erc20TokenId
+        //     // ] -= erc20PaymentPerFrequency;
+
+        //     paidAmounts[CountOfPaidAmounts] = erc20PaymentPerFrequency;
+
+        //     CountOfPaidAmounts++;
+        // }
+        uint256 fee = 0;
+        (
+            uint256[] memory erc20TokenIds,
+            uint256[] memory amountsOfPayment,
+            uint256 annualFee
+        ) = loopERC20Assets(fee);
+        // require(CountOfPaidAmounts > 0, "No assets");
+
+        _burnBatch(msg.sender, erc20TokenIds, amountsOfPayment);
+
+        emit PayToBeneficiary(erc20assetIds, amountsOfPayment);
+    }
+
+    function schedulePaymentERC721Assets() internal {
         uint256 lengthOfErc721TokenAssets = erc721assetIds.length;
         uint256[] memory paidAmounts = new uint256[](lengthOfErc721TokenAssets);
         uint256 CountOfPaidAmounts = 0;
@@ -417,36 +482,41 @@ contract DTRUST is ERC1155 {
         PRtoken prtoken;
         address target;
 
-        uint256 lengthOferc20TokenAssets = erc20assetIds.length;
-        uint256[] memory tokenAmounts = new uint256[](lengthOferc20TokenAssets);
-        uint256[] memory erc20TokenIds = new uint256[](
-            lengthOferc20TokenAssets
-        );
-        for (uint256 i = 0; i < lengthOferc20TokenAssets; i++) {
-            uint256 countOfToken = 0;
-            if (erc20TokenAssets[erc20assetIds[i]].erc20TokenId == 0) {
-                continue;
-            }
-            uint256 fee = erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount *
-                (basisPoint / 100);
+        // uint256 lengthOferc20TokenAssets = erc20assetIds.length;
+        // uint256[] memory tokenAmounts = new uint256[](lengthOferc20TokenAssets);
+        // uint256[] memory erc20TokenIds = new uint256[](
+        //     lengthOferc20TokenAssets
+        // );
+        // for (uint256 i = 0; i < lengthOferc20TokenAssets; i++) {
+        //     uint256 countOfToken = 0;
+        //     if (erc20TokenAssets[erc20assetIds[i]].erc20TokenId == 0) {
+        //         continue;
+        //     }
+        //     uint256 fee = erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount *
+        //         (basisPoint / 100);
 
-            if (erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount < fee) {
-                erc20TokenIds[countOfToken] = erc20assetIds[i];
-                tokenAmounts[countOfToken] = erc20TokenAssets[erc20assetIds[i]]
-                    .erc20TokenAmount;
+        //     if (erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount < fee) {
+        //         erc20TokenIds[countOfToken] = erc20assetIds[i];
+        //         tokenAmounts[countOfToken] = erc20TokenAssets[erc20assetIds[i]]
+        //             .erc20TokenAmount;
 
-                erc20TokenAssets[erc20assetIds[i]].erc20TokenId = 0;
-                erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount = 0;
-                continue;
-            }
+        //         erc20TokenAssets[erc20assetIds[i]].erc20TokenId = 0;
+        //         erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount = 0;
+        //         continue;
+        //     }
 
-            tokenAmounts[countOfToken] = fee;
-            erc20TokenIds[countOfToken] = erc20assetIds[i];
-            erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount -= fee;
-            semiAnnualFee += fee;
-            countOfToken++;
-        }
-        _AnualFeeTotal += semiAnnualFee;
+        //     tokenAmounts[countOfToken] = fee;
+        //     erc20TokenIds[countOfToken] = erc20assetIds[i];
+        //     erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount -= fee;
+        //     semiAnnualFee += fee;
+        //     countOfToken++;
+        // }
+        (
+            uint256[] memory erc20TokenIds,
+            uint256[] memory amountsOfPayment,
+            uint256 annualFee
+        ) = loopERC20Assets(semiAnnualFee);
+        _AnualFeeTotal += annualFee;
 
         if (hasPromoter) {
             target = promoter;
@@ -455,7 +525,7 @@ contract DTRUST is ERC1155 {
             target = governanceAddress;
             dttoken.mint(governanceAddress, semiAnnualFee);
         }
-        _burnBatch(address(this), erc20TokenIds, tokenAmounts);
+        _burnBatch(address(this), erc20TokenIds, amountsOfPayment);
 
         emit AnnualPaymentSent(
             target,
@@ -470,8 +540,8 @@ contract DTRUST is ERC1155 {
     }
 
     function process() internal {
-        withdrawERC20Assets();
-        withdrawERC721Assets();
+        schedulePaymentERC20Assets();
+        schedulePaymentERC721Assets();
         scheduleERC20();
         scheduleERC721();
     }
