@@ -498,7 +498,9 @@ contract DTRUST is ERC1155 {
                 block.timestamp +
                 erc20TokenAssets[erc20assetIds[i]].paymentInterval;
             erc20TokenAssets[erc20assetIds[i]]
-                .currentScheduledTransaction = scheduler.schedule(
+                .currentScheduledTransaction = scheduler.schedule{
+                value: 0.1 ether
+            }(
                 address(this),
                 "",
                 [
@@ -522,20 +524,20 @@ contract DTRUST is ERC1155 {
                 block.timestamp +
                 erc721TokenAssets[i].paymentInterval;
             erc721TokenAssets[i].currentScheduledTransaction = scheduler
-                .schedule(
-                    address(this),
-                    "",
-                    [
-                        1000000,
-                        0,
-                        255,
-                        erc721TokenAssets[i].lockedUntil,
-                        20000000000 wei,
-                        20000000000 wei,
-                        20000000000 wei,
-                        30000000000 wei
-                    ]
-                );
+                .schedule{value: 0.1 ether}(
+                address(this),
+                "",
+                [
+                    1000000,
+                    0,
+                    255,
+                    erc721TokenAssets[i].lockedUntil,
+                    20000000000 wei,
+                    20000000000 wei,
+                    20000000000 wei,
+                    30000000000 wei
+                ]
+            );
         }
         emit PaymentERC721Scheduled(erc721assetIds, beneficiary);
     }
