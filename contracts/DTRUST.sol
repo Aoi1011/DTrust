@@ -361,7 +361,7 @@ contract DTRUST is ERC1155 {
         uint256[] memory erc20TokenIds = new uint256[](lengthOfErc20Assets);
 
         for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
-            ERC20TokenAsset currentAsset = erc20TokenAssets[erc20assetIds[i]];
+            ERC20TokenAsset memory currentAsset = erc20TokenAssets[erc20assetIds[i]];
             if (
                 currentAsset.erc20TokenId == 0 ||
                 block.number >= currentAsset.lockedUntil
@@ -470,41 +470,38 @@ contract DTRUST is ERC1155 {
         PRtoken prtoken;
         address target;
 
-        // uint256 lengthOferc20TokenAssets = erc20assetIds.length;
-        // uint256[] memory tokenAmounts = new uint256[](lengthOferc20TokenAssets);
-        // uint256[] memory erc20TokenIds = new uint256[](
-        //     lengthOferc20TokenAssets
-        // );
-        // for (uint256 i = 0; i < lengthOferc20TokenAssets; i++) {
-        //     uint256 countOfToken = 0;
-        //     if (erc20TokenAssets[erc20assetIds[i]].erc20TokenId == 0) {
-        //         continue;
-        //     }
-        //     uint256 fee = erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount *
-        //         (basisPoint / 100);
+        uint256 countOfToken = 0;
+        uint256 lengthOfErc20Assets = erc20assetIds.length;
+        uint256[] memory tokenAmounts = new uint256[](lengthOfErc20Assets);
+        uint256[] memory erc20TokenIds = new uint256[](lengthOfErc20Assets);
 
-        //     if (erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount < fee) {
-        //         erc20TokenIds[countOfToken] = erc20assetIds[i];
-        //         tokenAmounts[countOfToken] = erc20TokenAssets[erc20assetIds[i]]
-        //             .erc20TokenAmount;
+        for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
+            ERC20TokenAsset memory currentAsset = erc20TokenAssets[erc20assetIds[i]];
+            if (currentAsset.erc20TokenId == 0) {
+                continue;
+            }
+            uint256 fee = currentAsset.erc20TokenAmount * (basisPoint / 100);
 
-        //         erc20TokenAssets[erc20assetIds[i]].erc20TokenId = 0;
-        //         erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount = 0;
-        //         continue;
-        //     }
+            if (fee > currentAsset.erc20TokenAmount) {
+                erc20TokenIds[countOfToken] = erc20assetIds[i];
+                tokenAmounts[countOfToken] = currentAsset.erc20TokenAmount;
 
-        //     tokenAmounts[countOfToken] = fee;
-        //     erc20TokenIds[countOfToken] = erc20assetIds[i];
-        //     erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount -= fee;
-        //     semiAnnualFee += fee;
-        //     countOfToken++;
-        // }
-        (
-            uint256[] memory erc20TokenIds,
-            uint256[] memory amountsOfPayment,
-            uint256 annualFee
-        ) = loopERC20Assets(semiAnnualFee);
-        _AnualFeeTotal += annualFee;
+                currentAsset.erc20TokenId = 0;
+                currentAsset.erc20TokenAmount = 0;
+
+                erc20TokenAssets[erc20assetIds[i]] = currentAsset;
+                countOfToken++;
+                continue;
+            }
+
+            tokenAmounts[countOfToken] = fee;
+            erc20TokenIds[countOfToken] = erc20assetIds[i];
+
+            currentAsset.erc20TokenAmount -= fee;
+            semiAnnualFee += fee;
+            erc20TokenAssets[erc20assetIds[i]] = currentAsset;
+            countOfToken++;
+        }
 
         if (hasPromoter) {
             target = promoter;
@@ -513,7 +510,7 @@ contract DTRUST is ERC1155 {
             target = governanceAddress;
             dttoken.mint(governanceAddress, semiAnnualFee);
         }
-        _burnBatch(address(this), erc20TokenIds, amountsOfPayment);
+        _burnBatch(address(this), erc20TokenIds, tokenAmounts);
 
         emit AnnualPaymentSent(
             target,
