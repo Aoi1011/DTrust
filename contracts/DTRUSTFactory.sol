@@ -56,6 +56,7 @@ contract DTRUSTFactory {
 
     function updateBasisPoint(uint256 _basepoint) external {
         basisPoint = _basepoint;
+
         emit UpdateBasisPoint(basisPoint);
     }
 
