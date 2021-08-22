@@ -72,7 +72,7 @@ contract DTRUST is ERC1155 {
 
     // storage//////////////////////////
     mapping(uint256 => bool) public existToken;
-    mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
+    // mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
     // mapping(uint256 => uint256) public tokenPrices; // id -> tokenPrice
     mapping(uint256 => ERC20TokenAsset) public erc20TokenAssets;
     mapping(uint256 => ERC721TokenAsset) public erc721TokenAssets;
@@ -110,11 +110,11 @@ contract DTRUST is ERC1155 {
         uint256 date
     );
     event PaymentERC20Scheduled(
-        ERC20TokenAsset[] indexed erc20Assets,
+        uint256[] indexed erc20Assets,
         address recipient
     );
     event PaymentERC721Scheduled(
-        ERC721TokenAsset[] indexed erc721Assets,
+        uint256[] indexed erc721Assets,
         address recipient
     );
     event PaymentExecuted(
@@ -220,7 +220,8 @@ contract DTRUST is ERC1155 {
         uint256 _quantity,
         bytes memory _data
     ) external onlyManager {
-        tokenSupply[_id] += _quantity;
+        // tokenSupply[_id] += _quantity;
+        existToken[_id] = true;
         _mint(_to, _id, _quantity, _data);
     }
 
@@ -232,7 +233,7 @@ contract DTRUST is ERC1155 {
     ) public onlyManager {
         for (uint256 i = 0; i < _ids.length; i++) {
             existToken[_ids[i]] = true;
-            tokenSupply[_ids[i]] = _amounts[i];
+            // tokenSupply[_ids[i]] = _amounts[i];
         }
         _mintBatch(_to, _ids, _amounts, _data);
     }
@@ -258,8 +259,7 @@ contract DTRUST is ERC1155 {
                 _paymentIntervals[i],
                 block.timestamp
             );
-            erc20TokenAssets.push(newerc20);
-            // _orderBook[manager][id] = _amounts[i];
+            erc20TokenAssets[id] = newerc20;
         }
         mintBatch(address(this), erc20assetIds, _amounts, _data);
 
@@ -283,9 +283,8 @@ contract DTRUST is ERC1155 {
                 _paymentPerFrequency[i],
                 block.timestamp
             );
-            erc721TokenAssets.push(newerc721);
+            erc721TokenAssets[_erc1155TokenId] = newerc721;
             amounts[i] = 1;
-            // _orderBook[manager][_erc1155TokenId] = 1;
         }
 
         mintBatch(address(this), erc721assetIds, amounts, _data);
@@ -300,14 +299,18 @@ contract DTRUST is ERC1155 {
         returns (uint256)
     {
         if (isERC20Asset) {
-            return erc20TokenAssets[_tokenid];
+            return erc20TokenAssets[_tokenid].erc20TokenAmount;
         } else {
-            return erc721TokenAssets[_tokenid];
+            if (erc721TokenAssets[_tokenid].erc721TokenId != 0) {
+                return 1;
+            } else {
+                return 0;
+            }
         }
     }
 
     function withdrawERC20Assets() internal {
-        uint256[] memory paidAmounts = new uint256[](erc20TokenAssets.length);
+        uint256[] memory paidAmounts = new uint256[](erc20assetIds.length);
         uint256 CountOfPaidAmounts = 0;
         uint256 lengthOfErc20Assets;
         for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
@@ -341,7 +344,7 @@ contract DTRUST is ERC1155 {
     }
 
     function withdrawERC721Assets() internal {
-        uint256 lengthOfErc721TokenAssets = erc721TokenAssets.length;
+        uint256 lengthOfErc721TokenAssets = erc721assetIds.length;
         uint256[] memory paidAmounts = new uint256[](lengthOfErc721TokenAssets);
         uint256 CountOfPaidAmounts = 0;
 
@@ -414,20 +417,34 @@ contract DTRUST is ERC1155 {
         PRtoken prtoken;
         address target;
 
-        uint256 lengthOferc20TokenAssets = erc20TokenAssets.length;
+        uint256 lengthOferc20TokenAssets = erc20assetIds.length;
         uint256[] memory tokenAmounts = new uint256[](lengthOferc20TokenAssets);
         uint256[] memory erc20TokenIds = new uint256[](
             lengthOferc20TokenAssets
         );
         for (uint256 i = 0; i < lengthOferc20TokenAssets; i++) {
-            uint256 fee = //     erc20TokenAssets[i].erc20TokenId // uint256 fee = _orderBook[_target][
-                // ] * (basisPoint / 100);
-                tokenAmounts[i] = fee;
-            erc20TokenIds[i] = erc20TokenAssets[i].erc20TokenId;
-            _orderBook[_target][erc20TokenAssets[i].erc20TokenId] -= fee;
-            erc20TokenAssets[i].erc20TokenAmount -= fee;
-            tokenSupply[erc20TokenAssets[i].erc20TokenId] -= fee;
+            uint256 countOfToken = 0;
+            if (erc20TokenAssets[erc20assetIds[i]].erc20TokenId == 0) {
+                continue;
+            }
+            uint256 fee = erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount *
+                (basisPoint / 100);
+
+            if (erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount < fee) {
+                erc20TokenIds[countOfToken] = erc20assetIds[i];
+                tokenAmounts[countOfToken] = erc20TokenAssets[erc20assetIds[i]]
+                    .erc20TokenAmount;
+
+                erc20TokenAssets[erc20assetIds[i]].erc20TokenId = 0;
+                erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount = 0;
+                continue;
+            }
+
+            tokenAmounts[countOfToken] = fee;
+            erc20TokenIds[countOfToken] = erc20assetIds[i];
+            erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount -= fee;
             semiAnnualFee += fee;
+            countOfToken++;
         }
         _AnualFeeTotal += semiAnnualFee;
 
@@ -460,7 +477,7 @@ contract DTRUST is ERC1155 {
     }
 
     function scheduleERC20() internal {
-        for (uint256 i = 0; i < erc20TokenAssets.length; i++) {
+        for (uint256 i = 0; i < erc20assetIds.length; i++) {
             erc20TokenAssets[i].lockedUntil =
                 block.timestamp +
                 erc20TokenAssets[i].paymentInterval;
@@ -480,11 +497,11 @@ contract DTRUST is ERC1155 {
                     ]
                 );
         }
-        emit PaymentERC20Scheduled(erc20TokenAssets, beneficiary);
+        emit PaymentERC20Scheduled(erc20assetIds, beneficiary);
     }
 
     function scheduleERC721() internal {
-        for (uint256 i = 0; i < erc721TokenAssets.length; i++) {
+        for (uint256 i = 0; i < erc721assetIds.length; i++) {
             erc721TokenAssets[i].lockedUntil =
                 block.timestamp +
                 erc721TokenAssets[i].paymentInterval;
@@ -504,7 +521,7 @@ contract DTRUST is ERC1155 {
                     ]
                 );
         }
-        emit PaymentERC721Scheduled(erc721TokenAssets, beneficiary);
+        emit PaymentERC721Scheduled(erc721assetIds, beneficiary);
     }
 
     function _tokenHash(IMyERC721 erc721token)
