@@ -9,9 +9,9 @@ contract DTtoken is ERC20 {
 
     address public registry;
 
-    constructor(address _registry) ERC20("DTtoken", "DT") {
+    constructor(address _manager, address _registry) ERC20("DTtoken", "DT") {
         registry = _registry;
-        _mint(msg.sender, INITIAL_SUPPLY);
+        _mint(_manager, INITIAL_SUPPLY);
     }
 
     function mint(address _account, uint256 value) external {

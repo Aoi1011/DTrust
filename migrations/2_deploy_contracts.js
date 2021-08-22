@@ -8,12 +8,9 @@ module.exports = async function (deployer, network, accounts) {
 
     const manager = "0x1Bb0ebE711a73347ae2F2A765A06AfAfB14c9A93";
 
-    let governanceAddress = "";
-    let governance = {};
-
     deployer.deploy(Governance)
         .then((result) => {
-            deployer.deploy(DTtoken, result.address);
+            deployer.deploy(DTtoken, manager, result.address);
             result.registerDTtoken(DTtoken.address)
             deployer.deploy(DTRUSTFactory, result.address);
         })
