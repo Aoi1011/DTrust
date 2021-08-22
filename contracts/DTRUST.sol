@@ -309,51 +309,6 @@ contract DTRUST is ERC1155 {
         }
     }
 
-    // function loopERC20Assets(uint256 totalAnnualfee)
-    //     internal
-    //     returns (
-    //         uint256[] memory,
-    //         uint256[] memory,
-    //         uint256
-    //     )
-    // {
-    //     uint256 lengthOferc20TokenAssets = erc20assetIds.length;
-    //     uint256[] memory erc20TokenIds = new uint256[](
-    //         lengthOferc20TokenAssets
-    //     );
-    //     uint256[] memory amountsOfPayment = new uint256[](
-    //         lengthOferc20TokenAssets
-    //     );
-
-    //     for (uint256 i = 0; i < lengthOferc20TokenAssets; i++) {
-    //         uint256 countOfToken = 0;
-    //         if (erc20TokenAssets[erc20assetIds[i]].erc20TokenId == 0) {
-    //             continue;
-    //         }
-    //         uint256 _fee = erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount *
-    //             (basisPoint / 100);
-
-    //         if (erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount < _fee) {
-    //             erc20TokenIds[countOfToken] = erc20assetIds[i];
-    //             amountsOfPayment[countOfToken] = erc20TokenAssets[
-    //                 erc20assetIds[i]
-    //             ].erc20TokenAmount;
-
-    //             erc20TokenAssets[erc20assetIds[i]].erc20TokenId = 0;
-    //             erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount = 0;
-    //             continue;
-    //         }
-
-    //         amountsOfPayment[countOfToken] = _fee;
-    //         erc20TokenIds[countOfToken] = erc20assetIds[i];
-    //         erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount -= _fee;
-    //         totalAnnualfee += _fee;
-    //         countOfToken++;
-    //     }
-
-    //     return (erc20TokenIds, amountsOfPayment, totalAnnualfee);
-    // }
-
     function schedulePaymentERC20Assets() internal {
         uint256 countOfToken = 0;
         uint256 lengthOfErc20Assets = erc20assetIds.length;
