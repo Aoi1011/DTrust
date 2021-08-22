@@ -53,7 +53,6 @@ contract Governance {
         bool approve,
         uint256 weight
     );
-
     event SplitAnnualFee(uint256 totalOfDTtoken, uint256 lengthOfVoter);
 
     modifier onlyVoter() {
