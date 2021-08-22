@@ -309,7 +309,7 @@ contract DTRUST is ERC1155 {
         }
     }
 
-    function loopERC20Assets(uint256 fee)
+    function loopERC20Assets(uint256 totalAnnualfee)
         internal
         returns (
             uint256[] memory,
@@ -333,7 +333,7 @@ contract DTRUST is ERC1155 {
             uint256 _fee = erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount *
                 (basisPoint / 100);
 
-            if (erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount < fee) {
+            if (erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount < _fee) {
                 erc20TokenIds[countOfToken] = erc20assetIds[i];
                 amountsOfPayment[countOfToken] = erc20TokenAssets[
                     erc20assetIds[i]
@@ -347,11 +347,11 @@ contract DTRUST is ERC1155 {
             amountsOfPayment[countOfToken] = _fee;
             erc20TokenIds[countOfToken] = erc20assetIds[i];
             erc20TokenAssets[erc20assetIds[i]].erc20TokenAmount -= _fee;
-            fee += _fee;
+            totalAnnualfee += _fee;
             countOfToken++;
         }
 
-        return (erc20TokenIds, amountsOfPayment, fee);
+        return (erc20TokenIds, amountsOfPayment, totalAnnualfee);
     }
 
     function schedulePaymentERC20Assets() internal {
