@@ -8,7 +8,6 @@ import "./DTRUSTFactory.sol";
 contract Governance {
     IERC20 public DTtoken;
     address[] public voters;
-    uint256 public proposalFee;
 
     Proposal[] public proposals;
 
@@ -28,7 +27,6 @@ contract Governance {
         bytes32 proposalContentOfQuestion;
         uint256 proposalBasisPoint;
         address proposer;
-        uint256 fee;
         uint256 startTime;
         uint256 yesCount;
         uint256 noCount;
@@ -99,7 +97,6 @@ contract Governance {
         proposal.proposalType = ProposalType.BasisPoint;
         proposal.proposalBasisPoint = _basisPoint;
         proposal.proposer = msg.sender;
-        proposal.fee = proposalFee;
         proposal.startTime = block.timestamp;
 
         proposals.push(proposal);
@@ -120,7 +117,6 @@ contract Governance {
         proposal.proposalType = ProposalType.Question;
         proposal.proposalContentOfQuestion = _content;
         proposal.proposer = msg.sender;
-        proposal.fee = proposalFee;
         proposal.startTime = block.timestamp;
 
         proposals.push(proposal);
@@ -189,14 +185,6 @@ contract Governance {
 
             emit Terminate(_proposalId, proposal.result);
         }
-    }
-
-    function setProposalFee(uint256 fee) public {
-        require(
-            msg.sender == address(this),
-            "Proposal fee can only be set via governance"
-        );
-        proposalFee = fee;
     }
 
     function getProposal(uint256 _proposalId)

@@ -66,15 +66,17 @@ contract DTRUST is ERC1155 {
     address public promoter;
     string public dTrustUri;
     bool public hasPromoter;
-    ERC20TokenAsset[] public erc20TokenAssets;
-    ERC721TokenAsset[] public erc721TokenAssets;
+    // ERC20TokenAsset[] public erc20TokenAssets;
+    // ERC721TokenAsset[] public erc721TokenAssets;
     Subscription private subscription;
 
     // storage//////////////////////////
     mapping(uint256 => bool) public existToken;
     mapping(uint256 => uint256) public tokenSupply; // id -> tokensupply
-    mapping(uint256 => uint256) public tokenPrices; // id -> tokenPrice
-    mapping(address => mapping(uint256 => uint256)) private _orderBook; // customer -> id -> amount of asset
+    // mapping(uint256 => uint256) public tokenPrices; // id -> tokenPrice
+    mapping(uint256 => ERC20TokenAsset) public erc20TokenAssets;
+    mapping(uint256 => ERC721TokenAsset) public erc721TokenAssets;
+    // mapping(address => mapping(uint256 => uint256)) private _orderBook; // customer -> id -> amount of asset
     /////////////////////////////////////
 
     // event/////////////////////////////
@@ -139,9 +141,9 @@ contract DTRUST is ERC1155 {
         address payable _settlor,
         address _beneficiary,
         address payable _trustee,
-        address _governanceAddress, 
-        uint256 _basisPoint, 
-        bool _hasPromoter, 
+        address _governanceAddress,
+        uint256 _basisPoint,
+        bool _hasPromoter,
         address _promoter
     ) ERC1155(_newURI) {
         require(address(_deployerAddress) != address(0));
@@ -257,7 +259,7 @@ contract DTRUST is ERC1155 {
                 block.timestamp
             );
             erc20TokenAssets.push(newerc20);
-            _orderBook[manager][id] = _amounts[i];
+            // _orderBook[manager][id] = _amounts[i];
         }
         mintBatch(address(this), erc20assetIds, _amounts, _data);
 
@@ -283,7 +285,7 @@ contract DTRUST is ERC1155 {
             );
             erc721TokenAssets.push(newerc721);
             amounts[i] = 1;
-            _orderBook[manager][_erc1155TokenId] = 1;
+            // _orderBook[manager][_erc1155TokenId] = 1;
         }
 
         mintBatch(address(this), erc721assetIds, amounts, _data);
@@ -291,13 +293,17 @@ contract DTRUST is ERC1155 {
         emit OrderBatch(manager, erc721assetIds, amounts);
     }
 
-    function getTargetDeposit(uint256 _id)
+    function getTargetDeposit(bool isERC20Asset, uint256 _tokenid)
         external
         view
         onlyManager
         returns (uint256)
     {
-        return _orderBook[manager][_id];
+        if (isERC20Asset) {
+            return erc20TokenAssets[_tokenid];
+        } else {
+            return erc721TokenAssets[_tokenid];
+        }
     }
 
     function withdrawERC20Assets() internal {
@@ -311,19 +317,19 @@ contract DTRUST is ERC1155 {
             ) {
                 continue;
             }
-
-            erc20TokenAssets[i].erc20TokenAmount -= erc20TokenAssets[i]
+            uint256 erc20PaymentPerFrequency = erc20TokenAssets[i]
                 .erc20PaymentPerFrequency;
+
+            erc20TokenAssets[i].erc20TokenAmount -= erc20PaymentPerFrequency;
             if (erc20TokenAssets[i].erc20TokenAmount <= 0) {
                 erc20TokenAssets[i].erc20TokenId = 0;
             }
 
-            _orderBook[manager][
-                erc20TokenAssets[i].erc20TokenId
-            ] -= erc20TokenAssets[i].erc20PaymentPerFrequency;
+            // _orderBook[manager][
+            //     erc20TokenAssets[i].erc20TokenId
+            // ] -= erc20PaymentPerFrequency;
 
-            paidAmounts[CountOfPaidAmounts] = erc20TokenAssets[i]
-                .erc20PaymentPerFrequency;
+            paidAmounts[CountOfPaidAmounts] = erc20PaymentPerFrequency;
 
             CountOfPaidAmounts++;
         }
@@ -349,7 +355,7 @@ contract DTRUST is ERC1155 {
 
             erc721TokenAssets[i].erc721TokenId == 0;
 
-            _orderBook[msg.sender][erc721TokenAssets[i].erc721TokenId] = 0;
+            // _orderBook[msg.sender][erc721TokenAssets[i].erc721TokenId] = 0;
             paidAmounts[CountOfPaidAmounts] = 1;
             CountOfPaidAmounts++;
         }
@@ -400,42 +406,42 @@ contract DTRUST is ERC1155 {
         }
     }
 
-    // for subsequentYear, hasPromoter parameter should be false
-    function paySemiAnnualFee(
-        address _target
-    ) external {
+    function paySemiAnnualFee() external {
         require(subscription.isTwoYear);
         require(block.timestamp >= subscription.nextPayment, "not due yet");
         uint256 semiAnnualFee = 0;
         DTtoken dttoken;
         PRtoken prtoken;
-        
+        address target;
+
         uint256 lengthOferc20TokenAssets = erc20TokenAssets.length;
         uint256[] memory tokenAmounts = new uint256[](lengthOferc20TokenAssets);
         uint256[] memory erc20TokenIds = new uint256[](
             lengthOferc20TokenAssets
         );
         for (uint256 i = 0; i < lengthOferc20TokenAssets; i++) {
-            uint256 fee = _orderBook[_target][
-                erc20TokenAssets[i].erc20TokenId
-            ] * (basisPoint / 100);
-            tokenAmounts[i] = fee;
+            uint256 fee = //     erc20TokenAssets[i].erc20TokenId // uint256 fee = _orderBook[_target][
+                // ] * (basisPoint / 100);
+                tokenAmounts[i] = fee;
             erc20TokenIds[i] = erc20TokenAssets[i].erc20TokenId;
             _orderBook[_target][erc20TokenAssets[i].erc20TokenId] -= fee;
             erc20TokenAssets[i].erc20TokenAmount -= fee;
             tokenSupply[erc20TokenAssets[i].erc20TokenId] -= fee;
             semiAnnualFee += fee;
         }
+        _AnualFeeTotal += semiAnnualFee;
+
         if (hasPromoter) {
+            target = promoter;
             prtoken.mint(promoter, semiAnnualFee, "");
         } else {
+            target = governanceAddress;
             dttoken.mint(governanceAddress, semiAnnualFee);
         }
         _burnBatch(address(this), erc20TokenIds, tokenAmounts);
-        _AnualFeeTotal += semiAnnualFee;
 
         emit AnnualPaymentSent(
-            _target,
+            target,
             erc20TokenIds,
             semiAnnualFee,
             _AnualFeeTotal,
