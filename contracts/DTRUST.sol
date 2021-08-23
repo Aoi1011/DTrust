@@ -75,20 +75,10 @@ contract DTRUST is ERC1155 {
     /////////////////////////////////////
 
     // event/////////////////////////////
-    event Order(
-        address indexed _target,
-        uint256 indexed _id,
-        uint256 indexed _amount
-    );
     event OrderBatch(
         address indexed _target,
         uint256[] indexed _ids,
         uint256[] indexed _amounts
-    );
-    event Approval(
-        address indexed owner,
-        address indexed spender,
-        uint256 value
     );
     event Transfer(address indexed from, address indexed to, uint256 value);
     event TransferBatch(
@@ -398,6 +388,7 @@ contract DTRUST is ERC1155 {
                     currentAsset.erc20TokenAmount = _amounts[i];
                 }
             }
+            emit TransferBatch(manager, address(this), _amounts);
         } else {
             // withdraw function
             for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
@@ -412,6 +403,7 @@ contract DTRUST is ERC1155 {
                     currentAsset.erc20TokenAmount = _amounts[i];
                 }
             }
+            emit TransferBatch(address(this), beneficiary, _amounts);
         }
     }
 
