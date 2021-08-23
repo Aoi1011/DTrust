@@ -364,7 +364,7 @@ contract DTRUST is ERC1155 {
         }
         require(countOfToken > 0, "No assets");
         _burnBatch(msg.sender, erc721tokenIds, amountsOfPayment);
-
+        transferERC721(false, erc721tokenIds, amountsOfPayment);
         emit PayToBeneficiary(erc721tokenIds, amountsOfPayment);
     }
 
