@@ -67,13 +67,16 @@ contract Governance {
     }
 
     function deposit(uint256 _amount) external {
+        require(_amount > 0);
         voters.push(msg.sender);
         deposits[msg.sender] += _amount;
         dttoken.transferFrom(msg.sender, address(this), _amount);
     }
 
     function withdraw(uint256 _amount) external onlyVoter {
-        deposits[msg.sender] -= deposits[msg.sender];
+        uint256 _deposit = deposits[msg.sender];
+        require(_deposit > _amount, "Cannot withdraw!");
+        deposits[msg.sender] -= _amount;
         dttoken.transfer(msg.sender, _amount);
     }
 

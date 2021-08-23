@@ -350,11 +350,11 @@ contract DTRUST is ERC1155 {
     function schedulePaymentERC721Assets() internal {
         uint256 countOfToken = 0;
         uint256 lengthOfErc721Assets = erc721assetIds.length;
-        uint256[] memory erc721okenIds = new uint256[](lengthOfErc721Assets);
+        uint256[] memory erc721tokenIds = new uint256[](lengthOfErc721Assets);
         uint256[] memory amountsOfPayment = new uint256[](lengthOfErc721Assets);
 
         for (uint256 i = 0; i < lengthOfErc721Assets; i++) {
-            ERC721TokenAsset memory currentAsset = erc721TokenAssets[
+            ERC721TokenAsset storage currentAsset = erc721TokenAssets[
                 erc721assetIds[i]
             ];
             if (
@@ -366,15 +366,14 @@ contract DTRUST is ERC1155 {
 
             currentAsset.erc721TokenId == 0;
 
-            erc721okenIds[countOfToken] = erc721assetIds[i];
+            erc721tokenIds[countOfToken] = erc721assetIds[i];
             amountsOfPayment[countOfToken] = 1;
 
-            erc721TokenAssets[erc721assetIds[i]] = currentAsset;
             countOfToken++;
         }
         require(countOfToken > 0, "No assets");
-        _burnBatch(msg.sender, erc721okenIds, amountsOfPayment);
-        emit PayToBeneficiary(erc721assetIds, amountsOfPayment);
+        _burnBatch(msg.sender, erc721tokenIds, amountsOfPayment);
+        emit PayToBeneficiary(erc721tokenIds, amountsOfPayment);
     }
 
     function transferERC20(bool _isDepositFunction) external {
