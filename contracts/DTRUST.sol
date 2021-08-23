@@ -272,7 +272,7 @@ contract DTRUST is ERC1155 {
         }
 
         mintBatch(address(this), erc721assetIds, amounts, _data);
-        transferERC721(true);
+        transferERC721(true, erc721assetIds, amounts);
         emit OrderBatch(manager, erc721assetIds, amounts);
     }
 
@@ -407,8 +407,12 @@ contract DTRUST is ERC1155 {
         }
     }
 
-    function transferERC721(bool _isDepositFunction) internal {
-        uint256 lengthOfErc721Assets;
+    function transferERC721(
+        bool _isDepositFunction,
+        uint256[] memory _erc721assetIds,
+        uint256[] memory _amounts
+    ) internal {
+        uint256 lengthOfErc721Assets = _erc721assetIds.length;
         address from;
         address to;
         if (_isDepositFunction) {
@@ -420,11 +424,11 @@ contract DTRUST is ERC1155 {
             to = beneficiary;
         }
         for (uint256 i = 0; i < lengthOfErc721Assets; i++) {
-            erc721TokenAssets[i].erc721.transferFrom(
-                from,
-                to,
-                erc721TokenAssets[i].erc721TokenId
-            );
+            ERC721TokenAsset storage currentAsset = erc721TokenAssets[
+                _erc721assetIds[i]
+            ];
+            currentAsset.erc721.transferFrom(from, to, _amounts[i]);
+            
         }
     }
 
