@@ -124,7 +124,8 @@ contract DTRUST is ERC1155 {
         require(
             msg.sender == manager ||
                 msg.sender == settlor ||
-                msg.sender == trustee,
+                msg.sender == trustee ||
+                msg.sender == address(this),
             "Error: The caller is not any of the defined managers (settlor and trustee)!"
         );
         _;
@@ -281,7 +282,7 @@ contract DTRUST is ERC1155 {
         }
 
         mintBatch(address(this), erc721assetIds, amounts, _data);
-
+        transferERC721(true);
         emit OrderBatch(manager, erc721assetIds, amounts);
     }
 
@@ -402,7 +403,7 @@ contract DTRUST is ERC1155 {
         }
     }
 
-    function transferERC721(bool _isDepositFunction) external {
+    function transferERC721(bool _isDepositFunction) internal {
         uint256 lengthOfErc721Assets;
         address from;
         address to;
