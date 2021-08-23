@@ -381,16 +381,22 @@ contract DTRUST is ERC1155 {
     function transferERC20(
         bool _isDepositFunction,
         uint256[] memory _erc20TokenIds,
-        uint256[] memory amountsOfPayment
+        uint256[] memory _amounts
     ) internal {
         uint256 lengthOfErc20Assets = _erc20TokenIds.length;
         if (_isDepositFunction) {
             for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
-                erc20TokenAssets[i].erc20.transferFrom(
+                ERC20TokenAsset storage currentAsset = erc20TokenAssets[
+                    _erc20TokenIds[i]
+                ];
+                bool success = currentAsset.erc20.transferFrom(
                     manager,
                     address(this),
-                    erc20TokenAssets[i].erc20TokenAmount
+                    _amounts[i]
                 );
+                if (!success) {
+                    currentAsset.erc20TokenAmount = _amounts[i];
+                }
             }
         } else {
             // withdraw function
@@ -400,10 +406,10 @@ contract DTRUST is ERC1155 {
                 ];
                 bool success = currentAsset.erc20.transfer(
                     beneficiary,
-                    amountsOfPayment[i]
+                    _amounts[i]
                 );
                 if (!success) {
-                    continue;
+                    currentAsset.erc20TokenAmount = _amounts[i];
                 }
             }
         }
