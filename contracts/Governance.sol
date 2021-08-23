@@ -19,6 +19,8 @@ contract Governance {
 
     mapping(address => bool) public isVoter;
 
+    mapping(address => uint256) public voted;
+
     // Voter => Withdraw timestamp
     mapping(address => uint256) public withdrawTimes;
 
@@ -165,9 +167,10 @@ contract Governance {
                 block.timestamp > proposal.startTime + votePeriod,
                 "Proposal cannot be executed until end of vote period"
             );
-            if (proposal.proposalType == ProposalType.BasisPoint) {
+            ProposalType _type = proposal.proposalType;
+            if (_type == ProposalType.BasisPoint) {
                 dtrustFactory.updateBasisPoint(proposal.proposalBasisPoint);
-            } else if (proposal.proposalType == ProposalType.Question) {
+            } else if (_type == ProposalType.Question) {
                 dtrustFactory.updateQuestion(
                     proposal.proposalContentOfQuestion
                 );
