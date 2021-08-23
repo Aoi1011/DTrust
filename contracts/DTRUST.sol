@@ -255,7 +255,7 @@ contract DTRUST is ERC1155 {
             erc20TokenAssets[id] = newerc20;
         }
         mintBatch(address(this), erc20assetIds, _amounts, _data);
-
+        transferERC20(true, erc20assetIds, _amounts);
         emit OrderBatch(manager, erc20assetIds, _amounts);
     }
 
@@ -397,10 +397,7 @@ contract DTRUST is ERC1155 {
                 ERC20TokenAsset storage currentAsset = erc20TokenAssets[
                     _erc20TokenIds[i]
                 ];
-                currentAsset.erc20.transfer(
-                    beneficiary,
-                    amountsOfPayment[i]
-                );
+                currentAsset.erc20.transfer(beneficiary, amountsOfPayment[i]);
             }
         }
     }
