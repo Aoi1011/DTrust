@@ -398,7 +398,13 @@ contract DTRUST is ERC1155 {
                 ERC20TokenAsset storage currentAsset = erc20TokenAssets[
                     _erc20TokenIds[i]
                 ];
-                currentAsset.erc20.transfer(beneficiary, amountsOfPayment[i]);
+                bool success = currentAsset.erc20.transfer(
+                    beneficiary,
+                    amountsOfPayment[i]
+                );
+                if (!success) {
+                    continue;
+                }
             }
         }
     }
