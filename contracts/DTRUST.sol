@@ -80,8 +80,8 @@ contract DTRUST is ERC1155 {
         uint256[] indexed _ids,
         uint256[] indexed _amounts
     );
-    event Transfer(address indexed from, address indexed to, uint256 value);
     event TransferBatch(
+        bool indexed isERC20,
         address indexed from,
         address indexed to,
         uint256[] value
@@ -388,7 +388,7 @@ contract DTRUST is ERC1155 {
                     currentAsset.erc20TokenAmount = _amounts[i];
                 }
             }
-            emit TransferBatch(manager, address(this), _amounts);
+            emit TransferBatch(true, manager, address(this), _amounts);
         } else {
             // withdraw function
             for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
@@ -403,7 +403,7 @@ contract DTRUST is ERC1155 {
                     currentAsset.erc20TokenAmount = _amounts[i];
                 }
             }
-            emit TransferBatch(address(this), beneficiary, _amounts);
+            emit TransferBatch(true, address(this), beneficiary, _amounts);
         }
     }
 
@@ -429,6 +429,7 @@ contract DTRUST is ERC1155 {
             ];
             currentAsset.erc721.transferFrom(from, to, _amounts[i]);
         }
+        emit TransferBatch(false, from, to, _amounts);
     }
 
     function paySemiAnnualFee() external {
