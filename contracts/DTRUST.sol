@@ -305,8 +305,8 @@ contract DTRUST is ERC1155 {
     function schedulePaymentERC20Assets() internal {
         uint256 countOfToken = 0;
         uint256 lengthOfErc20Assets = erc20assetIds.length;
-        uint256[] memory amountsOfPayment = new uint256[](lengthOfErc20Assets);
         uint256[] memory erc20TokenIds = new uint256[](lengthOfErc20Assets);
+        uint256[] memory amountsOfPayment = new uint256[](lengthOfErc20Assets);
 
         for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
             ERC20TokenAsset storage currentAsset = erc20TokenAssets[
@@ -343,7 +343,7 @@ contract DTRUST is ERC1155 {
         require(countOfToken > 0, "No assets");
 
         _burnBatch(msg.sender, erc20TokenIds, amountsOfPayment);
-
+        transferERC20(false, erc20TokenIds, amountsOfPayment);
         emit PayToBeneficiary(erc20TokenIds, amountsOfPayment);
     }
 
@@ -373,11 +373,16 @@ contract DTRUST is ERC1155 {
         }
         require(countOfToken > 0, "No assets");
         _burnBatch(msg.sender, erc721tokenIds, amountsOfPayment);
+
         emit PayToBeneficiary(erc721tokenIds, amountsOfPayment);
     }
 
-    function transferERC20(bool _isDepositFunction) external {
-        uint256 lengthOfErc20Assets;
+    function transferERC20(
+        bool _isDepositFunction,
+        uint256[] memory _erc20TokenIds,
+        uint256[] memory amountsOfPayment
+    ) internal {
+        uint256 lengthOfErc20Assets = _erc20TokenIds.length;
         if (_isDepositFunction) {
             for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
                 erc20TokenAssets[i].erc20.transferFrom(
@@ -389,9 +394,12 @@ contract DTRUST is ERC1155 {
         } else {
             // withdraw function
             for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
-                erc20TokenAssets[i].erc20.transfer(
+                ERC20TokenAsset storage currentAsset = erc20TokenAssets[
+                    _erc20TokenIds[i]
+                ];
+                currentAsset.erc20.transfer(
                     beneficiary,
-                    erc20TokenAssets[i].erc20PaymentPerFrequency
+                    amountsOfPayment[i]
                 );
             }
         }
