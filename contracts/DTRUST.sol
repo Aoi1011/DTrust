@@ -238,8 +238,8 @@ contract DTRUST is ERC1155 {
         uint256[] memory _paymentIntervals,
         bytes calldata _data
     ) external onlyManager {
-        uint256 lengthOfErc20Tokens = _erc20Tokens.length;
-        for (uint256 i = 0; i < lengthOfErc20Tokens; i++) {
+        uint256 _lengthOfErc20Token = _erc20Tokens.length;
+        for (uint256 i = 0; i < _lengthOfErc20Token; i++) {
             uint256 id = uint256(uint160(address(_erc20Tokens[i])));
             erc20assetIds.push(id);
 
@@ -309,7 +309,7 @@ contract DTRUST is ERC1155 {
         uint256[] memory erc20TokenIds = new uint256[](lengthOfErc20Assets);
 
         for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
-            ERC20TokenAsset memory currentAsset = erc20TokenAssets[
+            ERC20TokenAsset storage currentAsset = erc20TokenAssets[
                 erc20assetIds[i]
             ];
             if (
@@ -329,24 +329,22 @@ contract DTRUST is ERC1155 {
                 currentAsset.erc20TokenId = 0;
                 currentAsset.erc20TokenAmount = 0;
 
-                erc20TokenAssets[erc20assetIds[i]] = currentAsset;
-                erc20TokenIds[countOfToken] = erc20assetIds[i];
-
                 countOfToken++;
                 continue;
             }
 
             currentAsset.erc20TokenAmount -= erc20PaymentPerFrequency;
+
+            erc20TokenIds[countOfToken] = erc20assetIds[i];
             amountsOfPayment[countOfToken] = erc20PaymentPerFrequency;
 
-            erc20TokenAssets[erc20assetIds[i]] = currentAsset;
             countOfToken++;
         }
         require(countOfToken > 0, "No assets");
 
         _burnBatch(msg.sender, erc20TokenIds, amountsOfPayment);
 
-        emit PayToBeneficiary(erc20assetIds, amountsOfPayment);
+        emit PayToBeneficiary(erc20TokenIds, amountsOfPayment);
     }
 
     function schedulePaymentERC721Assets() internal {
