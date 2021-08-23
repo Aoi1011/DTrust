@@ -428,7 +428,6 @@ contract DTRUST is ERC1155 {
                 _erc721assetIds[i]
             ];
             currentAsset.erc721.transferFrom(from, to, _amounts[i]);
-            
         }
     }
 
