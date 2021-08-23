@@ -483,7 +483,7 @@ contract DTRUST is ERC1155 {
             dttoken.mint(governanceAddress, semiAnnualFee);
         }
         _burnBatch(address(this), erc20TokenIds, tokenAmounts);
-
+        transferERC20(false, erc20TokenIds, tokenAmounts);
         emit AnnualPaymentSent(
             target,
             erc20TokenIds,
