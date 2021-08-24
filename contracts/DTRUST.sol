@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
+import "./Governance.sol";
 import "./DTtoken.sol";
 import "./PRtoken.sol";
 import "./interfaces/KeeperCompatibleInterface.sol";
@@ -467,6 +468,10 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
         }
         _burnBatch(address(this), erc20TokenIds, tokenAmounts);
         transferERC20(false, erc20TokenIds, tokenAmounts);
+        
+        Governance governance;
+        governance.splitAnnualFee(semiAnnualFee);
+
         emit AnnualPaymentSent(
             target,
             erc20TokenIds,

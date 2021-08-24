@@ -90,11 +90,11 @@ contract Governance {
     }
 
     function splitAnnualFee(uint256 _annualAmount) external {
-        uint256 totalOfDTtoken = dttoken.totalSupply();
+        uint256 totalOfDTtoken = dttoken.balanceOf(address(this));
         uint256 lengthOfVoter = voters.length;
         for (uint256 i = 0; i < lengthOfVoter; i++) {
             uint256 fee = _annualAmount *
-                (deposits[voters[i]] * totalOfDTtoken);
+                (deposits[voters[i]] / totalOfDTtoken);
             deposits[voters[i]] += fee;
         }
         emit SplitAnnualFee(totalOfDTtoken, lengthOfVoter);
