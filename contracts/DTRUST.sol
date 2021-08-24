@@ -564,10 +564,33 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
 
     function checkUpkeep(bytes calldata checkData)
         external
+        view
         override
         returns (bool upkeepNeeded, bytes memory performData)
     {
-        
+        uint256 lengthOfErc20Assets = erc20assetIds.length;
+        uint256 lengthOfErc721Assets = erc721assetIds.length;
+        for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
+            ERC20TokenAsset storage currentERC20Asset = erc20TokenAssets[
+                erc20assetIds[i]
+            ];
+
+            if (block.timestamp <= currentERC20Asset.lockedUntil) {
+                upkeepNeeded = true;
+                break;
+            }
+        }
+        for (uint256 i = 0; i < lengthOfErc721Assets; i++) {
+            ERC721TokenAsset storage currentERC721Asset = erc721TokenAssets[
+                erc721assetIds[i]
+            ];
+
+            if (block.timestamp <= currentERC721Asset.lockedUntil) {
+                upkeepNeeded = true;
+                break;
+            }
+        }
+        upkeepNeeded = false;
     }
 
     function performUpkeep(bytes calldata performData) external override {}
