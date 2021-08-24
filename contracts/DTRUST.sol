@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "./DTtoken.sol";
 import "./PRtoken.sol";
-import "./interfaces/SchedulerInterface.sol";
 import "./interfaces/KeeperCompatibleInterface.sol";
 import "./interfaces/IMyERC20.sol";
 import "./interfaces/IMyERC721.sol";
@@ -51,8 +50,6 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
         uint256 nextPayment;
         bool isTwoYear;
     }
-
-    SchedulerInterface public scheduler;
 
     uint256 private _AnualFeeTotal = 0;
     uint256 public basisPoint; // for 2 year
@@ -143,8 +140,6 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
         settlor = _settlor;
         beneficiary = _beneficiary;
         trustee = _trustee;
-
-        scheduler = SchedulerInterface(_deployerAddress);
 
         subscription = Subscription(
             block.timestamp,
