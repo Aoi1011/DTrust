@@ -20,7 +20,8 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
     enum TypeOfPayment {
         ERC20,
         ERC721,
-        AnnualFee
+        AnnualFee,
+        None
     }
 
     struct ERC20TokenAsset {
@@ -45,6 +46,7 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
         bool isTwoYear;
     }
 
+    TypeOfPayment typeOfPayment;
     uint256 private _AnualFeeTotal = 0;
     uint256 public basisPoint; // for 2 year
     uint256 public constant payAnnualFrequency = 730 days;
@@ -479,21 +481,29 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
 
     function checkUpkeep(bytes calldata checkData)
         external
-        view
         override
         returns (bool upkeepNeeded, bytes memory performData)
     {
         uint256 lengthOfErc20Assets = erc20assetIds.length;
         uint256 lengthOfErc721Assets = erc721assetIds.length;
         upkeepNeeded = false;
-        for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
-            ERC20TokenAsset storage currentERC20Asset = erc20TokenAssets[
-                erc20assetIds[i]
-            ];
 
-            if (block.timestamp <= currentERC20Asset.lockedUntil) {
-                upkeepNeeded = true;
-                break;
+        if (block.timestamp <= subscription.nextPayment) {
+            upkeepNeeded = true;
+            typeOfPayment = TypeOfPayment.AnnualFee;
+        }
+
+        if (!upkeepNeeded) {
+            for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
+                ERC20TokenAsset storage currentERC20Asset = erc20TokenAssets[
+                    erc20assetIds[i]
+                ];
+
+                if (block.timestamp <= currentERC20Asset.lockedUntil) {
+                    upkeepNeeded = true;
+                    typeOfPayment = TypeOfPayment.ERC20;
+                    break;
+                }
             }
         }
         if (!upkeepNeeded) {
@@ -504,6 +514,7 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
 
                 if (block.timestamp <= currentERC721Asset.lockedUntil) {
                     upkeepNeeded = true;
+                    typeOfPayment = TypeOfPayment.ERC721;
                     break;
                 }
             }
