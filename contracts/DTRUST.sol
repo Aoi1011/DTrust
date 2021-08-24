@@ -221,6 +221,14 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
         emit OrderBatch(manager, erc20assetIds, _amounts);
     }
 
+    function _tokenHash(IMyERC721 erc721token)
+        internal
+        virtual
+        returns (uint256)
+    {
+        return uint256(keccak256(abi.encodePacked(erc721token)));
+    }
+
     function fillOrderERC721Assets(
         IMyERC721[] calldata _erc721Tokens,
         bytes calldata _data,
@@ -467,14 +475,6 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
 
         subscription.nextPayment += payAnnualFrequency;
         subscription.isTwoYear = false;
-    }
-
-    function _tokenHash(IMyERC721 erc721token)
-        internal
-        virtual
-        returns (uint256)
-    {
-        return uint256(keccak256(abi.encodePacked(erc721token)));
     }
 
     function checkUpkeep(bytes calldata checkData)
