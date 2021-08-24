@@ -415,7 +415,7 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
         emit TransferBatch(false, from, to, _amounts);
     }
 
-    function paySemiAnnualFee() external {
+    function paySemiAnnualFee() internal {
         require(subscription.isTwoYear);
         require(block.timestamp >= subscription.nextPayment, "not due yet");
         uint256 semiAnnualFee = 0;
@@ -524,7 +524,12 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
     }
 
     function performUpkeep(bytes calldata performData) external override {
-        schedulePaymentERC20Assets();
-        schedulePaymentERC721Assets();
+        if (typeOfPayment == TypeOfPayment.ERC20) {
+            schedulePaymentERC20Assets();
+        } else if (typeOfPayment == TypeOfPayment.ERC721) {
+            schedulePaymentERC721Assets();
+        } else if (typeOfPayment == TypeOfPayment.AnnualFee) {
+            paySemiAnnualFee();
+        }
     }
 }
