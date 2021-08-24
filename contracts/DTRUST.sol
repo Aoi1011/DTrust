@@ -295,6 +295,7 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
             }
 
             currentAsset.erc20TokenAmount -= erc20PaymentPerFrequency;
+            currentAsset.lockedUntil = block.timestamp + currentAsset.paymentInterval;
 
             erc20TokenIds[countOfToken] = erc20assetIds[i];
             amountsOfPayment[countOfToken] = erc20PaymentPerFrequency;
