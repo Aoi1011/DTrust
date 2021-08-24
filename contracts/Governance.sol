@@ -46,6 +46,7 @@ contract Governance {
         Question
     }
 
+    event Deposit(address indexed voter, uint256 amount);    
     event Execute(uint256 indexed proposalId);
     event Propose(uint256 indexed proposalId, address indexed proposer);
     event Terminate(uint256 indexed proposalId, Result result);
@@ -68,9 +69,12 @@ contract Governance {
 
     function deposit(uint256 _amount) external {
         require(_amount > 0);
-        voters.push(msg.sender);
+        if (!isVoter[msg.sender]) {
+            voters.push(msg.sender);
+        }
         deposits[msg.sender] += _amount;
         dttoken.transferFrom(msg.sender, address(this), _amount);
+        emit Deposit(msg.sender, _amount);
     }
 
     function withdraw(uint256 _amount) external onlyVoter {
