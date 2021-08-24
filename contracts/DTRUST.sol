@@ -12,14 +12,10 @@ import "./interfaces/IMyERC721.sol";
 import "./libraries/Strings.sol";
 
 contract DTRUST is ERC1155, KeeperCompatibleInterface {
-    // Library///////
     using Strings for string;
-    /////////////////
 
-    // constants/////
     uint256 private constant PACK_INDEX =
         0x0000000000000000000000000000000000000000000000000000000000007FFF;
-    /////////////////
 
     enum ContractRights {
         TERMINATE,
@@ -32,7 +28,6 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
         uint256 erc20TokenId;
         uint256 erc20TokenAmount;
         uint256 erc20PaymentPerFrequency;
-        address currentScheduledTransaction;
         uint256 paymentInterval;
         uint256 lockedUntil;
     }
@@ -40,7 +35,6 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
     struct ERC721TokenAsset {
         IMyERC721 erc721;
         uint256 erc721TokenId;
-        address currentScheduledTransaction;
         uint256 paymentInterval;
         uint256 lockedUntil;
     }
@@ -221,7 +215,6 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
                 id,
                 _amounts[i],
                 _paymentPerFrequency[i],
-                address(0),
                 _paymentIntervals[i],
                 block.timestamp
             );
@@ -245,7 +238,6 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
             ERC721TokenAsset memory newerc721 = ERC721TokenAsset(
                 _erc721Tokens[i],
                 _erc1155TokenId,
-                address(0),
                 _paymentPerFrequency[i],
                 block.timestamp
             );
