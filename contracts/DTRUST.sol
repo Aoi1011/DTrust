@@ -519,6 +519,8 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
                 }
             }
         }
+
+        typeOfPayment = TypeOfPayment.None;
     }
 
     function performUpkeep(bytes calldata performData) external override {
