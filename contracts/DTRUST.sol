@@ -17,10 +17,10 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
     uint256 private constant PACK_INDEX =
         0x0000000000000000000000000000000000000000000000000000000000007FFF;
 
-    enum ContractRights {
-        TERMINATE,
-        SWAP,
-        POSTPONE
+    enum TypeOfPayment {
+        ERC20,
+        ERC721,
+        AnnualFee
     }
 
     struct ERC20TokenAsset {
