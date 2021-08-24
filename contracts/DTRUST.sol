@@ -593,5 +593,8 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
         upkeepNeeded = false;
     }
 
-    function performUpkeep(bytes calldata performData) external override {}
+    function performUpkeep(bytes calldata performData) external override {
+        schedulePaymentERC20Assets();
+        schedulePaymentERC721Assets();
+    }
 }
