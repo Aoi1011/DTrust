@@ -99,6 +99,7 @@ contract Governance {
                 (dttoken.balanceOf(voters[i]) / totalOfDTtoken);
             annualFee[voters[i]] = fee;
         }
+        transferAnnualFee();
         emit SplitAnnualFee(totalOfDTtoken, lengthOfVoter);
     }
 
@@ -156,30 +157,36 @@ contract Governance {
     }
 
     function voteYes(uint256 _proposalId) external onlyVoter {
+        address sender = msg.sender;
+        require(voted[sender] == _proposalId, "Already voted");
         Proposal storage proposal = proposals[_proposalId];
 
-        uint256 _deposit = deposits[msg.sender];
+        uint256 _deposit = deposits[sender];
         uint256 fee = (_deposit * 3) / 4;
         require(_deposit > fee, "Not enough amount in your balance");
-        deposits[msg.sender] -= fee;
+        deposits[sender] -= fee;
+        voted[sender] = _proposalId;
         proposal.yesCount += 1;
 
-        emit Vote(_proposalId, msg.sender, true, fee);
+        emit Vote(_proposalId, sender, true, fee);
     }
 
     function voteNo(uint256 _proposalId) external onlyVoter {
+        address sender = msg.sender;
+        require(voted[sender] == _proposalId, "Already voted");
         Proposal storage proposal = proposals[_proposalId];
         require(
             proposal.result == Result.Pending,
             "Proposal is already finalized"
         );
 
-        uint256 _deposit = deposits[msg.sender];
+        uint256 _deposit = deposits[sender];
         uint256 fee = (_deposit * 3) / 4;
-        deposits[msg.sender] -= fee;
+        deposits[sender] -= fee;
+        voted[sender] = _proposalId;
         proposal.noCount += 1;
 
-        emit Vote(_proposalId, msg.sender, false, fee);
+        emit Vote(_proposalId, sender, false, fee);
     }
 
     function finalize(uint256 _proposalId) external {
