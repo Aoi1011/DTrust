@@ -17,6 +17,8 @@ contract Governance {
     // voter => deposit
     mapping(address => uint256) public deposits;
 
+    mapping(address => uint256) public annualFee;
+
     mapping(address => bool) public isVoter;
 
     mapping(address => uint256) public voted;
@@ -90,14 +92,27 @@ contract Governance {
     }
 
     function splitAnnualFee(uint256 _annualAmount) external {
-        uint256 totalOfDTtoken = dttoken.balanceOf(address(this));
+        uint256 totalOfDTtoken = dttoken.totalSupply();
         uint256 lengthOfVoter = voters.length;
         for (uint256 i = 0; i < lengthOfVoter; i++) {
             uint256 fee = _annualAmount *
-                (deposits[voters[i]] / totalOfDTtoken);
-            deposits[voters[i]] += fee;
+                (dttoken.balanceOf(voters[i]) / totalOfDTtoken);
+            annualFee[voters[i]] = fee;
         }
         emit SplitAnnualFee(totalOfDTtoken, lengthOfVoter);
+    }
+
+    function transferAnnualFee() internal {
+        uint256 lengthOfVoter = voters.length;
+        for (uint256 i = 0; i < lengthOfVoter; i++) {
+            uint256 _amount = annualFee[voters[i]];
+            annualFee[voters[i]] = 0;
+            bool success = dttoken.transfer(voters[i], _amount);
+            if (!success) {
+                annualFee[voters[i]] = _amount;
+            }   
+            
+        }
     }
 
     function proposeForDtrustBasisPoint(uint256 _basisPoint)
