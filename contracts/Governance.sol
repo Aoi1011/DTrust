@@ -73,6 +73,7 @@ contract Governance {
         address sender = msg.sender;
         if (!isVoter[sender]) {
             voters.push(sender);
+            isVoter[sender] = true;
         }
         deposits[sender] += _amount;
         dttoken.transferFrom(sender, address(this), _amount);
