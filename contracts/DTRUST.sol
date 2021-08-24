@@ -295,7 +295,9 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
             }
 
             currentAsset.erc20TokenAmount -= erc20PaymentPerFrequency;
-            currentAsset.lockedUntil = block.timestamp + currentAsset.paymentInterval;
+            currentAsset.lockedUntil =
+                block.timestamp +
+                currentAsset.paymentInterval;
 
             erc20TokenIds[countOfToken] = erc20assetIds[i];
             amountsOfPayment[countOfToken] = erc20PaymentPerFrequency;
@@ -483,6 +485,7 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
     {
         uint256 lengthOfErc20Assets = erc20assetIds.length;
         uint256 lengthOfErc721Assets = erc721assetIds.length;
+        upkeepNeeded = false;
         for (uint256 i = 0; i < lengthOfErc20Assets; i++) {
             ERC20TokenAsset storage currentERC20Asset = erc20TokenAssets[
                 erc20assetIds[i]
@@ -493,17 +496,18 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
                 break;
             }
         }
-        for (uint256 i = 0; i < lengthOfErc721Assets; i++) {
-            ERC721TokenAsset storage currentERC721Asset = erc721TokenAssets[
-                erc721assetIds[i]
-            ];
+        if (!upkeepNeeded) {
+            for (uint256 i = 0; i < lengthOfErc721Assets; i++) {
+                ERC721TokenAsset storage currentERC721Asset = erc721TokenAssets[
+                    erc721assetIds[i]
+                ];
 
-            if (block.timestamp <= currentERC721Asset.lockedUntil) {
-                upkeepNeeded = true;
-                break;
+                if (block.timestamp <= currentERC721Asset.lockedUntil) {
+                    upkeepNeeded = true;
+                    break;
+                }
             }
         }
-        upkeepNeeded = false;
     }
 
     function performUpkeep(bytes calldata performData) external override {
