@@ -46,7 +46,8 @@ contract Governance {
         Question
     }
 
-    event Deposit(address indexed voter, uint256 amount);    
+    event Deposit(address indexed voter, uint256 amount);
+    event Withdraw(address indexed voter, uint256 amount);
     event Execute(uint256 indexed proposalId);
     event Propose(uint256 indexed proposalId, address indexed proposer);
     event Terminate(uint256 indexed proposalId, Result result);
@@ -69,19 +70,22 @@ contract Governance {
 
     function deposit(uint256 _amount) external {
         require(_amount > 0);
-        if (!isVoter[msg.sender]) {
-            voters.push(msg.sender);
+        address sender = msg.sender;
+        if (!isVoter[sender]) {
+            voters.push(sender);
         }
-        deposits[msg.sender] += _amount;
-        dttoken.transferFrom(msg.sender, address(this), _amount);
-        emit Deposit(msg.sender, _amount);
+        deposits[sender] += _amount;
+        dttoken.transferFrom(sender, address(this), _amount);
+        emit Deposit(sender, _amount);
     }
 
     function withdraw(uint256 _amount) external onlyVoter {
-        uint256 _deposit = deposits[msg.sender];
+        address sender = msg.sender;
+        uint256 _deposit = deposits[sender];
         require(_deposit > _amount, "Cannot withdraw!");
-        deposits[msg.sender] -= _amount;
+        deposits[sender] -= _amount;
         dttoken.transfer(msg.sender, _amount);
+        emit Withdraw(sender, _amount);
     }
 
     function splitAnnualFee(uint256 _annualAmount) external {
