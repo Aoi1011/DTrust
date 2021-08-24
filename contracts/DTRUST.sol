@@ -7,11 +7,12 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./DTtoken.sol";
 import "./PRtoken.sol";
 import "./interfaces/SchedulerInterface.sol";
+import "./interfaces/KeeperCompatibleInterface.sol";
 import "./interfaces/IMyERC20.sol";
 import "./interfaces/IMyERC721.sol";
 import "./libraries/Strings.sol";
 
-contract DTRUST is ERC1155 {
+contract DTRUST is ERC1155, KeeperCompatibleInterface {
     // Library///////
     using Strings for string;
     /////////////////
@@ -560,4 +561,14 @@ contract DTRUST is ERC1155 {
     {
         return uint256(keccak256(abi.encodePacked(erc721token)));
     }
+
+    function checkUpkeep(bytes calldata checkData)
+        external
+        override
+        returns (bool upkeepNeeded, bytes memory performData)
+    {
+        
+    }
+
+    function performUpkeep(bytes calldata performData) external override {}
 }
