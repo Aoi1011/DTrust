@@ -157,21 +157,7 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
 
         hasPromoter = _hasPromoter;
         promoter = _promoter;
-
-        scheduleERC20();
-        scheduleERC721();
     }
-
-    fallback() external payable {
-        if (msg.value > 0) {
-            //this handles recieving remaining funds sent while scheduling (0.1 ether)
-            return;
-        }
-
-        process();
-    }
-
-    receive() external payable {}
 
     function setURI(string memory _newURI) external onlyManager {
         _setURI(_newURI);
@@ -495,63 +481,6 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
 
         subscription.nextPayment += payAnnualFrequency;
         subscription.isTwoYear = false;
-    }
-
-    function process() internal {
-        schedulePaymentERC20Assets();
-        schedulePaymentERC721Assets();
-        scheduleERC20();
-        scheduleERC721();
-    }
-
-    function scheduleERC20() internal {
-        for (uint256 i = 0; i < erc20assetIds.length; i++) {
-            erc20TokenAssets[i].lockedUntil =
-                block.timestamp +
-                erc20TokenAssets[erc20assetIds[i]].paymentInterval;
-            erc20TokenAssets[erc20assetIds[i]]
-                .currentScheduledTransaction = scheduler.schedule{
-                value: 0.1 ether
-            }(
-                address(this),
-                "",
-                [
-                    1000000,
-                    0,
-                    255,
-                    erc20TokenAssets[i].lockedUntil,
-                    20000000000 wei,
-                    20000000000 wei,
-                    20000000000 wei,
-                    30000000000 wei
-                ]
-            );
-        }
-        emit PaymentERC20Scheduled(erc20assetIds, beneficiary);
-    }
-
-    function scheduleERC721() internal {
-        for (uint256 i = 0; i < erc721assetIds.length; i++) {
-            erc721TokenAssets[i].lockedUntil =
-                block.timestamp +
-                erc721TokenAssets[i].paymentInterval;
-            erc721TokenAssets[i].currentScheduledTransaction = scheduler
-                .schedule{value: 0.1 ether}(
-                address(this),
-                "",
-                [
-                    1000000,
-                    0,
-                    255,
-                    erc721TokenAssets[i].lockedUntil,
-                    20000000000 wei,
-                    20000000000 wei,
-                    20000000000 wei,
-                    30000000000 wei
-                ]
-            );
-        }
-        emit PaymentERC721Scheduled(erc721assetIds, beneficiary);
     }
 
     function _tokenHash(IMyERC721 erc721token)
