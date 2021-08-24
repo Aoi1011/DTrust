@@ -60,13 +60,10 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
     bool public hasPromoter;
     Subscription private subscription;
 
-    // storage//////////////////////////
     mapping(uint256 => bool) public existToken;
     mapping(uint256 => ERC20TokenAsset) public erc20TokenAssets;
     mapping(uint256 => ERC721TokenAsset) public erc721TokenAssets;
-    /////////////////////////////////////
 
-    // event/////////////////////////////
     event OrderBatch(
         address indexed _target,
         uint256[] indexed _ids,
@@ -100,7 +97,6 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
         uint256 value
     );
     event PayToBeneficiary(uint256[] ids, uint256[] amounts);
-    ////////////////////////////////////////
 
     modifier onlyManager() {
         require(
@@ -216,7 +212,7 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
                 _amounts[i],
                 _paymentPerFrequency[i],
                 _paymentIntervals[i],
-                block.timestamp
+                block.timestamp + _paymentIntervals[i]
             );
             erc20TokenAssets[id] = newerc20;
         }
@@ -239,7 +235,7 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
                 _erc721Tokens[i],
                 _erc1155TokenId,
                 _paymentPerFrequency[i],
-                block.timestamp
+                block.timestamp + _paymentPerFrequency[i]
             );
             erc721TokenAssets[_erc1155TokenId] = newerc721;
             amounts[i] = 1;
