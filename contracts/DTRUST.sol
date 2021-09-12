@@ -48,20 +48,20 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
     }
 
     TypeOfPayment typeOfPayment;
-    uint256 private _AnualFeeTotal = 0;
-    uint256 public basisPoint; // for 2 year
+    uint256 private constant _AnualFeeTotal = 0;
+    uint256 public immutable basisPoint; // for 2 year
     uint256 public constant payAnnualFrequency = 730 days;
     uint256[] private erc20assetIds;
     uint256[] private erc721assetIds;
-    address public governanceAddress;
-    address payable public manager;
-    address payable public settlor;
-    address payable public trustee;
-    address public beneficiary;
-    address public promoter;
-    string public dTrustUri;
-    bool public hasPromoter;
-    Subscription private subscription;
+    address public immutable governanceAddress;
+    address payable public immutable manager;
+    address payable public immutable settlor;
+    address payable public immutable trustee;
+    address public immutable beneficiary;
+    address public immutable promoter;
+    string public immutable dTrustUri;
+    bool public immutable hasPromoter;
+    Subscription private immutable subscription;
 
     mapping(uint256 => bool) public existToken;
     mapping(uint256 => ERC20TokenAsset) public erc20TokenAssets;
