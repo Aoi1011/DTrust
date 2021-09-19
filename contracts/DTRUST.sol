@@ -59,9 +59,9 @@ contract DTRUST is ERC1155, KeeperCompatibleInterface {
     address payable public immutable trustee;
     address public immutable beneficiary;
     address public immutable promoter;
-    string public immutable dTrustUri;
+    string public dTrustUri;
     bool public immutable hasPromoter;
-    Subscription private immutable subscription;
+    Subscription private subscription;
 
     mapping(uint256 => bool) public existToken;
     mapping(uint256 => ERC20TokenAsset) public erc20TokenAssets;
